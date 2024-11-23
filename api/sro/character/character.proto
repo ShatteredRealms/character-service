@@ -31,7 +31,7 @@ service CharacterService {
     };
   }
 
-  rpc DeleteCharacter(CharacterTarget) returns (google.protobuf.Empty) {
+  rpc DeleteCharacter(sro.CharacterTarget) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : "/v1/characters/id/{id}"
       additional_bindings : {delete : "/v1/characters/name/{name}"}
@@ -70,34 +70,12 @@ service CharacterService {
   }
 }
 
-message PlayTimeResponse { uint64 time = 1; }
-
-message AddPlayTimeRequest {
-  CharacterTarget character = 1;
-  uint64 time = 2;
-}
-
 message CreateCharacterRequest {
   sro.UserTarget owner = 1;
   string name = 2;
   string gender = 3;
   string realm = 4;
-  sro.gamebackend.DimensionTarget dimension = 5;
-}
-
-message EditCharacterRequest {
-  CharacterTarget target = 1;
-
-  // The user id that owns the character
-  oneof optional_owner_id { string owner_id = 3; }
-  oneof optional_new_name { string new_name = 4; }
-  oneof optional_gender { string gender = 5; }
-  oneof optional_realm { string realm = 6; }
-
-  oneof optional_play_time { uint64 play_time = 7; }
-
-  oneof optional_location { sro.Location location = 8; }
-  oneof optional_dimension { sro.gamebackend.DimensionTarget dimension = 9; }
+  sro.DimensionTarget dimension = 5;
 }
 
 message CharacterDetails {
@@ -108,7 +86,29 @@ message CharacterDetails {
   string realm = 5;
   uint64 play_time = 6;
   sro.Location location = 8;
-  string dimension = 9;
+  sro.DimensionTarget dimension = 9;
 }
 
 message CharactersDetails { repeated CharacterDetails characters = 1; }
+
+message EditCharacterRequest {
+  sro.CharacterTarget target = 1;
+
+  // The user id that owns the character
+  oneof optional_owner_id { string owner_id = 3; }
+  oneof optional_new_name { string new_name = 4; }
+  oneof optional_gender { string gender = 5; }
+  oneof optional_realm { string realm = 6; }
+
+  oneof optional_play_time { uint64 play_time = 7; }
+
+  oneof optional_location { sro.Location location = 8; }
+  oneof optional_dimension { sro.DimensionTarget dimension = 9; }
+}
+
+message PlayTimeResponse { uint64 time = 1; }
+
+message AddPlayTimeRequest {
+  sro.CharacterTarget character = 1;
+  uint64 time = 2;
+}

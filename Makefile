@@ -37,7 +37,7 @@ time=$(shell date +%s)
 
 PROTO_DIR=$(ROOT_DIR)/api
 
-PROTO_FILES = $(shell find $(PROTO_DIR) -name '*.proto')
+PROTO_FILES = $(shell find $(PROTO_DIR) -name '*.proto' -not -path '$(PROTO_DIR)/google/*')
 
 MOCK_INTERFACES = $(shell egrep -rl --include="*.go" "type (\w*) interface {" $(ROOT_DIR)/pkg | sed "s/.go$$//")
 
@@ -50,7 +50,7 @@ MOCK_INTERFACES = $(shell egrep -rl --include="*.go" "type (\w*) interface {" $(
 #                  __/ |
 #                 |___/
 
-.PHONY: test report mocks clean-mocks report-watch
+.PHONY: test report mocks clean-mocks report-watch $(APP_NAME)
 test:
 	ginkgo --race -p --cover -covermode atomic -coverprofile=coverage.out --output-dir $(ROOT_DIR)/ $(ROOT_DIR)/pkg/...
 
@@ -78,30 +78,30 @@ mocks: clean-mocks
 		mockgen -package=mocks -source=$${file}.go -destination="$(ROOT_DIR)/pkg/mocks/$${file##*/}_mock.go"; \
 	done
 
-build: $(APP_NAME)
-	go build -ldflags="-X 'github.com/ShatteredRealms/$*/pkg/config/default.Version=$(BASE_VERSION)'" -o $(ROOT_DIR)/bin/$* $(ROOT_DIR)/cmd/$*  
+build: 
+	go build -ldflags="-X 'github.com/ShatteredRealms/$(APP_NAME)/pkg/config/default.Version=$(BASE_VERSION)'" -o $(ROOT_DIR)/bin/$(APP_NAME) $(ROOT_DIR)/cmd/$(APP_NAME)  
 
-run: $(APP_NAME)
-	go run $(ROOT_DIR)/cmd/$*
+run:
+	go run $(ROOT_DIR)/cmd/$(APP_NAME)
 
-run-watch: $(APP_NAME)
-	gow run $(ROOT_DIR)/cmd/$*
+run-watch:
+	gow run $(ROOT_DIR)/cmd/$(APP_NAME)
 
 deploy: aws-docker-login push
 
-docker: $(APP_NAME)
-	docker build --build-arg APP_VERSION=$(BASE_VERSION) -t sro-$* -f build/$*.Dockerfile .
+docker:
+	docker build --build-arg APP_VERSION=$(BASE_VERSION) -t sro-$(APP_NAME) -f build/$(APP_NAME).Dockerfile .
 
 aws-docker-login:
 	aws ecr get-login-password | docker login --username AWS --password-stdin $(SRO_BASE_REGISTRY)
 
-push: $(APP_NAME)
-	docker tag sro-$* $(SRO_REGISTRY)/$*:latest
-	docker tag sro-$* $(SRO_REGISTRY)/$*:$(BASE_VERSION)
-	docker tag sro-$* $(SRO_REGISTRY)/$*:$(BASE_VERSION)-$(COMMIT_HASH)
-	docker push $(SRO_REGISTRY)/$*:latest
-	docker push $(SRO_REGISTRY)/$*:$(BASE_VERSION)
-	docker push $(SRO_REGISTRY)/$*:$(BASE_VERSION)-$(COMMIT_HASH)
+push:
+	docker tag sro-$(APP_NAME) $(SRO_REGISTRY)/$(APP_NAME):latest
+	docker tag sro-$(APP_NAME) $(SRO_REGISTRY)/$(APP_NAME):$(BASE_VERSION)
+	docker tag sro-$(APP_NAME) $(SRO_REGISTRY)/$(APP_NAME):$(BASE_VERSION)-$(COMMIT_HASH)
+	docker push $(SRO_REGISTRY)/$(APP_NAME):latest
+	docker push $(SRO_REGISTRY)/$(APP_NAME):$(BASE_VERSION)
+	docker push $(SRO_REGISTRY)/$(APP_NAME):$(BASE_VERSION)-$(COMMIT_HASH)
 
 docker-push: docker push
 
@@ -123,5 +123,4 @@ $(PROTO_FILES):
 		--grpc-gateway_opt "logtostderr=true"
 
 install-tools:
-	  cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go get %
-	  cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
+	  cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %@latest
