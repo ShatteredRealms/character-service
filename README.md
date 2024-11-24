@@ -5,6 +5,7 @@
 ## Requirements
 **Required:**
 * Golang ~> 1.23
+
 **Preferred:**
 * Make
 * Docker
@@ -23,11 +24,13 @@ make protos
 
 ## Building
 The application version is automatically taken as the latest version tag.
-**Binary:** `make build` the output result will be placed in the `bin` folder in the project root directory.\ 
-**Docker:** \
-    `make docker` builds a docker image called `sro-<app-name>` with 3 tags variants `latest`, `${version}`, and `${version}-${commit hash}`.\
-    `make push` push the image to the docker repository.\
-    `make docker push` runs docker then push.\
+
+**Binary:** `make build` the output result will be placed in the `bin` folder in the project root directory.
+
+**Docker:**
+* `make docker` builds a docker image called `sro-<app-name>` with 3 tags variants `latest`, `${version}`, and `${version}-${commit hash}`.
+* `make push` push the image to the docker repository.
+* `make docker push` runs docker then push.
 
 Note: A helper command `make aws-docker-login` is available to authenticate with the default aws credential context if pushing to AWS ECR.
 
