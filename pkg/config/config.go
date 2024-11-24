@@ -4,10 +4,12 @@ import (
 	"context"
 
 	cconfig "github.com/ShatteredRealms/go-common-service/pkg/config"
+	"github.com/sirupsen/logrus"
 )
 
 var (
-	Version = "v1.0.0"
+	Version     = "v1.0.0"
+	ServiceName = "CharacterService"
 )
 
 type CharacterConfig struct {
@@ -20,17 +22,17 @@ func NewCharacterConfig(ctx context.Context) (*CharacterConfig, error) {
 		BaseConfig: cconfig.BaseConfig{
 			Server: cconfig.ServerAddress{
 				Host: "localhost",
-				Port: "8085",
+				Port: "8081",
 			},
 			Keycloak: cconfig.KeycloakConfig{
-				BaseURL:      "localhost:8080",
+				BaseURL:      "http://localhost:8080",
 				Realm:        "default",
 				Id:           "7b575e9b-c687-4cdc-b210-67c59b5f380f",
 				ClientId:     "sro-character-service",
 				ClientSecret: "**********",
 			},
 			Mode:                "local",
-			LogLevel:            0,
+			LogLevel:            logrus.DebugLevel,
 			OpenTelemtryAddress: "localhost:4317",
 		},
 		Postgres: cconfig.DBPoolConfig{
