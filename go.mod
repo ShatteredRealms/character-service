@@ -3,7 +3,7 @@ module github.com/ShatteredRealms/character-service
 go 1.23.3
 
 require (
-	github.com/ShatteredRealms/go-common-service v0.2.7
+	github.com/ShatteredRealms/go-common-service v0.4.0
 	github.com/WilSimpson/gocloak/v13 v13.11.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0
 	github.com/mitranim/gow v0.0.0-20231026105220-af11a6e1e9eb
@@ -25,6 +25,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-resty/resty/v2 v2.16.2 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/google/pprof v0.0.0-20241122213907-cbe949e5a41b // indirect
 	github.com/google/uuid v1.6.0 // indirect

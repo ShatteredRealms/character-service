@@ -60,6 +60,8 @@ github.com/ShatteredRealms/go-common-service v0.2.1 h1:1voTqvBcmvEZjGwup4fl488Lj
 github.com/ShatteredRealms/go-common-service v0.2.1/go.mod h1:lS+mC/GemB0/yRJSdJRhD0v4JWNb8lsXH0g2BZXOXbw=
 github.com/ShatteredRealms/go-common-service v0.2.7 h1:voUhXZsoRNVzpsDrkKZQPUgxTARRKUGwqyjiyik3tZA=
 github.com/ShatteredRealms/go-common-service v0.2.7/go.mod h1:lS+mC/GemB0/yRJSdJRhD0v4JWNb8lsXH0g2BZXOXbw=
+github.com/ShatteredRealms/go-common-service v0.4.0 h1:5S5wNKnAqlx4ujAWjo+b6Bt1s3WFrrq//o8HjdxfaMY=
+github.com/ShatteredRealms/go-common-service v0.4.0/go.mod h1:W4AsfaI3H8OM+CuSqYOarQeWttSSBxJNujV9Tyc/FNQ=
 github.com/WilSimpson/gocloak/v13 v13.11.2 h1:PAPQVBxj3rknQKmyaDudGYPAEn/s0fkJUGEm8iSU7xs=
 github.com/WilSimpson/gocloak/v13 v13.11.2/go.mod h1:gL+zCoQEsi6ZCsY8LNMFbOvJ6Fh0etJ9Xt+W4KaAzO8=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
@@ -154,6 +156,8 @@ github.com/go-task/slim-sprig/v3 v3.0.0/go.mod h1:W848ghGpv3Qj3dhTPRyJypKRiqCdHZ
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.3.2/go.mod h1:P1XiOD3dCwIKUDQYPy72D8LYyHL2YPYrpS2s69NZV8Q=
+github.com/golang-jwt/jwt/v4 v4.5.1 h1:JdqV9zKUdtaa9gdPlywC3aeoEsR681PlKC+4F5gQgeo=
+github.com/golang-jwt/jwt/v4 v4.5.1/go.mod h1:m21LjoU+eqJr34lmDMbreY2eSTRJ1cv77w39/MY0Ch0=
 github.com/golang-jwt/jwt/v5 v5.2.1 h1:OuVbFODueb089Lh128TAcimifWaLhJwVflnrgM17wHk=
 github.com/golang-jwt/jwt/v5 v5.2.1/go.mod h1:pqrtFR0X4osieyHYxtmOUWsAWrfe1Q5UVIyoH402zdk=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
