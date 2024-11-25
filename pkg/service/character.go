@@ -50,6 +50,12 @@ func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, 
 		Realm:     game.Realm(realm),
 		Dimension: &game.Dimension{Id: dimension},
 	}
+
+	err := character.Validate()
+	if err != nil {
+		return nil, err
+	}
+
 	return c.repo.CreateCharacter(ctx, character)
 }
 
