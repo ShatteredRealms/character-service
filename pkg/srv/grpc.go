@@ -7,6 +7,7 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus"
 	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 	commonpb "github.com/ShatteredRealms/go-common-service/pkg/pb"
@@ -77,7 +78,7 @@ func (c *characterServiceServer) AddCharacterPlayTime(ctx context.Context, reque
 
 	character, err = c.Context.CharacterService.AddCharacterPlaytime(ctx, character, request.Time)
 	if err != nil {
-		log.Logger.WithContext(ctx).Errorf("code %v: %w", ErrCharacterPlaytime, err)
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterPlaytime, err)
 		return nil, status.Error(codes.Internal, ErrCharacterPlaytime.Error())
 	}
 
@@ -101,9 +102,14 @@ func (c *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 
 	character, err := c.Context.CharacterService.CreateCharacter(ctx, request.OwnerId, request.Name, request.Gender, request.Realm, request.DimensionId)
 	if err != nil {
-		log.Logger.WithContext(ctx).Errorf("code %v: %w", ErrCharacterCreate, err)
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterCreate, err)
 		return nil, status.Error(codes.Internal, ErrCharacterCreate.Error())
 	}
+
+	c.Context.CharacterCreatedBus.Publish(ctx, bus.CharacterCreatedMessage{
+		ID:   character.Id.String(),
+		Name: character.Name,
+	})
 
 	return character.ToPb(), nil
 }
@@ -117,7 +123,7 @@ func (c *characterServiceServer) DeleteCharacter(ctx context.Context, request *c
 
 	_, err = c.Context.CharacterService.DeleteCharacter(ctx, request.Id)
 	if err != nil {
-		log.Logger.WithContext(ctx).Errorf("code %v: %w", ErrCharacterDelete, err)
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterDelete, err)
 		return nil, status.Error(codes.Internal, ErrCharacterDelete.Error())
 	}
 
@@ -167,7 +173,7 @@ func (c *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		if errors.Is(err, character.ErrValidation) {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
 		}
-		log.Logger.WithContext(ctx).Errorf("code %v: %w", ErrCharacterEdit, err)
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterEdit, err)
 		return nil, status.Error(codes.Internal, ErrCharacterEdit.Error())
 	}
 
@@ -193,7 +199,7 @@ func (c *characterServiceServer) GetCharacters(ctx context.Context, request *emp
 
 	characters, err := c.Context.CharacterService.GetCharacters(ctx)
 	if err != nil {
-		log.Logger.WithContext(ctx).Errorf("code %v: %w", ErrCharacterGet, err)
+		log.Logger.WithContext(ctx).Errorf("code %v: %e", ErrCharacterGet, err)
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
 	}
 
@@ -209,7 +215,7 @@ func (c *characterServiceServer) GetCharactersForUser(ctx context.Context, reque
 
 	characters, err := c.Context.CharacterService.GetCharactersByOwner(ctx, request.Id)
 	if err != nil {
-		log.Logger.WithContext(ctx).Errorf("code %v: %w", ErrCharacterGet, err)
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
 	}
 
