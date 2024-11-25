@@ -106,10 +106,7 @@ func (c *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 		return nil, status.Error(codes.Internal, ErrCharacterCreate.Error())
 	}
 
-	c.Context.CharacterCreatedBus.Publish(ctx, bus.CharacterCreatedMessage{
-		ID:   character.Id.String(),
-		Name: character.Name,
-	})
+	c.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{Id: character.Id.String(), Deleted: false})
 
 	return character.ToPb(), nil
 }
@@ -126,6 +123,8 @@ func (c *characterServiceServer) DeleteCharacter(ctx context.Context, request *c
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterDelete, err)
 		return nil, status.Error(codes.Internal, ErrCharacterDelete.Error())
 	}
+
+	c.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{Id: request.Id, Deleted: true})
 
 	return &emptypb.Empty{}, nil
 }

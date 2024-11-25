@@ -15,15 +15,16 @@ import (
 type CharacterContext struct {
 	*commonsrv.Context
 
-	CharacterCreatedBus bus.MessageBus[bus.CharacterCreatedMessage]
-	CharacterService    service.CharacterService
-	DimensionService    service.DimensionService
+	CharacterBusWriter bus.MessageBusWriter[bus.CharacterMessage]
+
+	CharacterService service.CharacterService
+	DimensionService service.DimensionService
 }
 
 func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, serviceName string) (*CharacterContext, error) {
 	characterCtx := &CharacterContext{
-		Context:             commonsrv.NewContext(&cfg.BaseConfig, serviceName),
-		CharacterCreatedBus: bus.NewKafkaMessageBus(cfg.Kafka, serviceName, bus.CharacterCreatedMessage{}),
+		Context:            commonsrv.NewContext(&cfg.BaseConfig, serviceName),
+		CharacterBusWriter: bus.NewKafkaMessageBusWriter(cfg.Kafka, bus.CharacterMessage{}),
 	}
 	ctx, span := characterCtx.Tracer.Start(ctx, "context.character.new")
 	defer span.End()
