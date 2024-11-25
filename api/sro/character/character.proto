@@ -1,58 +1,47 @@
 syntax = "proto3";
 package sro.character;
-option go_package = "pkg/pb";
+option go_package = "github.com/ShatteredRealms/character-service/pkg/pb;pb";
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "sro/globals.proto";
 
 service CharacterService {
+  rpc GetCharacter(sro.TargetId) returns (CharacterDetails) {
+    option (google.api.http) = {
+      get : "/v1/characters/id/{id}"
+    };
+  }
+
   rpc GetCharacters(google.protobuf.Empty) returns (CharactersDetails) {
     option (google.api.http) = {
       get : "/v1/characters"
     };
   }
 
-  rpc GetCharacter(sro.CharacterTarget) returns (CharacterDetails) {
+  rpc GetCharactersForUser(sro.TargetId) returns (CharactersDetails) {
     option (google.api.http) = {
-      get : "/v1/characters/id/{id}"
-      additional_bindings : {get : "/v1/characters/name/{name}"}
+      get : "/v1/characters/owner/{id}"
     };
   }
 
   rpc CreateCharacter(CreateCharacterRequest) returns (CharacterDetails) {
     option (google.api.http) = {
-      post : "/v1/users/id/{owner.id}/characters"
+      post : "/v1/characters"
       body : "*"
-      additional_bindings : {
-        post : "/v1/users/name/{owner.username}/characters"
-        body : "*"
-      }
     };
   }
 
-  rpc DeleteCharacter(sro.CharacterTarget) returns (google.protobuf.Empty) {
+  rpc DeleteCharacter(sro.TargetId) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : "/v1/characters/id/{id}"
-      additional_bindings : {delete : "/v1/characters/name/{name}"}
-    };
-  }
-
-  rpc GetCharactersForUser(sro.UserTarget) returns (CharactersDetails) {
-    option (google.api.http) = {
-      get : "/v1/users/id/{id}/characters"
-      additional_bindings : {get : "/v1/users/username/{username}/characters"}
     };
   }
 
   rpc EditCharacter(EditCharacterRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put : "/v1/characters/id/{target.id}"
+      put : "/v1/characters/id/{character_id}"
       body : "*"
-      additional_bindings : {
-        put : "/v1/characters/name/{target.name}"
-        body : "*"
-      }
     };
   }
 
@@ -60,39 +49,35 @@ service CharacterService {
   // playtime
   rpc AddCharacterPlayTime(AddPlayTimeRequest) returns (PlayTimeResponse) {
     option (google.api.http) = {
-      put : "/v1/characters/id/{character.id}/playtime"
+      put : "/v1/characters/id/{character_id}/playtime"
       body : "*"
-      additional_bindings : {
-        put : "/v1/characters/name/{character.name}/playtime"
-        body : "*"
-      }
     };
   }
 }
 
 message CreateCharacterRequest {
-  sro.UserTarget owner = 1;
+  string owner_id = 1;
   string name = 2;
   string gender = 3;
   string realm = 4;
-  sro.DimensionTarget dimension = 5;
+  string dimension_id = 5;
 }
 
 message CharacterDetails {
-  uint64 id = 1;
-  string owner = 2;
+  string character_id = 1;
+  string owner_id = 2;
   string name = 3;
   string gender = 4;
   string realm = 5;
   uint64 play_time = 6;
   sro.Location location = 8;
-  sro.DimensionTarget dimension = 9;
+  string dimension_id = 9;
 }
 
 message CharactersDetails { repeated CharacterDetails characters = 1; }
 
 message EditCharacterRequest {
-  sro.CharacterTarget target = 1;
+  string character_id = 1;
 
   // The user id that owns the character
   oneof optional_owner_id { string owner_id = 3; }
@@ -103,12 +88,12 @@ message EditCharacterRequest {
   oneof optional_play_time { uint64 play_time = 7; }
 
   oneof optional_location { sro.Location location = 8; }
-  oneof optional_dimension { sro.DimensionTarget dimension = 9; }
+  oneof optional_dimension { string dimension_id = 9; }
 }
 
 message PlayTimeResponse { uint64 time = 1; }
 
 message AddPlayTimeRequest {
-  sro.CharacterTarget character = 1;
+  string character_id = 1;
   uint64 time = 2;
 }

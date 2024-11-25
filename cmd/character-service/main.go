@@ -29,7 +29,11 @@ func main() {
 		return
 	}
 
-	srvCtx := srv.NewCharacterContext(&cfg.BaseConfig, config.ServiceName)
+	srvCtx, err := srv.NewCharacterContext(ctx, cfg, config.ServiceName)
+	if err != nil {
+		log.Logger.WithContext(ctx).Errorf("character server context: %v", err)
+		return
+	}
 	ctx, span := srvCtx.Tracer.Start(ctx, "main")
 	defer span.End()
 

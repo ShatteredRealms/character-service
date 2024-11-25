@@ -14,6 +14,7 @@ import (
 	"io"
 	"net/http"
 
+	pb_0 "github.com/ShatteredRealms/go-common-service/pkg/pb"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
 	"google.golang.org/grpc"
@@ -36,6 +37,42 @@ var (
 	_ = metadata.Join
 )
 
+func request_CharacterService_GetCharacter_0(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq pb_0.TargetId
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := client.GetCharacter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_CharacterService_GetCharacter_0(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq pb_0.TargetId
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := server.GetCharacter(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_CharacterService_GetCharacters_0(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq emptypb.Empty
@@ -54,11 +91,9 @@ func local_request_CharacterService_GetCharacters_0(ctx context.Context, marshal
 	return msg, metadata, err
 }
 
-var filter_CharacterService_GetCharacter_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-
-func request_CharacterService_GetCharacter_0(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_CharacterService_GetCharactersForUser_0(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CharacterTarget
+		protoReq pb_0.TargetId
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -66,28 +101,17 @@ func request_CharacterService_GetCharacter_0(ctx context.Context, marshaler runt
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	if protoReq.Target == nil {
-		protoReq.Target = &CharacterTarget_Id{}
-	} else if _, ok := protoReq.Target.(*CharacterTarget_Id); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *CharacterTarget_Id, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*CharacterTarget_Id).Id, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_GetCharacter_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := client.GetCharacter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetCharactersForUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_CharacterService_GetCharacter_0(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_CharacterService_GetCharactersForUser_0(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CharacterTarget
+		protoReq pb_0.TargetId
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -95,82 +119,11 @@ func local_request_CharacterService_GetCharacter_0(ctx context.Context, marshale
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	if protoReq.Target == nil {
-		protoReq.Target = &CharacterTarget_Id{}
-	} else if _, ok := protoReq.Target.(*CharacterTarget_Id); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *CharacterTarget_Id, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*CharacterTarget_Id).Id, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_GetCharacter_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.GetCharacter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-var filter_CharacterService_GetCharacter_1 = &utilities.DoubleArray{Encoding: map[string]int{"name": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-
-func request_CharacterService_GetCharacter_1(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CharacterTarget
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	val, ok := pathParams["name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
-	}
-	if protoReq.Target == nil {
-		protoReq.Target = &CharacterTarget_Name{}
-	} else if _, ok := protoReq.Target.(*CharacterTarget_Name); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *CharacterTarget_Name, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*CharacterTarget_Name).Name, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_GetCharacter_1); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := client.GetCharacter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_CharacterService_GetCharacter_1(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CharacterTarget
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	val, ok := pathParams["name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
-	}
-	if protoReq.Target == nil {
-		protoReq.Target = &CharacterTarget_Name{}
-	} else if _, ok := protoReq.Target.(*CharacterTarget_Name); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *CharacterTarget_Name, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*CharacterTarget_Name).Name, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_GetCharacter_1); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.GetCharacter(ctx, &protoReq)
+	msg, err := server.GetCharactersForUser(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -178,18 +131,9 @@ func request_CharacterService_CreateCharacter_0(ctx context.Context, marshaler r
 	var (
 		protoReq CreateCharacterRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["owner.id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "owner.id")
-	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "owner.id", val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "owner.id", err)
 	}
 	msg, err := client.CreateCharacter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -199,70 +143,17 @@ func local_request_CharacterService_CreateCharacter_0(ctx context.Context, marsh
 	var (
 		protoReq CreateCharacterRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["owner.id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "owner.id")
-	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "owner.id", val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "owner.id", err)
 	}
 	msg, err := server.CreateCharacter(ctx, &protoReq)
 	return msg, metadata, err
 }
-
-func request_CharacterService_CreateCharacter_1(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateCharacterRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["owner.username"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "owner.username")
-	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "owner.username", val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "owner.username", err)
-	}
-	msg, err := client.CreateCharacter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_CharacterService_CreateCharacter_1(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateCharacterRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["owner.username"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "owner.username")
-	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "owner.username", val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "owner.username", err)
-	}
-	msg, err := server.CreateCharacter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-var filter_CharacterService_DeleteCharacter_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_CharacterService_DeleteCharacter_0(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CharacterTarget
+		protoReq pb_0.TargetId
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -270,20 +161,9 @@ func request_CharacterService_DeleteCharacter_0(ctx context.Context, marshaler r
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	if protoReq.Target == nil {
-		protoReq.Target = &CharacterTarget_Id{}
-	} else if _, ok := protoReq.Target.(*CharacterTarget_Id); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *CharacterTarget_Id, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*CharacterTarget_Id).Id, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_DeleteCharacter_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.DeleteCharacter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -291,7 +171,7 @@ func request_CharacterService_DeleteCharacter_0(ctx context.Context, marshaler r
 
 func local_request_CharacterService_DeleteCharacter_0(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CharacterTarget
+		protoReq pb_0.TargetId
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -299,202 +179,11 @@ func local_request_CharacterService_DeleteCharacter_0(ctx context.Context, marsh
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	if protoReq.Target == nil {
-		protoReq.Target = &CharacterTarget_Id{}
-	} else if _, ok := protoReq.Target.(*CharacterTarget_Id); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *CharacterTarget_Id, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*CharacterTarget_Id).Id, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_DeleteCharacter_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.DeleteCharacter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-var filter_CharacterService_DeleteCharacter_1 = &utilities.DoubleArray{Encoding: map[string]int{"name": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-
-func request_CharacterService_DeleteCharacter_1(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CharacterTarget
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	val, ok := pathParams["name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
-	}
-	if protoReq.Target == nil {
-		protoReq.Target = &CharacterTarget_Name{}
-	} else if _, ok := protoReq.Target.(*CharacterTarget_Name); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *CharacterTarget_Name, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*CharacterTarget_Name).Name, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_DeleteCharacter_1); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := client.DeleteCharacter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_CharacterService_DeleteCharacter_1(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CharacterTarget
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	val, ok := pathParams["name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
-	}
-	if protoReq.Target == nil {
-		protoReq.Target = &CharacterTarget_Name{}
-	} else if _, ok := protoReq.Target.(*CharacterTarget_Name); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *CharacterTarget_Name, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*CharacterTarget_Name).Name, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_DeleteCharacter_1); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.DeleteCharacter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-var filter_CharacterService_GetCharactersForUser_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-
-func request_CharacterService_GetCharactersForUser_0(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq UserTarget
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	val, ok := pathParams["id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
-	}
-	if protoReq.Target == nil {
-		protoReq.Target = &UserTarget_Id{}
-	} else if _, ok := protoReq.Target.(*UserTarget_Id); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *UserTarget_Id, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*UserTarget_Id).Id, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_GetCharactersForUser_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := client.GetCharactersForUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_CharacterService_GetCharactersForUser_0(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq UserTarget
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	val, ok := pathParams["id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
-	}
-	if protoReq.Target == nil {
-		protoReq.Target = &UserTarget_Id{}
-	} else if _, ok := protoReq.Target.(*UserTarget_Id); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *UserTarget_Id, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*UserTarget_Id).Id, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_GetCharactersForUser_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.GetCharactersForUser(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-var filter_CharacterService_GetCharactersForUser_1 = &utilities.DoubleArray{Encoding: map[string]int{"username": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-
-func request_CharacterService_GetCharactersForUser_1(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq UserTarget
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	val, ok := pathParams["username"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
-	}
-	if protoReq.Target == nil {
-		protoReq.Target = &UserTarget_Username{}
-	} else if _, ok := protoReq.Target.(*UserTarget_Username); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *UserTarget_Username, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*UserTarget_Username).Username, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "username", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_GetCharactersForUser_1); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := client.GetCharactersForUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_CharacterService_GetCharactersForUser_1(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq UserTarget
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	val, ok := pathParams["username"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
-	}
-	if protoReq.Target == nil {
-		protoReq.Target = &UserTarget_Username{}
-	} else if _, ok := protoReq.Target.(*UserTarget_Username); !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *UserTarget_Username, but: %t\n", protoReq.Target)
-	}
-	protoReq.Target.(*UserTarget_Username).Username, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "username", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CharacterService_GetCharactersForUser_1); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.GetCharactersForUser(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -507,13 +196,13 @@ func request_CharacterService_EditCharacter_0(ctx context.Context, marshaler run
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["target.id"]
+	val, ok := pathParams["character_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "target.id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "character_id")
 	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "target.id", val)
+	protoReq.CharacterId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "target.id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "character_id", err)
 	}
 	msg, err := client.EditCharacter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -528,55 +217,13 @@ func local_request_CharacterService_EditCharacter_0(ctx context.Context, marshal
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["target.id"]
+	val, ok := pathParams["character_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "target.id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "character_id")
 	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "target.id", val)
+	protoReq.CharacterId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "target.id", err)
-	}
-	msg, err := server.EditCharacter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_CharacterService_EditCharacter_1(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq EditCharacterRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["target.name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "target.name")
-	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "target.name", val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "target.name", err)
-	}
-	msg, err := client.EditCharacter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_CharacterService_EditCharacter_1(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq EditCharacterRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["target.name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "target.name")
-	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "target.name", val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "target.name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "character_id", err)
 	}
 	msg, err := server.EditCharacter(ctx, &protoReq)
 	return msg, metadata, err
@@ -591,13 +238,13 @@ func request_CharacterService_AddCharacterPlayTime_0(ctx context.Context, marsha
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["character.id"]
+	val, ok := pathParams["character_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "character.id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "character_id")
 	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "character.id", val)
+	protoReq.CharacterId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "character.id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "character_id", err)
 	}
 	msg, err := client.AddCharacterPlayTime(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -612,55 +259,13 @@ func local_request_CharacterService_AddCharacterPlayTime_0(ctx context.Context, 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["character.id"]
+	val, ok := pathParams["character_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "character.id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "character_id")
 	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "character.id", val)
+	protoReq.CharacterId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "character.id", err)
-	}
-	msg, err := server.AddCharacterPlayTime(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_CharacterService_AddCharacterPlayTime_1(ctx context.Context, marshaler runtime.Marshaler, client CharacterServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq AddPlayTimeRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["character.name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "character.name")
-	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "character.name", val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "character.name", err)
-	}
-	msg, err := client.AddCharacterPlayTime(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_CharacterService_AddCharacterPlayTime_1(ctx context.Context, marshaler runtime.Marshaler, server CharacterServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq AddPlayTimeRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["character.name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "character.name")
-	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "character.name", val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "character.name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "character_id", err)
 	}
 	msg, err := server.AddCharacterPlayTime(ctx, &protoReq)
 	return msg, metadata, err
@@ -672,26 +277,6 @@ func local_request_CharacterService_AddCharacterPlayTime_1(ctx context.Context, 
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterCharacterServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterCharacterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server CharacterServiceServer) error {
-	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharacters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/GetCharacters", runtime.WithHTTPPathPattern("/v1/characters"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_CharacterService_GetCharacters_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_GetCharacters_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharacter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -712,25 +297,45 @@ func RegisterCharacterServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 		forward_CharacterService_GetCharacter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharacter_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharacters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/GetCharacter", runtime.WithHTTPPathPattern("/v1/characters/name/{name}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/GetCharacters", runtime.WithHTTPPathPattern("/v1/characters"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_CharacterService_GetCharacter_1(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_CharacterService_GetCharacters_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_CharacterService_GetCharacter_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CharacterService_GetCharacters_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharactersForUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/GetCharactersForUser", runtime.WithHTTPPathPattern("/v1/characters/owner/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CharacterService_GetCharactersForUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_CharacterService_GetCharactersForUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_CharacterService_CreateCharacter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -738,7 +343,7 @@ func RegisterCharacterServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/CreateCharacter", runtime.WithHTTPPathPattern("/v1/users/id/{owner.id}/characters"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/CreateCharacter", runtime.WithHTTPPathPattern("/v1/characters"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -751,26 +356,6 @@ func RegisterCharacterServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 			return
 		}
 		forward_CharacterService_CreateCharacter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_CharacterService_CreateCharacter_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/CreateCharacter", runtime.WithHTTPPathPattern("/v1/users/name/{owner.username}/characters"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_CharacterService_CreateCharacter_1(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_CreateCharacter_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodDelete, pattern_CharacterService_DeleteCharacter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -792,73 +377,13 @@ func RegisterCharacterServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 		forward_CharacterService_DeleteCharacter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_CharacterService_DeleteCharacter_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/DeleteCharacter", runtime.WithHTTPPathPattern("/v1/characters/name/{name}"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_CharacterService_DeleteCharacter_1(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_DeleteCharacter_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharactersForUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/GetCharactersForUser", runtime.WithHTTPPathPattern("/v1/users/id/{id}/characters"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_CharacterService_GetCharactersForUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_GetCharactersForUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharactersForUser_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/GetCharactersForUser", runtime.WithHTTPPathPattern("/v1/users/username/{username}/characters"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_CharacterService_GetCharactersForUser_1(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_GetCharactersForUser_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodPut, pattern_CharacterService_EditCharacter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/EditCharacter", runtime.WithHTTPPathPattern("/v1/characters/id/{target.id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/EditCharacter", runtime.WithHTTPPathPattern("/v1/characters/id/{character_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -872,33 +397,13 @@ func RegisterCharacterServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 		forward_CharacterService_EditCharacter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_CharacterService_EditCharacter_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/EditCharacter", runtime.WithHTTPPathPattern("/v1/characters/name/{target.name}"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_CharacterService_EditCharacter_1(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_EditCharacter_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodPut, pattern_CharacterService_AddCharacterPlayTime_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/AddCharacterPlayTime", runtime.WithHTTPPathPattern("/v1/characters/id/{character.id}/playtime"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/AddCharacterPlayTime", runtime.WithHTTPPathPattern("/v1/characters/id/{character_id}/playtime"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -911,26 +416,6 @@ func RegisterCharacterServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 			return
 		}
 		forward_CharacterService_AddCharacterPlayTime_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPut, pattern_CharacterService_AddCharacterPlayTime_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/sro.character.CharacterService/AddCharacterPlayTime", runtime.WithHTTPPathPattern("/v1/characters/name/{character.name}/playtime"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_CharacterService_AddCharacterPlayTime_1(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_AddCharacterPlayTime_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -972,23 +457,6 @@ func RegisterCharacterServiceHandler(ctx context.Context, mux *runtime.ServeMux,
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "CharacterServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterCharacterServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client CharacterServiceClient) error {
-	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharacters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/GetCharacters", runtime.WithHTTPPathPattern("/v1/characters"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_CharacterService_GetCharacters_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_GetCharacters_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharacter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1006,28 +474,45 @@ func RegisterCharacterServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 		forward_CharacterService_GetCharacter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharacter_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharacters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/GetCharacter", runtime.WithHTTPPathPattern("/v1/characters/name/{name}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/GetCharacters", runtime.WithHTTPPathPattern("/v1/characters"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_CharacterService_GetCharacter_1(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_CharacterService_GetCharacters_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_CharacterService_GetCharacter_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CharacterService_GetCharacters_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharactersForUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/GetCharactersForUser", runtime.WithHTTPPathPattern("/v1/characters/owner/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CharacterService_GetCharactersForUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_CharacterService_GetCharactersForUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_CharacterService_CreateCharacter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/CreateCharacter", runtime.WithHTTPPathPattern("/v1/users/id/{owner.id}/characters"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/CreateCharacter", runtime.WithHTTPPathPattern("/v1/characters"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1039,23 +524,6 @@ func RegisterCharacterServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 			return
 		}
 		forward_CharacterService_CreateCharacter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_CharacterService_CreateCharacter_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/CreateCharacter", runtime.WithHTTPPathPattern("/v1/users/name/{owner.username}/characters"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_CharacterService_CreateCharacter_1(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_CreateCharacter_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodDelete, pattern_CharacterService_DeleteCharacter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -1074,62 +542,11 @@ func RegisterCharacterServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 		forward_CharacterService_DeleteCharacter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_CharacterService_DeleteCharacter_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/DeleteCharacter", runtime.WithHTTPPathPattern("/v1/characters/name/{name}"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_CharacterService_DeleteCharacter_1(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_DeleteCharacter_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharactersForUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/GetCharactersForUser", runtime.WithHTTPPathPattern("/v1/users/id/{id}/characters"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_CharacterService_GetCharactersForUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_GetCharactersForUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodGet, pattern_CharacterService_GetCharactersForUser_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/GetCharactersForUser", runtime.WithHTTPPathPattern("/v1/users/username/{username}/characters"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_CharacterService_GetCharactersForUser_1(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_GetCharactersForUser_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodPut, pattern_CharacterService_EditCharacter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/EditCharacter", runtime.WithHTTPPathPattern("/v1/characters/id/{target.id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/EditCharacter", runtime.WithHTTPPathPattern("/v1/characters/id/{character_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1142,28 +559,11 @@ func RegisterCharacterServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 		forward_CharacterService_EditCharacter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_CharacterService_EditCharacter_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/EditCharacter", runtime.WithHTTPPathPattern("/v1/characters/name/{target.name}"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_CharacterService_EditCharacter_1(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_EditCharacter_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodPut, pattern_CharacterService_AddCharacterPlayTime_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/AddCharacterPlayTime", runtime.WithHTTPPathPattern("/v1/characters/id/{character.id}/playtime"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/AddCharacterPlayTime", runtime.WithHTTPPathPattern("/v1/characters/id/{character_id}/playtime"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1176,54 +576,25 @@ func RegisterCharacterServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 		forward_CharacterService_AddCharacterPlayTime_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_CharacterService_AddCharacterPlayTime_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/sro.character.CharacterService/AddCharacterPlayTime", runtime.WithHTTPPathPattern("/v1/characters/name/{character.name}/playtime"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_CharacterService_AddCharacterPlayTime_1(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_CharacterService_AddCharacterPlayTime_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	return nil
 }
 
 var (
-	pattern_CharacterService_GetCharacters_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "characters"}, ""))
 	pattern_CharacterService_GetCharacter_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 2}, []string{"v1", "characters", "id"}, ""))
-	pattern_CharacterService_GetCharacter_1         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 2}, []string{"v1", "characters", "name"}, ""))
-	pattern_CharacterService_CreateCharacter_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "users", "id", "owner.id", "characters"}, ""))
-	pattern_CharacterService_CreateCharacter_1      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "users", "name", "owner.username", "characters"}, ""))
+	pattern_CharacterService_GetCharacters_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "characters"}, ""))
+	pattern_CharacterService_GetCharactersForUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "characters", "owner", "id"}, ""))
+	pattern_CharacterService_CreateCharacter_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "characters"}, ""))
 	pattern_CharacterService_DeleteCharacter_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 2}, []string{"v1", "characters", "id"}, ""))
-	pattern_CharacterService_DeleteCharacter_1      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 2}, []string{"v1", "characters", "name"}, ""))
-	pattern_CharacterService_GetCharactersForUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "id", "characters"}, ""))
-	pattern_CharacterService_GetCharactersForUser_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "username", "characters"}, ""))
-	pattern_CharacterService_EditCharacter_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "characters", "id", "target.id"}, ""))
-	pattern_CharacterService_EditCharacter_1        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "characters", "name", "target.name"}, ""))
-	pattern_CharacterService_AddCharacterPlayTime_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "characters", "id", "character.id", "playtime"}, ""))
-	pattern_CharacterService_AddCharacterPlayTime_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "characters", "name", "character.name", "playtime"}, ""))
+	pattern_CharacterService_EditCharacter_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "characters", "id", "character_id"}, ""))
+	pattern_CharacterService_AddCharacterPlayTime_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "characters", "id", "character_id", "playtime"}, ""))
 )
 
 var (
-	forward_CharacterService_GetCharacters_0        = runtime.ForwardResponseMessage
 	forward_CharacterService_GetCharacter_0         = runtime.ForwardResponseMessage
-	forward_CharacterService_GetCharacter_1         = runtime.ForwardResponseMessage
-	forward_CharacterService_CreateCharacter_0      = runtime.ForwardResponseMessage
-	forward_CharacterService_CreateCharacter_1      = runtime.ForwardResponseMessage
-	forward_CharacterService_DeleteCharacter_0      = runtime.ForwardResponseMessage
-	forward_CharacterService_DeleteCharacter_1      = runtime.ForwardResponseMessage
+	forward_CharacterService_GetCharacters_0        = runtime.ForwardResponseMessage
 	forward_CharacterService_GetCharactersForUser_0 = runtime.ForwardResponseMessage
-	forward_CharacterService_GetCharactersForUser_1 = runtime.ForwardResponseMessage
+	forward_CharacterService_CreateCharacter_0      = runtime.ForwardResponseMessage
+	forward_CharacterService_DeleteCharacter_0      = runtime.ForwardResponseMessage
 	forward_CharacterService_EditCharacter_0        = runtime.ForwardResponseMessage
-	forward_CharacterService_EditCharacter_1        = runtime.ForwardResponseMessage
 	forward_CharacterService_AddCharacterPlayTime_0 = runtime.ForwardResponseMessage
-	forward_CharacterService_AddCharacterPlayTime_1 = runtime.ForwardResponseMessage
 )

@@ -14,6 +14,7 @@ import (
 	reflect "reflect"
 
 	pb "github.com/ShatteredRealms/character-service/pkg/pb"
+	pb0 "github.com/ShatteredRealms/go-common-service/pkg/pb"
 	gomock "go.uber.org/mock/gomock"
 	grpc "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -84,7 +85,7 @@ func (mr *MockCharacterServiceClientMockRecorder) CreateCharacter(ctx, in any, o
 }
 
 // DeleteCharacter mocks base method.
-func (m *MockCharacterServiceClient) DeleteCharacter(ctx context.Context, in *pb.CharacterTarget, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (m *MockCharacterServiceClient) DeleteCharacter(ctx context.Context, in *pb0.TargetId, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {
@@ -124,7 +125,7 @@ func (mr *MockCharacterServiceClientMockRecorder) EditCharacter(ctx, in any, opt
 }
 
 // GetCharacter mocks base method.
-func (m *MockCharacterServiceClient) GetCharacter(ctx context.Context, in *pb.CharacterTarget, opts ...grpc.CallOption) (*pb.CharacterDetails, error) {
+func (m *MockCharacterServiceClient) GetCharacter(ctx context.Context, in *pb0.TargetId, opts ...grpc.CallOption) (*pb.CharacterDetails, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {
@@ -164,7 +165,7 @@ func (mr *MockCharacterServiceClientMockRecorder) GetCharacters(ctx, in any, opt
 }
 
 // GetCharactersForUser mocks base method.
-func (m *MockCharacterServiceClient) GetCharactersForUser(ctx context.Context, in *pb.UserTarget, opts ...grpc.CallOption) (*pb.CharactersDetails, error) {
+func (m *MockCharacterServiceClient) GetCharactersForUser(ctx context.Context, in *pb0.TargetId, opts ...grpc.CallOption) (*pb.CharactersDetails, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, in}
 	for _, a := range opts {
@@ -238,7 +239,7 @@ func (mr *MockCharacterServiceServerMockRecorder) CreateCharacter(arg0, arg1 any
 }
 
 // DeleteCharacter mocks base method.
-func (m *MockCharacterServiceServer) DeleteCharacter(arg0 context.Context, arg1 *pb.CharacterTarget) (*emptypb.Empty, error) {
+func (m *MockCharacterServiceServer) DeleteCharacter(arg0 context.Context, arg1 *pb0.TargetId) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteCharacter", arg0, arg1)
 	ret0, _ := ret[0].(*emptypb.Empty)
@@ -268,7 +269,7 @@ func (mr *MockCharacterServiceServerMockRecorder) EditCharacter(arg0, arg1 any) 
 }
 
 // GetCharacter mocks base method.
-func (m *MockCharacterServiceServer) GetCharacter(arg0 context.Context, arg1 *pb.CharacterTarget) (*pb.CharacterDetails, error) {
+func (m *MockCharacterServiceServer) GetCharacter(arg0 context.Context, arg1 *pb0.TargetId) (*pb.CharacterDetails, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharacter", arg0, arg1)
 	ret0, _ := ret[0].(*pb.CharacterDetails)
@@ -298,7 +299,7 @@ func (mr *MockCharacterServiceServerMockRecorder) GetCharacters(arg0, arg1 any) 
 }
 
 // GetCharactersForUser mocks base method.
-func (m *MockCharacterServiceServer) GetCharactersForUser(arg0 context.Context, arg1 *pb.UserTarget) (*pb.CharactersDetails, error) {
+func (m *MockCharacterServiceServer) GetCharactersForUser(arg0 context.Context, arg1 *pb0.TargetId) (*pb.CharactersDetails, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharactersForUser", arg0, arg1)
 	ret0, _ := ret[0].(*pb.CharactersDetails)

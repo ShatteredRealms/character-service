@@ -3,7 +3,7 @@ module github.com/ShatteredRealms/character-service
 go 1.23.3
 
 require (
-	github.com/ShatteredRealms/go-common-service v0.4.2
+	github.com/ShatteredRealms/go-common-service v0.4.12
 	github.com/WilSimpson/gocloak/v13 v13.11.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0
 	github.com/mitranim/gow v0.0.0-20231026105220-af11a6e1e9eb
@@ -18,6 +18,28 @@ require (
 )
 
 require (
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/go-gorm/caches/v4 v4.0.5 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/pgx/v5 v5.7.1 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/lib/pq v1.10.9 // indirect
+	github.com/redis/go-redis/extra/rediscmd/v9 v9.7.0 // indirect
+	github.com/redis/go-redis/extra/redisotel/v9 v9.7.0 // indirect
+	github.com/redis/go-redis/v9 v9.7.0 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect
+	gorm.io/driver/postgres v1.5.10 // indirect
+	gorm.io/gorm v1.25.12 // indirect
+	gorm.io/plugin/dbresolver v1.5.3 // indirect
+)
+
+require (
+	github.com/TwiN/go-away v1.6.14
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
@@ -85,4 +107,5 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/plugin/soft_delete v1.2.1
 )

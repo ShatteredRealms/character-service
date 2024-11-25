@@ -1,0 +1,225 @@
+{
+  "openapi": "3.0.1",
+  "components": {
+    "schemas": {
+      "sro.character.AddPlayTimeRequest": {
+        "properties": {
+          "characterId": {
+            "type": "string"
+          },
+          "time": {
+            "format": "int64",
+            "type": "integer",
+            "x-kubernetes-int-or-string": true
+          }
+        },
+        "type": "object"
+      },
+      "sro.character.CharacterDetails": {
+        "properties": {
+          "characterId": {
+            "type": "string"
+          },
+          "dimensionId": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "location": {
+            "properties": {
+              "pitch": {
+                "type": "number"
+              },
+              "roll": {
+                "type": "number"
+              },
+              "world": {
+                "type": "string"
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "yaw": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "playTime": {
+            "format": "int64",
+            "type": "integer",
+            "x-kubernetes-int-or-string": true
+          },
+          "realm": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "sro.character.CharactersDetails": {
+        "properties": {
+          "characters": {
+            "items": {
+              "properties": {
+                "characterId": {
+                  "type": "string"
+                },
+                "dimensionId": {
+                  "type": "string"
+                },
+                "gender": {
+                  "type": "string"
+                },
+                "location": {
+                  "properties": {
+                    "pitch": {
+                      "type": "number"
+                    },
+                    "roll": {
+                      "type": "number"
+                    },
+                    "world": {
+                      "type": "string"
+                    },
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "yaw": {
+                      "type": "number"
+                    },
+                    "z": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "ownerId": {
+                  "type": "string"
+                },
+                "playTime": {
+                  "format": "int64",
+                  "type": "integer",
+                  "x-kubernetes-int-or-string": true
+                },
+                "realm": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "sro.character.CreateCharacterRequest": {
+        "properties": {
+          "dimensionId": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "realm": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "sro.character.EditCharacterRequest": {
+        "properties": {
+          "characterId": {
+            "type": "string"
+          },
+          "dimensionId": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "location": {
+            "properties": {
+              "pitch": {
+                "type": "number"
+              },
+              "roll": {
+                "type": "number"
+              },
+              "world": {
+                "type": "string"
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "yaw": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "newName": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "playTime": {
+            "format": "int64",
+            "type": "integer",
+            "x-kubernetes-int-or-string": true
+          },
+          "realm": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "sro.character.PlayTimeResponse": {
+        "properties": {
+          "time": {
+            "format": "int64",
+            "type": "integer",
+            "x-kubernetes-int-or-string": true
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "OpenAPI Spec for Solo APIs.",
+    "version": "character"
+  },
+  "paths": null
+}
