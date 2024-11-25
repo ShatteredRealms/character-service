@@ -1,12 +1,7 @@
 package game
 
 import (
-	"errors"
 	"time"
-)
-
-var (
-	ErrInvalidDimension = errors.New("invalid dimension")
 )
 
 type Dimension struct {
