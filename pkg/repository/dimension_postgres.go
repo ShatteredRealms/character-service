@@ -34,8 +34,15 @@ func (p *postgresDimensionRepository) DeleteDimension(ctx context.Context, dimen
 
 // GetDimensionById implements DimensionRepository.
 func (p *postgresDimensionRepository) GetDimensionById(ctx context.Context, dimensionId string) (dimension *game.Dimension, _ error) {
+	result := p.db(ctx).Where("id = ?", dimensionId).Find(&dimension)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
 	updateSpanWithDimension(ctx, dimensionId)
-	return dimension, p.db(ctx).Where("id = ?", dimensionId).Find(dimension).Error
+	return dimension, nil
 }
 
 // GetDimensions implements DimensionRepository.

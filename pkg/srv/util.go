@@ -16,7 +16,7 @@ func (c *characterServiceServer) getCharacterById(ctx context.Context, character
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
 	}
 	if character == nil {
-		return nil, status.Error(codes.NotFound, "character not found")
+		return nil, status.Error(codes.NotFound, ErrCharacterDoesNotExist.Error())
 	}
 
 	return character, nil

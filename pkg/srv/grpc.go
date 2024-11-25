@@ -37,11 +37,12 @@ var (
 )
 
 var (
-	ErrCharacterCreate   = errors.New("CS-C-01")
-	ErrCharacterDelete   = errors.New("CS-C-02")
-	ErrCharacterGet      = errors.New("CS-C-03")
-	ErrCharacterEdit     = errors.New("CS-C-04")
-	ErrCharacterPlaytime = errors.New("CS-C-05")
+	ErrCharacterDoesNotExist = errors.New("CS-C-00")
+	ErrCharacterCreate       = errors.New("CS-C-01")
+	ErrCharacterDelete       = errors.New("CS-C-02")
+	ErrCharacterGet          = errors.New("CS-C-03")
+	ErrCharacterEdit         = errors.New("CS-C-04")
+	ErrCharacterPlaytime     = errors.New("CS-C-05")
 
 	ErrDimensionNotExist = errors.New("CS-D-01")
 	ErrDimensionLookup   = errors.New("CS-D-02")
@@ -131,6 +132,9 @@ func (c *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 	}
 
 	char, err := c.getCharacterById(ctx, request.GetCharacterId())
+	if err != nil {
+		return nil, err
+	}
 
 	if request.OptionalOwnerId != nil {
 		char.OwnerId = request.GetOwnerId()

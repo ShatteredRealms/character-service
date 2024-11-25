@@ -27,6 +27,10 @@ func (c *characterServiceServer) getCharacterAndAuthCheck(ctx context.Context, c
 		return nil, err
 	}
 
+	if character == nil {
+		return nil, status.Error(codes.NotFound, ErrCharacterDoesNotExist.Error())
+	}
+
 	if claims.Subject != character.OwnerId && !claims.HasResourceRole(RoleCharacterManagementOther, c.Context.Config.Keycloak.ClientId) {
 		return nil, commonsrv.ErrPermissionDenied
 	}
@@ -62,11 +66,11 @@ func (c *characterServiceServer) validateRole(ctx context.Context, role *gocloak
 func (c *characterServiceServer) getDimension(ctx context.Context, dimensionId string) (*game.Dimension, error) {
 	dimension, err := c.Context.DimensionService.GetDimensionById(ctx, dimensionId)
 	if err == nil {
-		log.Logger.WithContext(ctx).Errorf("code %v: %w", ErrDimensionNotExist, err)
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrDimensionLookup, err)
 		return nil, status.Error(codes.Internal, ErrDimensionLookup.Error())
 	}
 	if dimension == nil {
-		return nil, status.Error(codes.InvalidArgument, ErrDimensionLookup.Error())
+		return nil, status.Error(codes.InvalidArgument, ErrDimensionNotExist.Error())
 	}
 	return dimension, nil
 }

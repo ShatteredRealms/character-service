@@ -46,10 +46,14 @@ func (p *postgresCharacterRepository) GetCharacters(ctx context.Context) (charac
 }
 
 // GetCharacterById implements CharacterRepository.
-func (p *postgresCharacterRepository) GetCharacterById(ctx context.Context, characterId string) (character *character.Character, err error) {
-	err = p.db(ctx).Where("id = ?", characterId).Find(&character).Error
-	if err != nil {
-		return nil, err
+func (p *postgresCharacterRepository) GetCharacterById(ctx context.Context, characterId string) (*character.Character, error) {
+	var character *character.Character
+	result := p.db(ctx).Where("id = ?", characterId).Find(&character)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, nil
 	}
 	updateSpanWithCharacter(ctx, character)
 	return character, nil
