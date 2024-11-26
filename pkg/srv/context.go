@@ -16,6 +16,7 @@ type CharacterContext struct {
 	*commonsrv.Context
 
 	CharacterBusWriter bus.MessageBusWriter[bus.CharacterMessage]
+	DimensionBusReader bus.MessageBusReader[bus.DimensionMessage]
 
 	CharacterService service.CharacterService
 	DimensionService service.DimensionService
@@ -25,6 +26,7 @@ func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, servi
 	characterCtx := &CharacterContext{
 		Context:            commonsrv.NewContext(&cfg.BaseConfig, serviceName),
 		CharacterBusWriter: bus.NewKafkaMessageBusWriter(cfg.Kafka, bus.CharacterMessage{}),
+		DimensionBusReader: bus.NewKafkaMessageBusReader(cfg.Kafka, serviceName, bus.DimensionMessage{}),
 	}
 	ctx, span := characterCtx.Tracer.Start(ctx, "context.character.new")
 	defer span.End()

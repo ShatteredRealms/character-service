@@ -65,7 +65,7 @@ func (c *characterServiceServer) validateRole(ctx context.Context, role *gocloak
 
 func (c *characterServiceServer) getDimension(ctx context.Context, dimensionId string) (*game.Dimension, error) {
 	dimension, err := c.Context.DimensionService.GetDimensionById(ctx, dimensionId)
-	if err == nil {
+	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrDimensionLookup, err)
 		return nil, status.Error(codes.Internal, ErrDimensionLookup.Error())
 	}

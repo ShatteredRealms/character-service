@@ -71,7 +71,7 @@ func (p *postgresCharacterRepository) GetCharactersByOwner(ctx context.Context, 
 }
 
 func (p *postgresCharacterRepository) UpdateCharacter(ctx context.Context, updatedCharacter *character.Character) (*character.Character, error) {
-	if err := p.db(ctx).Save(updatedCharacter).Error; err != nil {
+	if err := p.db(ctx).Save(&updatedCharacter).Error; err != nil {
 		return nil, err
 	}
 	updateSpanWithCharacter(ctx, updatedCharacter)
@@ -84,7 +84,7 @@ func (p *postgresCharacterRepository) CreateCharacter(ctx context.Context, newCh
 		return nil, ErrCharacterIdProvided
 	}
 
-	if err := p.db(ctx).Create(newCharacter).Error; err != nil {
+	if err := p.db(ctx).Create(&newCharacter).Error; err != nil {
 		return nil, err
 	}
 

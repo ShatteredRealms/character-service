@@ -33,8 +33,14 @@ func NewCharacterConfig(ctx context.Context) (*CharacterConfig, error) {
 				ClientSecret: "**********",
 			},
 			Mode:                "local",
-			LogLevel:            logrus.DebugLevel,
+			LogLevel:            logrus.InfoLevel,
 			OpenTelemtryAddress: "localhost:4317",
+			Kafka: cconfig.ServerAddresses{
+				{
+					Host: "localhost",
+					Port: "29092",
+				},
+			},
 		},
 		Postgres: cconfig.DBPoolConfig{
 			Master: cconfig.DBConfig{

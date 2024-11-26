@@ -22,14 +22,23 @@ func NewPostgresDimensionRepository(db *gorm.DB) DimensionRepository {
 // CreateDimension implements DimensionRepository.
 func (p *postgresDimensionRepository) CreateDimension(ctx context.Context, dimensionId string) (dimension *game.Dimension, _ error) {
 	updateSpanWithDimension(ctx, dimensionId)
-	dimension.Id = dimensionId
-	return dimension, p.db(ctx).Create(dimension).Error
+	dimension = &game.Dimension{
+		Id: dimensionId,
+	}
+	return dimension, p.db(ctx).Create(&dimension).Error
 }
 
 // DeleteDimension implements DimensionRepository.
 func (p *postgresDimensionRepository) DeleteDimension(ctx context.Context, dimensionId string) (dimension *game.Dimension, _ error) {
 	updateSpanWithDimension(ctx, dimensionId)
-	return dimension, p.db(ctx).Clauses(clause.Returning{}).Delete(dimension, "id = ?", dimensionId).Error
+	dimension, err := p.GetDimensionById(ctx, dimensionId)
+	if err != nil {
+		return nil, err
+	}
+	if dimension == nil {
+		return nil, nil
+	}
+	return dimension, p.db(ctx).Clauses(clause.Returning{}).Delete(&dimension, "id = ?", dimensionId).Error
 }
 
 // GetDimensionById implements DimensionRepository.
@@ -47,7 +56,7 @@ func (p *postgresDimensionRepository) GetDimensionById(ctx context.Context, dime
 
 // GetDimensions implements DimensionRepository.
 func (p *postgresDimensionRepository) GetDimensions(ctx context.Context) (dimensions *game.Dimensions, _ error) {
-	return dimensions, p.db(ctx).Find(dimensions).Error
+	return dimensions, p.db(ctx).Find(&dimensions).Error
 }
 
 func (p *postgresDimensionRepository) db(ctx context.Context) *gorm.DB {

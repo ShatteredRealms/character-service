@@ -24,17 +24,17 @@ var (
 	RoleCharacterManagement = util.RegisterRole(&gocloak.Role{
 		Name:        gocloak.StringP("manage"),
 		Description: gocloak.StringP("Allows creating, reading and deleting of own characters"),
-	}, CharacterRoles)
+	}, &CharacterRoles)
 
 	RoleCharacterManagementOther = util.RegisterRole(&gocloak.Role{
 		Name:        gocloak.StringP("manage_other"),
 		Description: gocloak.StringP("Allows creating, reading, editing and deleting of any characters"),
-	}, CharacterRoles)
+	}, &CharacterRoles)
 
 	RoleAddPlaytime = util.RegisterRole(&gocloak.Role{
 		Name:        gocloak.StringP("playtime"),
 		Description: gocloak.StringP("Allows adding playtime to any character"),
-	}, CharacterRoles)
+	}, &CharacterRoles)
 )
 
 var (
@@ -59,9 +59,11 @@ func NewCharacterServiceServer(ctx context.Context, srvCtx *CharacterContext) (p
 	if err != nil {
 		return nil, err
 	}
-	return &characterServiceServer{
+	s := &characterServiceServer{
 		Context: srvCtx,
-	}, nil
+	}
+	s.ListenMessageBus()
+	return s, nil
 }
 
 // AddCharacterPlayTime implements pb.CharacterServiceServer.
@@ -95,12 +97,12 @@ func (c *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 	}
 
 	// Validate dimension exists
-	_, err = c.getDimension(ctx, request.GetDimensionId())
+	dimension, err := c.getDimension(ctx, request.GetDimensionId())
 	if err != nil {
 		return nil, err
 	}
 
-	character, err := c.Context.CharacterService.CreateCharacter(ctx, request.OwnerId, request.Name, request.Gender, request.Realm, request.DimensionId)
+	character, err := c.Context.CharacterService.CreateCharacter(ctx, request.OwnerId, request.Name, request.Gender, request.Realm, dimension)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterCreate, err)
 		return nil, status.Error(codes.Internal, ErrCharacterCreate.Error())
@@ -157,7 +159,7 @@ func (c *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		char.PlayTime = request.GetPlayTime()
 	}
 	if request.OptionalLocation != nil {
-		char.Location = commongame.LocationFromPb(request.GetLocation())
+		char.Location = *commongame.LocationFromPb(request.GetLocation())
 	}
 	if request.OptionalDimension != nil {
 		_, err := c.getDimension(ctx, request.GetDimensionId())

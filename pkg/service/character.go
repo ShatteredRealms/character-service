@@ -19,7 +19,7 @@ type CharacterService interface {
 
 	GetCharacterById(ctx context.Context, characterId string) (*character.Character, error)
 
-	CreateCharacter(ctx context.Context, ownerId, name, gender, realm, dimension string) (*character.Character, error)
+	CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, dimension *game.Dimension) (*character.Character, error)
 
 	DeleteCharacter(ctx context.Context, characterId string) (*character.Character, error)
 
@@ -43,12 +43,13 @@ func (c *characterService) AddCharacterPlaytime(ctx context.Context, character *
 }
 
 // CreateCharacter implements CharacterService.
-func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, name string, gender string, realm string, dimension string) (*character.Character, error) {
+func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, name string, gender string, realm string, dimension *game.Dimension) (*character.Character, error) {
 	character := &character.Character{
 		Name:      name,
+		OwnerId:   ownerId,
 		Gender:    game.Gender(gender),
 		Realm:     game.Realm(realm),
-		Dimension: &game.Dimension{Id: dimension},
+		Dimension: dimension,
 	}
 
 	err := character.Validate()
@@ -71,7 +72,7 @@ func (c *characterService) EditCharacter(ctx context.Context, character *charact
 		return nil, err
 	}
 
-	return nil, ErrCharacter
+	return c.repo.UpdateCharacter(ctx, character)
 }
 
 // GetCharacterById implements CharacterService.

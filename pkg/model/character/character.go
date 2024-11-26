@@ -40,17 +40,18 @@ type Character struct {
 	model.Model
 
 	// Owner The username/account that owns the character
-	OwnerId   string          `gorm:"not null" json:"owner"`
-	Name      string          `gorm:"not null;uniqueIndex:udx_name" json:"name"`
-	Gender    game.Gender     `gorm:"not null" json:"gender"`
-	Realm     game.Realm      `gorm:"not null" json:"realm"`
-	Dimension *game.Dimension `gorm:"not null;uniqueIndex:udx_name;foreignKey:Id;references:Id" json:"dimension"`
+	OwnerId     string          `gorm:"not null" json:"owner"`
+	Name        string          `gorm:"not null;uniqueIndex:idx_deleted" json:"name"`
+	Gender      game.Gender     `gorm:"not null" json:"gender"`
+	Realm       game.Realm      `gorm:"not null" json:"realm"`
+	DimensionId string          `gorm:"not null" json:"dimension_id"`
+	Dimension   *game.Dimension `gorm:"not null" json:"dimension"`
 
 	// PlayTime Time in minutes the character has played
 	PlayTime uint64 `gorm:"not null" json:"play_time"`
 
 	// Location last location recorded for the character
-	Location *commongame.Location `gorm:"type:bytes;serializer:gob" json:"location"`
+	Location commongame.Location `gorm:"type:bytes;serializer:gob" json:"location"`
 }
 type Characters []*Character
 
@@ -111,14 +112,16 @@ func (c *Character) ToPb() *pb.CharacterDetails {
 		Realm:       string(c.Realm),
 		PlayTime:    c.PlayTime,
 		Location:    c.Location.ToPb(),
-		DimensionId: c.Dimension.Id,
+		DimensionId: c.DimensionId,
 	}
 }
 
 func (c Characters) ToPb() *pb.CharactersDetails {
 	resp := &pb.CharactersDetails{Characters: make([]*pb.CharacterDetails, len(c))}
 	for idx, character := range c {
-		resp.Characters[idx] = character.ToPb()
+		if character != nil {
+			resp.Characters[idx] = character.ToPb()
+		}
 	}
 
 	return resp
