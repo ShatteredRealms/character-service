@@ -24,17 +24,17 @@ var (
 	RoleCharacterManagement = util.RegisterRole(&gocloak.Role{
 		Name:        gocloak.StringP("manage"),
 		Description: gocloak.StringP("Allows creating, reading and deleting of own characters"),
-	}, CharacterRoles)
+	}, &CharacterRoles)
 
 	RoleCharacterManagementOther = util.RegisterRole(&gocloak.Role{
 		Name:        gocloak.StringP("manage_other"),
 		Description: gocloak.StringP("Allows creating, reading, editing and deleting of any characters"),
-	}, CharacterRoles)
+	}, &CharacterRoles)
 
 	RoleAddPlaytime = util.RegisterRole(&gocloak.Role{
 		Name:        gocloak.StringP("playtime"),
 		Description: gocloak.StringP("Allows adding playtime to any character"),
-	}, CharacterRoles)
+	}, &CharacterRoles)
 )
 
 var (
@@ -65,18 +65,18 @@ func NewCharacterServiceServer(ctx context.Context, srvCtx *CharacterContext) (p
 }
 
 // AddCharacterPlayTime implements pb.CharacterServiceServer.
-func (c *characterServiceServer) AddCharacterPlayTime(ctx context.Context, request *pb.AddPlayTimeRequest) (*pb.PlayTimeResponse, error) {
-	err := c.validateRole(ctx, RoleAddPlaytime)
+func (s *characterServiceServer) AddCharacterPlayTime(ctx context.Context, request *pb.AddPlayTimeRequest) (*pb.PlayTimeResponse, error) {
+	err := s.validateRole(ctx, RoleAddPlaytime)
 	if err != nil {
 		return nil, err
 	}
 
-	character, err := c.getCharacterById(ctx, request.GetCharacterId())
+	character, err := s.getCharacterById(ctx, request.GetCharacterId())
 	if err != nil {
 		return nil, err
 	}
 
-	character, err = c.Context.CharacterService.AddCharacterPlaytime(ctx, character, request.Time)
+	character, err = s.Context.CharacterService.AddCharacterPlaytime(ctx, character, request.Time)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterPlaytime, err)
 		return nil, status.Error(codes.Internal, ErrCharacterPlaytime.Error())
@@ -88,61 +88,71 @@ func (c *characterServiceServer) AddCharacterPlayTime(ctx context.Context, reque
 }
 
 // CreateCharacter implements pb.CharacterServiceServer.
-func (c *characterServiceServer) CreateCharacter(ctx context.Context, request *pb.CreateCharacterRequest) (*pb.CharacterDetails, error) {
-	err := c.validateManagementPermission(ctx, request.OwnerId)
+func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *pb.CreateCharacterRequest) (*pb.CharacterDetails, error) {
+	err := s.validateManagementPermission(ctx, request.OwnerId)
 	if err != nil {
 		return nil, err
 	}
 
 	// Validate dimension exists
-	_, err = c.getDimension(ctx, request.GetDimensionId())
+	_, err = s.getDimension(ctx, request.GetDimensionId())
 	if err != nil {
 		return nil, err
 	}
 
-	character, err := c.Context.CharacterService.CreateCharacter(ctx, request.OwnerId, request.Name, request.Gender, request.Realm, request.DimensionId)
+	character, err := s.Context.CharacterService.CreateCharacter(ctx, request.OwnerId, request.Name, request.Gender, request.Realm, request.DimensionId)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterCreate, err)
 		return nil, status.Error(codes.Internal, ErrCharacterCreate.Error())
 	}
 
-	c.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{Id: character.Id.String(), Deleted: false})
+	s.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{
+		Id:      character.Id.String(),
+		OwnerId: character.OwnerId,
+		Deleted: false,
+	})
 
 	return character.ToPb(), nil
 }
 
 // DeleteCharacter implements pb.CharacterServiceServer.
-func (c *characterServiceServer) DeleteCharacter(ctx context.Context, request *commonpb.TargetId) (*emptypb.Empty, error) {
-	_, err := c.getCharacterAndAuthCheck(ctx, request.Id)
+func (s *characterServiceServer) DeleteCharacter(ctx context.Context, request *commonpb.TargetId) (*emptypb.Empty, error) {
+	_, err := s.getCharacterAndAuthCheck(ctx, request.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = c.Context.CharacterService.DeleteCharacter(ctx, request.Id)
+	c, err := s.Context.CharacterService.DeleteCharacter(ctx, request.Id)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterDelete, err)
 		return nil, status.Error(codes.Internal, ErrCharacterDelete.Error())
 	}
 
-	c.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{Id: request.Id, Deleted: true})
+	s.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{
+		Id:      request.Id,
+		OwnerId: c.OwnerId,
+		Deleted: true,
+	})
 
 	return &emptypb.Empty{}, nil
 }
 
 // EditCharacter implements pb.CharacterServiceServer.
-func (c *characterServiceServer) EditCharacter(ctx context.Context, request *pb.EditCharacterRequest) (*emptypb.Empty, error) {
-	err := c.validateRole(ctx, RoleCharacterManagementOther)
+func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.EditCharacterRequest) (*emptypb.Empty, error) {
+	err := s.validateRole(ctx, RoleCharacterManagementOther)
 	if err != nil {
 		return nil, err
 	}
 
-	char, err := c.getCharacterById(ctx, request.GetCharacterId())
+	char, err := s.getCharacterById(ctx, request.GetCharacterId())
 	if err != nil {
 		return nil, err
 	}
 
+	publishChanges := false
 	if request.OptionalOwnerId != nil {
 		char.OwnerId = request.GetOwnerId()
+		publishChanges = true
 	}
 	if request.OptionalNewName != nil {
 		char.Name = request.GetNewName()
@@ -160,14 +170,14 @@ func (c *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		char.Location = commongame.LocationFromPb(request.GetLocation())
 	}
 	if request.OptionalDimension != nil {
-		_, err := c.getDimension(ctx, request.GetDimensionId())
+		_, err := s.getDimension(ctx, request.GetDimensionId())
 		if err != nil {
 			return nil, err
 		}
 		char.Dimension.Id = request.GetDimensionId()
 	}
 
-	_, err = c.Context.CharacterService.EditCharacter(ctx, char)
+	c, err := s.Context.CharacterService.EditCharacter(ctx, char)
 	if err != nil {
 		if errors.Is(err, character.ErrValidation) {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -176,12 +186,20 @@ func (c *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		return nil, status.Error(codes.Internal, ErrCharacterEdit.Error())
 	}
 
+	if publishChanges {
+		s.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{
+			Id:      c.Id.String(),
+			OwnerId: c.OwnerId,
+			Deleted: false,
+		})
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 // GetCharacter implements pb.CharacterServiceServer.
-func (c *characterServiceServer) GetCharacter(ctx context.Context, request *commonpb.TargetId) (*pb.CharacterDetails, error) {
-	character, err := c.getCharacterAndAuthCheck(ctx, request.Id)
+func (s *characterServiceServer) GetCharacter(ctx context.Context, request *commonpb.TargetId) (*pb.CharacterDetails, error) {
+	character, err := s.getCharacterAndAuthCheck(ctx, request.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -190,13 +208,13 @@ func (c *characterServiceServer) GetCharacter(ctx context.Context, request *comm
 }
 
 // GetCharacters implements pb.CharacterServiceServer.
-func (c *characterServiceServer) GetCharacters(ctx context.Context, request *emptypb.Empty) (*pb.CharactersDetails, error) {
-	err := c.validateRole(ctx, RoleCharacterManagementOther)
+func (s *characterServiceServer) GetCharacters(ctx context.Context, request *emptypb.Empty) (*pb.CharactersDetails, error) {
+	err := s.validateRole(ctx, RoleCharacterManagementOther)
 	if err != nil {
 		return nil, err
 	}
 
-	characters, err := c.Context.CharacterService.GetCharacters(ctx)
+	characters, err := s.Context.CharacterService.GetCharacters(ctx)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %e", ErrCharacterGet, err)
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
@@ -206,13 +224,13 @@ func (c *characterServiceServer) GetCharacters(ctx context.Context, request *emp
 }
 
 // GetCharactersForUser implements pb.CharacterServiceServer.
-func (c *characterServiceServer) GetCharactersForUser(ctx context.Context, request *commonpb.TargetId) (*pb.CharactersDetails, error) {
-	err := c.validateManagementPermission(ctx, request.Id)
+func (s *characterServiceServer) GetCharactersForUser(ctx context.Context, request *commonpb.TargetId) (*pb.CharactersDetails, error) {
+	err := s.validateManagementPermission(ctx, request.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	characters, err := c.Context.CharacterService.GetCharactersByOwner(ctx, request.Id)
+	characters, err := s.Context.CharacterService.GetCharactersByOwner(ctx, request.Id)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
