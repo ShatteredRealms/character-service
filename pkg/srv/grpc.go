@@ -7,7 +7,7 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
-	"github.com/ShatteredRealms/go-common-service/pkg/bus"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus/character/characterbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 	commonpb "github.com/ShatteredRealms/go-common-service/pkg/pb"
@@ -106,7 +106,7 @@ func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 		return nil, status.Error(codes.Internal, ErrCharacterCreate.Error())
 	}
 
-	s.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{
+	s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
 		Id:      character.Id.String(),
 		OwnerId: character.OwnerId,
 		Deleted: false,
@@ -128,7 +128,7 @@ func (s *characterServiceServer) DeleteCharacter(ctx context.Context, request *c
 		return nil, status.Error(codes.Internal, ErrCharacterDelete.Error())
 	}
 
-	s.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{
+	s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
 		Id:      request.Id,
 		OwnerId: c.OwnerId,
 		Deleted: true,
@@ -187,7 +187,7 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 	}
 
 	if publishChanges {
-		s.Context.CharacterBusWriter.Publish(ctx, bus.CharacterMessage{
+		s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
 			Id:      c.Id.String(),
 			OwnerId: c.OwnerId,
 			Deleted: false,

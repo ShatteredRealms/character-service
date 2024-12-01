@@ -7,6 +7,7 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/repository"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 )
 
 var (
@@ -48,7 +49,7 @@ func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, 
 		Name:      name,
 		Gender:    game.Gender(gender),
 		Realm:     game.Realm(realm),
-		Dimension: &game.Dimension{Id: dimension},
+		Dimension: &dimensionbus.Dimension{Id: dimension},
 	}
 
 	err := character.Validate()

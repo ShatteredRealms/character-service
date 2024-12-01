@@ -7,6 +7,7 @@ import (
 
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/model"
 	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 	goaway "github.com/TwiN/go-away"
@@ -40,11 +41,11 @@ type Character struct {
 	model.Model
 
 	// Owner The username/account that owns the character
-	OwnerId   string          `gorm:"not null" json:"owner"`
-	Name      string          `gorm:"not null;uniqueIndex:udx_name" json:"name"`
-	Gender    game.Gender     `gorm:"not null" json:"gender"`
-	Realm     game.Realm      `gorm:"not null" json:"realm"`
-	Dimension *game.Dimension `gorm:"not null;uniqueIndex:udx_name;foreignKey:Id;references:Id" json:"dimension"`
+	OwnerId   string                  `gorm:"not null" json:"owner"`
+	Name      string                  `gorm:"not null;uniqueIndex:udx_name" json:"name"`
+	Gender    game.Gender             `gorm:"not null" json:"gender"`
+	Realm     game.Realm              `gorm:"not null" json:"realm"`
+	Dimension *dimensionbus.Dimension `gorm:"not null;uniqueIndex:udx_name;foreignKey:Id;references:Id" json:"dimension"`
 
 	// PlayTime Time in minutes the character has played
 	PlayTime uint64 `gorm:"not null" json:"play_time"`
