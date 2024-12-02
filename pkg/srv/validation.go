@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
-	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/go-common-service/pkg/auth"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	commonsrv "github.com/ShatteredRealms/go-common-service/pkg/srv"
 	"github.com/WilSimpson/gocloak/v13"
@@ -63,7 +63,7 @@ func (c *characterServiceServer) validateRole(ctx context.Context, role *gocloak
 	return nil
 }
 
-func (c *characterServiceServer) getDimension(ctx context.Context, dimensionId string) (*game.Dimension, error) {
+func (c *characterServiceServer) getDimension(ctx context.Context, dimensionId string) (*dimensionbus.Dimension, error) {
 	dimension, err := c.Context.DimensionService.GetDimensionById(ctx, dimensionId)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrDimensionLookup, err)

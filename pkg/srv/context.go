@@ -8,6 +8,8 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/repository"
 	"github.com/ShatteredRealms/character-service/pkg/service"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus/character/characterbus"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	commonrepo "github.com/ShatteredRealms/go-common-service/pkg/repository"
 	commonsrv "github.com/ShatteredRealms/go-common-service/pkg/srv"
 )
@@ -15,18 +17,16 @@ import (
 type CharacterContext struct {
 	*commonsrv.Context
 
-	CharacterBusWriter bus.MessageBusWriter[bus.CharacterMessage]
-	DimensionBusReader bus.MessageBusReader[bus.DimensionMessage]
+	CharacterBusWriter bus.MessageBusWriter[characterbus.Message]
 
 	CharacterService service.CharacterService
-	DimensionService service.DimensionService
+	DimensionService dimensionbus.Service
 }
 
 func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, serviceName string) (*CharacterContext, error) {
 	characterCtx := &CharacterContext{
 		Context:            commonsrv.NewContext(&cfg.BaseConfig, serviceName),
-		CharacterBusWriter: bus.NewKafkaMessageBusWriter(cfg.Kafka, bus.CharacterMessage{}),
-		DimensionBusReader: bus.NewKafkaMessageBusReader(cfg.Kafka, serviceName, bus.DimensionMessage{}),
+		CharacterBusWriter: bus.NewKafkaMessageBusWriter(cfg.Kafka, characterbus.Message{}),
 	}
 	ctx, span := characterCtx.Tracer.Start(ctx, "context.character.new")
 	defer span.End()
@@ -39,8 +39,9 @@ func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, servi
 	characterCtx.CharacterService = service.NewCharacterService(
 		repository.NewPostgresCharacterRepository(pg),
 	)
-	characterCtx.DimensionService = service.NewDimensionService(
-		repository.NewPostgresDimensionRepository(pg),
+	characterCtx.DimensionService = dimensionbus.NewService(
+		dimensionbus.NewPostgresRepository(pg),
+		bus.NewKafkaMessageBusReader(cfg.Kafka, serviceName, dimensionbus.Message{}),
 	)
 
 	return characterCtx, nil
