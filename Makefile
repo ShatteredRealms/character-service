@@ -144,10 +144,13 @@ install-tools:
 git: git-patch
 git-major:
 	git tag -a v$(shell echo $(MAJOR_VERSION)+1 | bc).0.0
+	git push
 	git push --tags
 git-minor:
 	git tag -a v$(MAJOR_VERSION).$(shell echo $(MINOR_VERSION)+1 | bc).0 
+	git push
 	git push --tags
 git-patch:
 	git tag v$(MAJOR_VERSION).$(MINOR_VERSION).$(shell echo $(PATCH_VERSION)+1 | bc)
+	git push
 	git push --tags
