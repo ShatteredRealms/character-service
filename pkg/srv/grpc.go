@@ -13,6 +13,7 @@ import (
 	commonpb "github.com/ShatteredRealms/go-common-service/pkg/pb"
 	"github.com/ShatteredRealms/go-common-service/pkg/util"
 	"github.com/WilSimpson/gocloak/v13"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -44,6 +45,7 @@ var (
 	ErrCharacterGet          = errors.New("CS-C-03")
 	ErrCharacterEdit         = errors.New("CS-C-04")
 	ErrCharacterPlaytime     = errors.New("CS-C-05")
+	ErrCharacterIdInvalid    = errors.New("CS-C-07")
 
 	ErrDimensionNotExist = errors.New("CS-D-01")
 	ErrDimensionLookup   = errors.New("CS-D-02")
@@ -72,7 +74,12 @@ func (s *characterServiceServer) AddCharacterPlayTime(ctx context.Context, reque
 		return nil, err
 	}
 
-	character, err := s.getCharacterById(ctx, request.GetCharacterId())
+	id, err := uuid.Parse(request.GetCharacterId())
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, ErrCharacterIdInvalid.Error())
+	}
+
+	character, err := s.getCharacterById(ctx, &id)
 	if err != nil {
 		return nil, err
 	}
@@ -120,12 +127,17 @@ func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 
 // DeleteCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) DeleteCharacter(ctx context.Context, request *commonpb.TargetId) (*emptypb.Empty, error) {
-	_, err := s.getCharacterAndAuthCheck(ctx, request.Id)
+	id, err := uuid.Parse(request.Id)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, ErrCharacterIdInvalid.Error())
+	}
+
+	_, err = s.getCharacterAndAuthCheck(ctx, &id)
 	if err != nil {
 		return nil, err
 	}
 
-	c, err := s.Context.CharacterService.DeleteCharacter(ctx, request.Id)
+	c, err := s.Context.CharacterService.DeleteCharacter(ctx, &id)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterDelete, err)
 		return nil, status.Error(codes.Internal, ErrCharacterDelete.Error())
@@ -147,7 +159,12 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		return nil, err
 	}
 
-	char, err := s.getCharacterById(ctx, request.GetCharacterId())
+	id, err := uuid.Parse(request.GetCharacterId())
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, ErrCharacterIdInvalid.Error())
+	}
+
+	char, err := s.getCharacterById(ctx, &id)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +223,12 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 
 // GetCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) GetCharacter(ctx context.Context, request *commonpb.TargetId) (*pb.CharacterDetails, error) {
-	character, err := s.getCharacterAndAuthCheck(ctx, request.Id)
+	id, err := uuid.Parse(request.Id)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, ErrCharacterIdInvalid.Error())
+	}
+
+	character, err := s.getCharacterAndAuthCheck(ctx, &id)
 	if err != nil {
 		return nil, err
 	}

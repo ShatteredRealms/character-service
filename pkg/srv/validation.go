@@ -9,11 +9,12 @@ import (
 	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	commonsrv "github.com/ShatteredRealms/go-common-service/pkg/srv"
 	"github.com/WilSimpson/gocloak/v13"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (c *characterServiceServer) getCharacterAndAuthCheck(ctx context.Context, characterId string) (*character.Character, error) {
+func (c *characterServiceServer) getCharacterAndAuthCheck(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	claims, ok := auth.RetrieveClaims(ctx)
 	if !ok {
 		return nil, commonsrv.ErrPermissionDenied

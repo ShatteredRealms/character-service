@@ -7,6 +7,7 @@ import (
 
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/go-common-service/pkg/srospan"
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -27,7 +28,7 @@ func NewPostgresCharacterRepository(db *gorm.DB) CharacterRepository {
 }
 
 // DeleteCharacter implements CharacterRepository.
-func (p *postgresCharacterRepository) DeleteCharacter(ctx context.Context, characterId string) (character *character.Character, err error) {
+func (p *postgresCharacterRepository) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (character *character.Character, err error) {
 	err = p.db(ctx).Clauses(clause.Returning{}).Delete(&character, "id = ?", characterId).Error
 	updateSpanWithCharacter(ctx, character)
 	return character, err
@@ -46,7 +47,7 @@ func (p *postgresCharacterRepository) GetCharacters(ctx context.Context) (charac
 }
 
 // GetCharacterById implements CharacterRepository.
-func (p *postgresCharacterRepository) GetCharacterById(ctx context.Context, characterId string) (*character.Character, error) {
+func (p *postgresCharacterRepository) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	var character *character.Character
 	result := p.db(ctx).Where("id = ?", characterId).Find(&character)
 	if result.Error != nil {

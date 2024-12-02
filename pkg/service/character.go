@@ -8,6 +8,7 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/repository"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
+	"github.com/google/uuid"
 )
 
 var (
@@ -18,11 +19,11 @@ type CharacterService interface {
 	GetCharacters(ctx context.Context) (*character.Characters, error)
 	GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error)
 
-	GetCharacterById(ctx context.Context, characterId string) (*character.Character, error)
+	GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
 	CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, dimension *dimensionbus.Dimension) (*character.Character, error)
 
-	DeleteCharacter(ctx context.Context, characterId string) (*character.Character, error)
+	DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
 	EditCharacter(ctx context.Context, character *character.Character) (*character.Character, error)
 
@@ -62,7 +63,7 @@ func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, 
 }
 
 // DeleteCharacter implements CharacterService.
-func (c *characterService) DeleteCharacter(ctx context.Context, characterId string) (*character.Character, error) {
+func (c *characterService) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	return c.repo.DeleteCharacter(ctx, characterId)
 }
 
@@ -77,7 +78,7 @@ func (c *characterService) EditCharacter(ctx context.Context, character *charact
 }
 
 // GetCharacterById implements CharacterService.
-func (c *characterService) GetCharacterById(ctx context.Context, characterId string) (*character.Character, error) {
+func (c *characterService) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	return c.repo.GetCharacterById(ctx, characterId)
 }
 
