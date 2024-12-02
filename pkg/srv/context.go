@@ -20,6 +20,7 @@ type CharacterContext struct {
 	CharacterBusWriter bus.MessageBusWriter[characterbus.Message]
 
 	CharacterService service.CharacterService
+
 	DimensionService dimensionbus.Service
 }
 
@@ -43,6 +44,7 @@ func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, servi
 		dimensionbus.NewPostgresRepository(pg),
 		bus.NewKafkaMessageBusReader(cfg.Kafka, serviceName, dimensionbus.Message{}),
 	)
+	characterCtx.DimensionService.StartProcessing(ctx)
 
 	return characterCtx, nil
 }

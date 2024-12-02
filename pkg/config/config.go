@@ -28,7 +28,7 @@ func NewCharacterConfig(ctx context.Context) (*CharacterConfig, error) {
 			Keycloak: cconfig.KeycloakConfig{
 				BaseURL:      "http://localhost:8080",
 				Realm:        "default",
-				Id:           "7b575e9b-c687-4cdc-b210-67c59b5f380f",
+				Id:           "738a426a-da91-4b16-b5fc-92d63a22eb76",
 				ClientId:     "sro-character-service",
 				ClientSecret: "**********",
 			},

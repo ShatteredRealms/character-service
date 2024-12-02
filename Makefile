@@ -23,7 +23,6 @@ endif
 BASE_VERSION = $(shell git describe --tags --always --abbrev=0 --match='v[0-9]*.[0-9]*.[0-9]*' 2> /dev/null | sed 's/^.//')
 COMMIT_HASH = $(shell git rev-parse --short HEAD)
 
-
 # Gets the directory containing the Makefile
 ROOT_DIR = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
@@ -40,6 +39,17 @@ PROTO_DIR=$(ROOT_DIR)/api
 PROTO_FILES = "$(PROTO_DIR)/sro/character/character.proto"
 
 MOCK_INTERFACES = $(shell egrep -rl --include="*.go" "type (\w*) interface {" $(ROOT_DIR)/pkg | sed "s/.go$$//")
+
+# Versioning
+VERSION=$(BASE_VERSION)
+ifeq ($(VERSION),)
+	VERSION := 0.0.0
+endif
+
+VERSION_PARTS=(${VERSION//./ })
+MAJOR_VERSION=${VERSION_PARTS[0]}
+MINOR_VERSION=${VERSION_PARTS[1]}
+PATCH_VERSION=${VERSION_PARTS[2]}
 
 #   _____                    _
 #  |_   _|                  | |
@@ -130,3 +140,14 @@ move-protos:
 
 install-tools:
 	  cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %@latest
+
+git: git-patch
+git-major:
+	git tag -a v$(shell echo $(MAJOR_VERSION)+1 | bc).0.0 
+	git push --tags
+git-minor:
+	git tag -a v$(shell echo $(MINOR_VERSION)+1 | bc).0.0 
+	git push --tags
+git-patch:
+	git tag -a v$(shell echo $(PATCH_VERSION)+1 | bc).0.0 
+	git push --tags
