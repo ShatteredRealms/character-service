@@ -64,6 +64,8 @@ github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5/go.mod h1:lmUJ/7eu/Q8
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/ShatteredRealms/go-common-service v0.6.0 h1:FTY2onF+dZC3989aMzOWoaHqE0KuDCWVl80B0J9CHzk=
 github.com/ShatteredRealms/go-common-service v0.6.0/go.mod h1:W4AsfaI3H8OM+CuSqYOarQeWttSSBxJNujV9Tyc/FNQ=
+github.com/ShatteredRealms/go-common-service v0.6.1 h1:7F3jJqea+g1P88wxBjeNYJzpendRlfSuq5yIVFn15aY=
+github.com/ShatteredRealms/go-common-service v0.6.1/go.mod h1:W4AsfaI3H8OM+CuSqYOarQeWttSSBxJNujV9Tyc/FNQ=
 github.com/TwiN/go-away v1.6.14 h1:gjFP+6/A36gmj0NpYX0Sz9hrdU0KtHwtNWYnsJgV4fo=
 github.com/TwiN/go-away v1.6.14/go.mod h1:d+Gv3XuqjIeFqXYuAIzlyNoDzr1vNsP5B/hRY3u/VLs=
 github.com/WilSimpson/gocloak/v13 v13.11.2 h1:PAPQVBxj3rknQKmyaDudGYPAEn/s0fkJUGEm8iSU7xs=

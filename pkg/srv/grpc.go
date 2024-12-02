@@ -108,9 +108,11 @@ func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 	}
 
 	s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
-		Id:      character.Id.String(),
-		OwnerId: character.OwnerId,
-		Deleted: false,
+		Id:          character.Id.String(),
+		OwnerId:     character.OwnerId,
+		DimensionId: character.Dimension.Id,
+		MapId:       character.Location.World,
+		Deleted:     false,
 	})
 
 	return character.ToPb(), nil
@@ -169,6 +171,7 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 	}
 	if request.OptionalLocation != nil {
 		char.Location = *commongame.LocationFromPb(request.GetLocation())
+		publishChanges = true
 	}
 	if request.OptionalDimension != nil {
 		_, err := s.getDimension(ctx, request.GetDimensionId())
@@ -176,6 +179,7 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 			return nil, err
 		}
 		char.Dimension.Id = request.GetDimensionId()
+		publishChanges = true
 	}
 
 	c, err := s.Context.CharacterService.EditCharacter(ctx, char)
@@ -189,9 +193,11 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 
 	if publishChanges {
 		s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
-			Id:      c.Id.String(),
-			OwnerId: c.OwnerId,
-			Deleted: false,
+			Id:          c.Id.String(),
+			OwnerId:     c.OwnerId,
+			DimensionId: c.Dimension.Id,
+			MapId:       c.Location.World,
+			Deleted:     false,
 		})
 	}
 

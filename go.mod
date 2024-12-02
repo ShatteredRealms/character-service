@@ -3,7 +3,7 @@ module github.com/ShatteredRealms/character-service
 go 1.23.3
 
 require (
-	github.com/ShatteredRealms/go-common-service v0.6.0
+	github.com/ShatteredRealms/go-common-service v0.6.1
 	github.com/WilSimpson/gocloak/v13 v13.11.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0
 	github.com/mitranim/gow v0.0.0-20231026105220-af11a6e1e9eb
