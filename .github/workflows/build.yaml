@@ -2,7 +2,7 @@ name: Build Image
 
 on:
   workflow_run:
-    workflows: ["Run Tests"]
+    workflows: ["Unit and Integration Tests"]
     types:
       - completed
 
