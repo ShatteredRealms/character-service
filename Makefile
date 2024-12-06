@@ -1,4 +1,4 @@
-#)####################################################################################
+#####################################################################################
 #   _____ _           _   _                    _   _____            _               #
 #  / ____| |         | | | |                  | | |  __ \          | |              #
 # | (___ | |__   __ _| |_| |_ ___ _ __ ___  __| | | |__) |___  __ _| |_ __ ___  ___ #
@@ -22,6 +22,8 @@ endif
 # Application versions
 BASE_VERSION = $(shell git describe --tags --always --abbrev=0 --match='v[0-9]*.[0-9]*.[0-9]*' 2> /dev/null | sed 's/^.//')
 COMMIT_HASH = $(shell git rev-parse --short HEAD)
+
+COVERAGE_FILE=coverage.out
 
 # Gets the directory containing the Makefile
 ROOT_DIR = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
@@ -62,19 +64,19 @@ PATCH_VERSION=$(word 3,$(VERSION_PARTS))
 
 .PHONY: test report mocks clean-mocks report-watch $(APP_NAME)
 test:
-	ginkgo --race -p --cover -covermode atomic -coverprofile=coverage.out --output-dir $(ROOT_DIR)/ $(ROOT_DIR)/pkg/...
+	ginkgo --randomize-all -p --cover -covermode atomic -coverprofile=$(COVERAGE_FILE) --output-dir $(ROOT_DIR)/ --output-interceptor-mode=none $(ROOT_DIR)/pkg/...
 
 test-watch:
-	ginkgo watch --race -p --cover -covermode atomic -output-dir=$(ROOT_DIR) $(ROOT_DIR)/...
+	ginkgo watch --randomize-all -p --cover -covermode atomic -coverprofile=$(COVERAGE_FILE) -output-dir=$(ROOT_DIR) $(ROOT_DIR)/...
 
 report: test
-	go tool cover -func=$(ROOT_DIR)/coverage.out
-	go tool cover -html=$(ROOT_DIR)/coverage.out
+	go tool cover -func=$(ROOT_DIR)/$(COVERAGE_FILE) -o $(ROOT_DIR)/coverage.txt
+	go tool cover -html=$(ROOT_DIR)/$(COVERAGE_FILE) -o $(ROOT_DIR)/coverage.html
 
 report-watch:
-	while inotifywait -e close_write $(ROOT_DIR)/coverage.out; do \
-		go tool cover -func=$(ROOT_DIR)/coverage.out; \
-		go tool cover -html=$(ROOT_DIR)/coverage.out; \
+	while inotifywait -e close_write $(ROOT_DIR)/$(COVERAGE_FILE); do \
+		go tool cover -func=$(ROOT_DIR)/$(COVERAGE_FILE) -o $(ROOT_DIR)/coverage.txt; \
+		go tool cover -html=$(ROOT_DIR)/$(COVERAGE_FILE) -o $(ROOT_DIR)/coverage.html; \
 	done
 
 dev-watch: test-watch report-watch
@@ -115,8 +117,6 @@ push:
 
 docker-push: docker push
 
-build-image-push: build-image push 
-
 .PHONY: clean-protos protos $(PROTO_FILES)
 
 clean-protos:
@@ -143,11 +143,11 @@ install-tools:
 
 git: git-patch
 git-major:
-	git tag -a v$(shell echo $(MAJOR_VERSION)+1 | bc).0.0
+	git tag v$(shell echo $(MAJOR_VERSION)+1 | bc).0.0
 	git push
 	git push --tags
 git-minor:
-	git tag -a v$(MAJOR_VERSION).$(shell echo $(MINOR_VERSION)+1 | bc).0 
+	git tag v$(MAJOR_VERSION).$(shell echo $(MINOR_VERSION)+1 | bc).0 
 	git push
 	git push --tags
 git-patch:
