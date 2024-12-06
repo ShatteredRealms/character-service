@@ -83,11 +83,7 @@ func main() {
 	// Setup Complete
 	log.Logger.WithContext(ctx).Info("Initializtion complete")
 	span.End()
-
-	srvErr := make(chan error, 1)
-	go func() {
-		srvErr <- util.StartServer(ctx, grpcServer, gwmux, cfg.Server.Address())
-	}()
+	srv, srvErr := util.StartServer(ctx, grpcServer, gwmux, cfg.Server.Address())
 
 	select {
 	case err := <-srvErr:
@@ -97,6 +93,7 @@ func main() {
 
 	case <-ctx.Done():
 		log.Logger.Info("Server canceled by user input.")
+		srv.Shutdown(ctx)
 		stop()
 	}
 
