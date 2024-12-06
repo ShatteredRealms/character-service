@@ -3,7 +3,7 @@ module github.com/ShatteredRealms/character-service
 go 1.23.3
 
 require (
-	github.com/ShatteredRealms/go-common-service v0.7.2
+	github.com/ShatteredRealms/go-common-service v0.7.4
 	github.com/WilSimpson/gocloak/v13 v13.11.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0
 	github.com/mitranim/gow v0.0.0-20231026105220-af11a6e1e9eb
@@ -24,6 +24,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/getkin/kin-openapi v0.80.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/go-faker/faker/v4 v4.5.0 // indirect
 	github.com/go-gorm/caches/v4 v4.0.5 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/swag v0.22.3 // indirect
