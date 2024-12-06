@@ -1,4 +1,4 @@
-# Overview
+# Overview [![Unit and Integration Tests](https://github.com/ShatteredRealms/character-service/actions/workflows/test.yml/badge.svg)](https://github.com/ShatteredRealms/character-service/actions/workflows/test.yml) [![Build Image](https://github.com/ShatteredRealms/character-service/actions/workflows/build.yaml/badge.svg)](https://github.com/ShatteredRealms/character-service/actions/workflows/build.yaml) [![codecov](https://codecov.io/gh/ShatteredRealms/character-service/graph/badge.svg?token=ilgAvOcXo3)](https://codecov.io/gh/ShatteredRealms/character-service)
 
 
 # Development
