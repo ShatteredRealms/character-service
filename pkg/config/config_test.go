@@ -1,8 +1,11 @@
 package config_test
 
 import (
+	"fmt"
 	"io"
+	"os"
 
+	"github.com/go-faker/faker/v4"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -11,11 +14,17 @@ import (
 )
 
 var _ = Describe("NewCharacterConfig", func() {
+	envKey := "SRO_SERVER_HOST"
+	envVal := faker.Username()
+	Expect(os.Setenv(envKey, envVal)).To(Succeed())
+
+	var err error
+	cfg, err := config.NewCharacterConfig(nil)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(cfg).NotTo(BeNil())
+	log.Logger.Out = io.Discard
+
 	It("should return a new CharacterConfig", func() {
-		log.Logger.Out = io.Discard
-		cfg, err := config.NewCharacterConfig(nil)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(cfg).NotTo(BeNil())
 		Expect(cfg.Server.Host).NotTo(BeEmpty())
 		Expect(cfg.Server.Port).NotTo(BeEmpty())
 		Expect(cfg.Keycloak.BaseURL).To(ContainSubstring("http://"))
@@ -36,5 +45,21 @@ var _ = Describe("NewCharacterConfig", func() {
 		Expect(cfg.Redis.Master.Host).NotTo(BeEmpty())
 		Expect(cfg.Redis.Master.Port).NotTo(BeEmpty())
 		Expect(cfg.Redis.Master.Port).NotTo(BeEmpty())
+	})
+
+	It("should bind to environment variables", func() {
+		Expect(cfg.Server.Host).To(Equal(envVal))
+	})
+
+	It("should read from a config file", func() {
+		randStr := faker.Username()   + "a"
+		cfgData := []byte(fmt.Sprintf("keycloak:\n  realm: %s\nserver:\n  host: %s", randStr, randStr))
+		Expect(os.WriteFile("sro-character.yaml", cfgData, 0644)).To(Succeed())
+		defer os.Remove("sro-character.yaml")
+		cfg2, err := config.NewCharacterConfig(nil)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(cfg2).NotTo(BeNil())
+		Expect(cfg2.Keycloak.Realm).To(Equal(randStr))
+		Expect(cfg2.Server.Host).NotTo(Equal(randStr))
 	})
 })

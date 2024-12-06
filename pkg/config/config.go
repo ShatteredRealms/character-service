@@ -13,7 +13,7 @@ var (
 )
 
 type CharacterConfig struct {
-	cconfig.BaseConfig `yaml:",inline" characterstructure:",squash"`
+	cconfig.BaseConfig `yaml:",inline" mapstructure:",squash"`
 	Postgres           cconfig.DBPoolConfig `yaml:"postgres"`
 	Redis              cconfig.DBPoolConfig `yaml:"redis"`
 }
