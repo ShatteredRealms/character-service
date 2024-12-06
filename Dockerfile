@@ -9,7 +9,7 @@ COPY . .
 ARG APP_VERSION=v0.0.1
 RUN go build \
 	-ldflags="-X 'github.com/ShatteredRealms/character-service/pkg/config/default.Version=${APP_VERSION}'" \
-	-o /out/character ./cmd/character
+	-o /out/character ./cmd/character-service
 
 # Run server
 FROM alpine:3.15.0

@@ -102,7 +102,7 @@ run-watch:
 deploy: aws-docker-login push
 
 docker:
-	docker build --build-arg APP_VERSION=$(BASE_VERSION) -t sro-$(APP_NAME) -f build/$(APP_NAME).Dockerfile .
+	docker build --build-arg APP_VERSION=$(BASE_VERSION) -t sro-$(APP_NAME) -f Dockerfile .
 
 aws-docker-login:
 	aws ecr get-login-password | docker login --username AWS --password-stdin $(SRO_BASE_REGISTRY)
