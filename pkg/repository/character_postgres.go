@@ -23,11 +23,11 @@ type postgresCharacterRepository struct {
 }
 
 func NewPostgresCharacter(db *gorm.DB) (CharacterRepository, error) {
-	return &postgresCharacterRepository{gormdb: db}, db.AutoMigrate(&character.Character{})
+	return &postgresCharacterRepository{gormdb: db}, db.AutoMigrate(&character.Model{})
 }
 
 // DeleteCharacter implements CharacterRepository.
-func (p *postgresCharacterRepository) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (character *character.Character, _ error) {
+func (p *postgresCharacterRepository) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (character *character.Model, _ error) {
 	result := p.db(ctx).Clauses(clause.Returning{}).Delete(&character, "id = ?", characterId)
 	if result.RowsAffected > 0 {
 		updateSpanWithCharacter(ctx, character)
@@ -38,20 +38,20 @@ func (p *postgresCharacterRepository) DeleteCharacter(ctx context.Context, chara
 }
 
 // DeleteCharactersByOwner implements CharacterRepository.
-func (p *postgresCharacterRepository) DeleteCharactersByOwner(ctx context.Context, ownerId string) (characters *character.Characters, err error) {
+func (p *postgresCharacterRepository) DeleteCharactersByOwner(ctx context.Context, ownerId string) (characters *character.Models, err error) {
 	err = p.db(ctx).Clauses(clause.Returning{}).Delete(&characters, "owner_id = ?", ownerId).Error
 	updateSpanWithOwner(ctx, ownerId)
 	return characters, err
 }
 
 // GetCharacters implements CharacterRepository.
-func (p *postgresCharacterRepository) GetCharacters(ctx context.Context) (characters *character.Characters, _ error) {
+func (p *postgresCharacterRepository) GetCharacters(ctx context.Context) (characters *character.Models, _ error) {
 	return characters, p.db(ctx).Find(&characters).Error
 }
 
 // GetCharacterById implements CharacterRepository.
-func (p *postgresCharacterRepository) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
-	var character *character.Character
+func (p *postgresCharacterRepository) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Model, error) {
+	var character *character.Model
 	result := p.db(ctx).Where("id = ?", characterId).Find(&character)
 	if result.Error != nil {
 		return nil, result.Error
@@ -64,12 +64,12 @@ func (p *postgresCharacterRepository) GetCharacterById(ctx context.Context, char
 }
 
 // GetCharactersByOwner implements CharacterRepository.
-func (p *postgresCharacterRepository) GetCharactersByOwner(ctx context.Context, ownerId string) (characters *character.Characters, err error) {
+func (p *postgresCharacterRepository) GetCharactersByOwner(ctx context.Context, ownerId string) (characters *character.Models, err error) {
 	updateSpanWithOwner(ctx, ownerId)
 	return characters, p.db(ctx).Where("owner_id = ?", ownerId).Find(&characters).Error
 }
 
-func (p *postgresCharacterRepository) UpdateCharacter(ctx context.Context, updatedCharacter *character.Character) (*character.Character, error) {
+func (p *postgresCharacterRepository) UpdateCharacter(ctx context.Context, updatedCharacter *character.Model) (*character.Model, error) {
 	if err := p.db(ctx).Save(&updatedCharacter).Error; err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (p *postgresCharacterRepository) UpdateCharacter(ctx context.Context, updat
 }
 
 // CreateCharacter implements CharacterRepository.
-func (p *postgresCharacterRepository) CreateCharacter(ctx context.Context, newCharacter *character.Character) (*character.Character, error) {
+func (p *postgresCharacterRepository) CreateCharacter(ctx context.Context, newCharacter *character.Model) (*character.Model, error) {
 	if newCharacter.Id != nil {
 		return nil, ErrCharacterIdProvided
 	}
@@ -102,7 +102,7 @@ func updateSpanWithOwner(ctx context.Context, ownerId string) {
 	)
 }
 
-func updateSpanWithCharacter(ctx context.Context, character *character.Character) {
+func updateSpanWithCharacter(ctx context.Context, character *character.Model) {
 	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(
 		srospan.TargetCharacterId(character.Id.String()),

@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (c *characterServiceServer) getCharacterAndAuthCheck(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
+func (c *characterServiceServer) getCharacterAndAuthCheck(ctx context.Context, characterId *uuid.UUID) (*character.Model, error) {
 	claims, ok := auth.RetrieveClaims(ctx)
 	if !ok {
 		return nil, commonsrv.ErrPermissionDenied

@@ -37,7 +37,7 @@ var (
 	ErrNameProfane = fmt.Errorf("%w: character name contains invalid words", ErrValidation)
 )
 
-type Character struct {
+type Model struct {
 	model.Model
 
 	// Owner The username/account that owns the character
@@ -54,7 +54,7 @@ type Character struct {
 	// Location last location recorded for the character
 	Location commongame.Location `gorm:"type:bytes;serializer:gob" json:"location"`
 }
-type Characters []*Character
+type Models []*Model
 
 var (
 	detector *goaway.ProfanityDetector
@@ -65,7 +65,7 @@ func init() {
 	detector.WithSanitizeLeetSpeak(true)
 }
 
-func (c *Character) Validate() error {
+func (c *Model) Validate() error {
 	if err := c.ValidateGender(); err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (c *Character) Validate() error {
 	return c.ValidateName()
 }
 
-func (c *Character) ValidateName() error {
+func (c *Model) ValidateName() error {
 	if len(c.Name) < MinCharacterNameLength {
 		return ErrNameToShort
 	}
@@ -97,7 +97,7 @@ func (c *Character) ValidateName() error {
 	return nil
 }
 
-func (c *Character) ValidateGender() error {
+func (c *Model) ValidateGender() error {
 	if game.IsValidGender(c.Gender) {
 		return nil
 	}
@@ -105,7 +105,7 @@ func (c *Character) ValidateGender() error {
 	return game.ErrorInvalidGender
 }
 
-func (c *Character) ValidateRealm() error {
+func (c *Model) ValidateRealm() error {
 	if game.IsValidRealm(c.Realm) {
 		return nil
 	}
@@ -113,7 +113,7 @@ func (c *Character) ValidateRealm() error {
 	return game.ErrorInvalidRealm
 }
 
-func (c *Character) ToPb() *pb.CharacterDetails {
+func (c *Model) ToPb() *pb.CharacterDetails {
 	return &pb.CharacterDetails{
 		CharacterId: c.Id.String(),
 		OwnerId:     c.OwnerId,
@@ -126,7 +126,7 @@ func (c *Character) ToPb() *pb.CharacterDetails {
 	}
 }
 
-func (c Characters) ToPb() *pb.CharactersDetails {
+func (c Models) ToPb() *pb.CharactersDetails {
 	resp := &pb.CharactersDetails{Characters: make([]*pb.CharacterDetails, len(c))}
 	for idx, character := range c {
 		if character != nil {

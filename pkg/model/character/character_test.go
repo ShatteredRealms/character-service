@@ -15,11 +15,11 @@ import (
 
 var _ = Describe("pkg/model/character.Character", func() {
 	var (
-		c *character.Character
+		c *character.Model
 	)
 
 	BeforeEach(func() {
-		c = &character.Character{
+		c = &character.Model{
 			Name:   faker.Username(),
 			Gender: game.GenderMale,
 			Realm:  game.RealmHuman,
@@ -35,7 +35,7 @@ var _ = Describe("pkg/model/character.Character", func() {
 	Describe("proto conversions", func() {
 		var (
 			pbs        []*pb.CharacterDetails
-			characters character.Characters
+			characters character.Models
 		)
 		It("should convert to a character to a pb ", func() {
 			pbs = append(pbs, c.ToPb())
@@ -43,9 +43,9 @@ var _ = Describe("pkg/model/character.Character", func() {
 		})
 		It("should convert to characters to a pb", func() {
 			count := 3 + rand.Int()%7
-			var newCharacter *character.Character
+			var newCharacter *character.Model
 			for i := 0; i < count; i++ {
-				newCharacter = new(character.Character)
+				newCharacter = new(character.Model)
 				Expect(faker.FakeData(newCharacter)).To(Succeed())
 				characters = append(characters, newCharacter)
 			}

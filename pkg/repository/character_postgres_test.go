@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("CharacterPostgres", Ordered, func() {
 	var repo repository.CharacterRepository
-	var c, c2 *character.Character
+	var c, c2 *character.Model
 	var dimensionId string
 
 	BeforeAll(func() {
@@ -32,7 +32,7 @@ var _ = Describe("CharacterPostgres", Ordered, func() {
 		repo, err = repository.NewPostgresCharacter(gdb)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(repo).NotTo(BeNil())
-		c = &character.Character{
+		c = &character.Model{
 			OwnerId:     faker.UUIDHyphenated(),
 			Name:        faker.Username(),
 			Gender:      game.GenderMale,
@@ -86,7 +86,7 @@ var _ = Describe("CharacterPostgres", Ordered, func() {
 			c = outC
 		})
 		It("should not allow duplicate names", func(ctx SpecContext) {
-			c2 = &character.Character{
+			c2 = &character.Model{
 				OwnerId:     faker.UUIDHyphenated(),
 				Name:        c.Name,
 				Gender:      game.GenderMale,
