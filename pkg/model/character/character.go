@@ -56,6 +56,15 @@ type Character struct {
 }
 type Characters []*Character
 
+var (
+	detector *goaway.ProfanityDetector
+)
+
+func init() {
+	detector = goaway.NewProfanityDetector()
+	detector.WithSanitizeLeetSpeak(true)
+}
+
 func (c *Character) Validate() error {
 	if err := c.ValidateGender(); err != nil {
 		return err
@@ -81,7 +90,7 @@ func (c *Character) ValidateName() error {
 		return ErrNameInvalid
 	}
 
-	if goaway.IsProfane(c.Name) {
+	if detector.IsProfane(c.Name) {
 		return ErrNameProfane
 	}
 
