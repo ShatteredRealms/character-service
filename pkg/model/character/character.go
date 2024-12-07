@@ -42,7 +42,7 @@ type Character struct {
 
 	// Owner The username/account that owns the character
 	OwnerId     string                  `gorm:"not null" json:"owner"`
-	Name        string                  `gorm:"not null;uniqueIndex:idx_deleted" json:"name"`
+	Name        string                  `gorm:"uniqueIndex:idx_deleted" json:"name"`
 	Gender      game.Gender             `gorm:"not null" json:"gender"`
 	Realm       game.Realm              `gorm:"not null" json:"realm"`
 	DimensionId string                  `gorm:"not null" json:"dimensionId"`

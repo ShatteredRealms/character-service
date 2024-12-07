@@ -22,16 +22,19 @@ type postgresCharacterRepository struct {
 	gormdb *gorm.DB
 }
 
-func NewPostgresCharacterRepository(db *gorm.DB) CharacterRepository {
-	db.AutoMigrate(&character.Character{})
-	return &postgresCharacterRepository{gormdb: db}
+func NewPostgresCharacter(db *gorm.DB) (CharacterRepository, error) {
+	return &postgresCharacterRepository{gormdb: db}, db.AutoMigrate(&character.Character{})
 }
 
 // DeleteCharacter implements CharacterRepository.
-func (p *postgresCharacterRepository) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (character *character.Character, err error) {
-	err = p.db(ctx).Clauses(clause.Returning{}).Delete(&character, "id = ?", characterId).Error
-	updateSpanWithCharacter(ctx, character)
-	return character, err
+func (p *postgresCharacterRepository) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (character *character.Character, _ error) {
+	result := p.db(ctx).Clauses(clause.Returning{}).Delete(&character, "id = ?", characterId)
+	if result.RowsAffected > 0 {
+		updateSpanWithCharacter(ctx, character)
+	} else {
+		character = nil
+	}
+	return character, result.Error
 }
 
 // DeleteCharactersByOwner implements CharacterRepository.
@@ -62,13 +65,8 @@ func (p *postgresCharacterRepository) GetCharacterById(ctx context.Context, char
 
 // GetCharactersByOwner implements CharacterRepository.
 func (p *postgresCharacterRepository) GetCharactersByOwner(ctx context.Context, ownerId string) (characters *character.Characters, err error) {
-	err = p.db(ctx).Where("owner_id = ?", ownerId).Find(&characters).Error
-	if err != nil {
-		return nil, err
-	}
-
 	updateSpanWithOwner(ctx, ownerId)
-	return characters, nil
+	return characters, p.db(ctx).Where("owner_id = ?", ownerId).Find(&characters).Error
 }
 
 func (p *postgresCharacterRepository) UpdateCharacter(ctx context.Context, updatedCharacter *character.Character) (*character.Character, error) {

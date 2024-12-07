@@ -37,8 +37,13 @@ func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, servi
 		return nil, fmt.Errorf("connect db: %w", err)
 	}
 
+	repo, err := repository.NewPostgresCharacter(pg)
+	if err != nil {
+		return nil, fmt.Errorf("postgres character repository: %w", err)
+	}
+
 	characterCtx.CharacterService = service.NewCharacterService(
-		repository.NewPostgresCharacterRepository(pg),
+		repo,
 	)
 	characterCtx.DimensionService = dimensionbus.NewService(
 		dimensionbus.NewPostgresRepository(pg),
