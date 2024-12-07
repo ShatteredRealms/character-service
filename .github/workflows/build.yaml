@@ -7,8 +7,8 @@ on:
       - completed
 
 env:
-  BASE_REGISTRY: ${{ secrets.BASE_REGISTRY }}
-  REGISTRY: '${{ secrets.BASE_REGISTRY }}/sro'
+  SRO_BASE_REGISTRY: ${{ secrets.BASE_REGISTRY }}
+  SRO_REGISTRY: '${{ secrets.BASE_REGISTRY }}/sro'
 
 permissions:
   id-token: write
