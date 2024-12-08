@@ -44,10 +44,10 @@ func (m *MockCharacterService) EXPECT() *MockCharacterServiceMockRecorder {
 }
 
 // AddCharacterPlaytime mocks base method.
-func (m *MockCharacterService) AddCharacterPlaytime(ctx context.Context, char *character.Model, seconds uint64) (*character.Model, error) {
+func (m *MockCharacterService) AddCharacterPlaytime(ctx context.Context, char *character.Character, seconds uint64) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddCharacterPlaytime", ctx, char, seconds)
-	ret0, _ := ret[0].(*character.Model)
+	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -59,10 +59,10 @@ func (mr *MockCharacterServiceMockRecorder) AddCharacterPlaytime(ctx, char, seco
 }
 
 // CreateCharacter mocks base method.
-func (m *MockCharacterService) CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, dimension *dimensionbus.Dimension) (*character.Model, error) {
+func (m *MockCharacterService) CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, dimension *dimensionbus.Dimension) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateCharacter", ctx, ownerId, name, gender, realm, dimension)
-	ret0, _ := ret[0].(*character.Model)
+	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -74,10 +74,10 @@ func (mr *MockCharacterServiceMockRecorder) CreateCharacter(ctx, ownerId, name, 
 }
 
 // DeleteCharacter mocks base method.
-func (m *MockCharacterService) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Model, error) {
+func (m *MockCharacterService) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteCharacter", ctx, characterId)
-	ret0, _ := ret[0].(*character.Model)
+	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -89,10 +89,10 @@ func (mr *MockCharacterServiceMockRecorder) DeleteCharacter(ctx, characterId any
 }
 
 // EditCharacter mocks base method.
-func (m *MockCharacterService) EditCharacter(ctx context.Context, newCharacter *character.Model) (*character.Model, error) {
+func (m *MockCharacterService) EditCharacter(ctx context.Context, newCharacter *character.Character) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EditCharacter", ctx, newCharacter)
-	ret0, _ := ret[0].(*character.Model)
+	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -104,10 +104,10 @@ func (mr *MockCharacterServiceMockRecorder) EditCharacter(ctx, newCharacter any)
 }
 
 // GetCharacterById mocks base method.
-func (m *MockCharacterService) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Model, error) {
+func (m *MockCharacterService) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharacterById", ctx, characterId)
-	ret0, _ := ret[0].(*character.Model)
+	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -119,10 +119,10 @@ func (mr *MockCharacterServiceMockRecorder) GetCharacterById(ctx, characterId an
 }
 
 // GetCharacters mocks base method.
-func (m *MockCharacterService) GetCharacters(ctx context.Context) (*character.Models, error) {
+func (m *MockCharacterService) GetCharacters(ctx context.Context) (*character.Characters, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharacters", ctx)
-	ret0, _ := ret[0].(*character.Models)
+	ret0, _ := ret[0].(*character.Characters)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -134,10 +134,10 @@ func (mr *MockCharacterServiceMockRecorder) GetCharacters(ctx any) *gomock.Call 
 }
 
 // GetCharactersByOwner mocks base method.
-func (m *MockCharacterService) GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Models, error) {
+func (m *MockCharacterService) GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharactersByOwner", ctx, ownerId)
-	ret0, _ := ret[0].(*character.Models)
+	ret0, _ := ret[0].(*character.Characters)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

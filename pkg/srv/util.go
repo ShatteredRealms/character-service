@@ -10,10 +10,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (c *characterServiceServer) getCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Model, error) {
+func (c *characterServiceServer) getCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	character, err := c.Context.CharacterService.GetCharacterById(ctx, characterId)
 	if err != nil {
-		log.Logger.WithContext(ctx).Errorf("code %v: %w", ErrCharacterGet, err)
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
 	}
 	if character == nil {

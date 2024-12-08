@@ -37,12 +37,12 @@ var (
 	ErrNameProfane = fmt.Errorf("%w: character name contains invalid words", ErrValidation)
 )
 
-type Model struct {
+type Character struct {
 	model.Model
 
 	// Owner The username/account that owns the character
 	OwnerId     string                  `gorm:"not null" json:"owner"`
-	Name        string                  `gorm:"uniqueIndex:idx_deleted" json:"name"`
+	Name        string                  `gorm:"not null;uniqueIndex:idx_deleted" json:"name"`
 	Gender      game.Gender             `gorm:"not null" json:"gender"`
 	Realm       game.Realm              `gorm:"not null" json:"realm"`
 	DimensionId string                  `gorm:"not null" json:"dimensionId"`
@@ -54,7 +54,7 @@ type Model struct {
 	// Location last location recorded for the character
 	Location commongame.Location `gorm:"type:bytes;serializer:gob" json:"location"`
 }
-type Models []*Model
+type Characters []*Character
 
 var (
 	detector *goaway.ProfanityDetector
@@ -65,7 +65,7 @@ func init() {
 	detector.WithSanitizeLeetSpeak(true)
 }
 
-func (c *Model) Validate() error {
+func (c *Character) Validate() error {
 	if err := c.ValidateGender(); err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (c *Model) Validate() error {
 	return c.ValidateName()
 }
 
-func (c *Model) ValidateName() error {
+func (c *Character) ValidateName() error {
 	if len(c.Name) < MinCharacterNameLength {
 		return ErrNameToShort
 	}
@@ -97,7 +97,7 @@ func (c *Model) ValidateName() error {
 	return nil
 }
 
-func (c *Model) ValidateGender() error {
+func (c *Character) ValidateGender() error {
 	if game.IsValidGender(c.Gender) {
 		return nil
 	}
@@ -105,7 +105,7 @@ func (c *Model) ValidateGender() error {
 	return game.ErrorInvalidGender
 }
 
-func (c *Model) ValidateRealm() error {
+func (c *Character) ValidateRealm() error {
 	if game.IsValidRealm(c.Realm) {
 		return nil
 	}
@@ -113,7 +113,7 @@ func (c *Model) ValidateRealm() error {
 	return game.ErrorInvalidRealm
 }
 
-func (c *Model) ToPb() *pb.CharacterDetails {
+func (c *Character) ToPb() *pb.CharacterDetails {
 	return &pb.CharacterDetails{
 		CharacterId: c.Id.String(),
 		OwnerId:     c.OwnerId,
@@ -126,7 +126,7 @@ func (c *Model) ToPb() *pb.CharacterDetails {
 	}
 }
 
-func (c Models) ToPb() *pb.CharactersDetails {
+func (c Characters) ToPb() *pb.CharactersDetails {
 	resp := &pb.CharactersDetails{Characters: make([]*pb.CharacterDetails, len(c))}
 	for idx, character := range c {
 		if character != nil {

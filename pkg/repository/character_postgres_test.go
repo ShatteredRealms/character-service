@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("CharacterPostgres", Ordered, func() {
 	var repo repository.CharacterRepository
-	var c, c2 *character.Model
+	var c, c2 *character.Character
 	var dimensionId string
 
 	BeforeAll(func() {
@@ -32,7 +32,7 @@ var _ = Describe("CharacterPostgres", Ordered, func() {
 		repo, err = repository.NewPostgresCharacter(gdb)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(repo).NotTo(BeNil())
-		c = &character.Model{
+		c = &character.Character{
 			OwnerId:     faker.UUIDHyphenated(),
 			Name:        faker.Username(),
 			Gender:      game.GenderMale,
@@ -49,6 +49,16 @@ var _ = Describe("CharacterPostgres", Ordered, func() {
 				Yaw:   rand.Float32(),
 			},
 		}
+	})
+
+	Describe("NewPostgresCharacter", func() {
+		It("should be able to be called multiple times", func() {
+			for i := 0; i < 2; i++ {
+				repo, err := repository.NewPostgresCharacter(gdb)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(repo).NotTo(BeNil())
+			}
+		})
 	})
 
 	Describe("CreateCharacter", func() {
@@ -86,7 +96,7 @@ var _ = Describe("CharacterPostgres", Ordered, func() {
 			c = outC
 		})
 		It("should not allow duplicate names", func(ctx SpecContext) {
-			c2 = &character.Model{
+			c2 = &character.Character{
 				OwnerId:     faker.UUIDHyphenated(),
 				Name:        c.Name,
 				Gender:      game.GenderMale,

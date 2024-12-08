@@ -16,18 +16,18 @@ var (
 )
 
 type CharacterService interface {
-	GetCharacters(ctx context.Context) (*character.Models, error)
-	GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Models, error)
+	GetCharacters(ctx context.Context) (*character.Characters, error)
+	GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error)
 
-	GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Model, error)
+	GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
-	CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, dimension *dimensionbus.Dimension) (*character.Model, error)
+	CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, dimension *dimensionbus.Dimension) (*character.Character, error)
 
-	DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Model, error)
+	DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
-	EditCharacter(ctx context.Context, newCharacter *character.Model) (*character.Model, error)
+	EditCharacter(ctx context.Context, newCharacter *character.Character) (*character.Character, error)
 
-	AddCharacterPlaytime(ctx context.Context, char *character.Model, seconds uint64) (*character.Model, error)
+	AddCharacterPlaytime(ctx context.Context, char *character.Character, seconds uint64) (*character.Character, error)
 }
 
 type characterService struct {
@@ -39,14 +39,14 @@ func NewCharacterService(repo repository.CharacterRepository) CharacterService {
 }
 
 // AddCharacterPlaytime implements CharacterService.
-func (c *characterService) AddCharacterPlaytime(ctx context.Context, character *character.Model, seconds uint64) (*character.Model, error) {
+func (c *characterService) AddCharacterPlaytime(ctx context.Context, character *character.Character, seconds uint64) (*character.Character, error) {
 	character.PlayTime += seconds
 	return c.repo.UpdateCharacter(ctx, character)
 }
 
 // CreateCharacter implements CharacterService.
-func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, name string, gender string, realm string, dimension *dimensionbus.Dimension) (*character.Model, error) {
-	character := &character.Model{
+func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, name string, gender string, realm string, dimension *dimensionbus.Dimension) (*character.Character, error) {
+	character := &character.Character{
 		Name:      name,
 		OwnerId:   ownerId,
 		Gender:    game.Gender(gender),
@@ -63,12 +63,12 @@ func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, 
 }
 
 // DeleteCharacter implements CharacterService.
-func (c *characterService) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Model, error) {
+func (c *characterService) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	return c.repo.DeleteCharacter(ctx, characterId)
 }
 
 // EditCharacter implements CharacterService.
-func (c *characterService) EditCharacter(ctx context.Context, character *character.Model) (*character.Model, error) {
+func (c *characterService) EditCharacter(ctx context.Context, character *character.Character) (*character.Character, error) {
 	err := character.Validate()
 	if err != nil {
 		return nil, err
@@ -78,16 +78,16 @@ func (c *characterService) EditCharacter(ctx context.Context, character *charact
 }
 
 // GetCharacterById implements CharacterService.
-func (c *characterService) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Model, error) {
+func (c *characterService) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	return c.repo.GetCharacterById(ctx, characterId)
 }
 
 // GetCharacters implements CharacterService.
-func (c *characterService) GetCharacters(ctx context.Context) (*character.Models, error) {
+func (c *characterService) GetCharacters(ctx context.Context) (*character.Characters, error) {
 	return c.repo.GetCharacters(ctx)
 }
 
 // GetCharactersByOwner implements CharacterService.
-func (c *characterService) GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Models, error) {
+func (c *characterService) GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error) {
 	return c.repo.GetCharactersByOwner(ctx, ownerId)
 }

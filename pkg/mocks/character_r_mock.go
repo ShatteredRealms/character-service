@@ -43,10 +43,10 @@ func (m *MockCharacterRepository) EXPECT() *MockCharacterRepositoryMockRecorder 
 }
 
 // CreateCharacter mocks base method.
-func (m *MockCharacterRepository) CreateCharacter(ctx context.Context, newCharacter *character.Model) (*character.Model, error) {
+func (m *MockCharacterRepository) CreateCharacter(ctx context.Context, newCharacter *character.Character) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateCharacter", ctx, newCharacter)
-	ret0, _ := ret[0].(*character.Model)
+	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -58,10 +58,10 @@ func (mr *MockCharacterRepositoryMockRecorder) CreateCharacter(ctx, newCharacter
 }
 
 // DeleteCharacter mocks base method.
-func (m *MockCharacterRepository) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Model, error) {
+func (m *MockCharacterRepository) DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteCharacter", ctx, characterId)
-	ret0, _ := ret[0].(*character.Model)
+	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -73,10 +73,10 @@ func (mr *MockCharacterRepositoryMockRecorder) DeleteCharacter(ctx, characterId 
 }
 
 // DeleteCharactersByOwner mocks base method.
-func (m *MockCharacterRepository) DeleteCharactersByOwner(ctx context.Context, ownerId string) (*character.Models, error) {
+func (m *MockCharacterRepository) DeleteCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteCharactersByOwner", ctx, ownerId)
-	ret0, _ := ret[0].(*character.Models)
+	ret0, _ := ret[0].(*character.Characters)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -88,10 +88,10 @@ func (mr *MockCharacterRepositoryMockRecorder) DeleteCharactersByOwner(ctx, owne
 }
 
 // GetCharacterById mocks base method.
-func (m *MockCharacterRepository) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Model, error) {
+func (m *MockCharacterRepository) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharacterById", ctx, characterId)
-	ret0, _ := ret[0].(*character.Model)
+	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -103,10 +103,10 @@ func (mr *MockCharacterRepositoryMockRecorder) GetCharacterById(ctx, characterId
 }
 
 // GetCharacters mocks base method.
-func (m *MockCharacterRepository) GetCharacters(ctx context.Context) (*character.Models, error) {
+func (m *MockCharacterRepository) GetCharacters(ctx context.Context) (*character.Characters, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharacters", ctx)
-	ret0, _ := ret[0].(*character.Models)
+	ret0, _ := ret[0].(*character.Characters)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -118,10 +118,10 @@ func (mr *MockCharacterRepositoryMockRecorder) GetCharacters(ctx any) *gomock.Ca
 }
 
 // GetCharactersByOwner mocks base method.
-func (m *MockCharacterRepository) GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Models, error) {
+func (m *MockCharacterRepository) GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharactersByOwner", ctx, ownerId)
-	ret0, _ := ret[0].(*character.Models)
+	ret0, _ := ret[0].(*character.Characters)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -133,10 +133,10 @@ func (mr *MockCharacterRepositoryMockRecorder) GetCharactersByOwner(ctx, ownerId
 }
 
 // UpdateCharacter mocks base method.
-func (m *MockCharacterRepository) UpdateCharacter(ctx context.Context, updatedCharacter *character.Model) (*character.Model, error) {
+func (m *MockCharacterRepository) UpdateCharacter(ctx context.Context, updatedCharacter *character.Character) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateCharacter", ctx, updatedCharacter)
-	ret0, _ := ret[0].(*character.Model)
+	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

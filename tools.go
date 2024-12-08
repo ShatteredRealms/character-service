@@ -1,9 +1,9 @@
 //go:build tools
-// +build tools
 
 package tools
 
 import (
+	// _ "ariga.io/atlas-provider-gorm/gormschema"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "github.com/mitranim/gow"

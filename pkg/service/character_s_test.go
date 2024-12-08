@@ -15,14 +15,13 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/service"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
-	"github.com/ShatteredRealms/go-common-service/pkg/model"
 	cgame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 )
 
 var _ = Describe("CharacterS", func() {
 	var repo *mocks.MockCharacterRepository
 	var svc service.CharacterService
-	var c *character.Model
+	var c *character.Character
 	BeforeEach(func() {
 		controller := gomock.NewController(GinkgoT())
 		Expect(controller).NotTo(BeNil())
@@ -31,8 +30,7 @@ var _ = Describe("CharacterS", func() {
 		svc = service.NewCharacterService(repo)
 		Expect(svc).NotTo(BeNil())
 		dimensionId := faker.UUIDHyphenated()
-		c = &character.Model{
-			Model:       model.Model{},
+		c = &character.Character{
 			OwnerId:     faker.UUIDHyphenated(),
 			Name:        faker.Username(),
 			Gender:      game.GenderMale,
@@ -175,7 +173,7 @@ var _ = Describe("CharacterS", func() {
 			Expect(outChars).To(BeNil())
 		})
 		It("should return the results of the repo if it succeeds", func(ctx SpecContext) {
-			repo.EXPECT().GetCharacters(gomock.Eq(ctx)).Return(&character.Models{c}, nil)
+			repo.EXPECT().GetCharacters(gomock.Eq(ctx)).Return(&character.Characters{c}, nil)
 			outChars, err := svc.GetCharacters(ctx)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outChars).NotTo(BeNil())
@@ -191,7 +189,7 @@ var _ = Describe("CharacterS", func() {
 			Expect(outChars).To(BeNil())
 		})
 		It("should return the results of the repo if it succeeds", func(ctx SpecContext) {
-			repo.EXPECT().GetCharactersByOwner(gomock.Eq(ctx), gomock.Eq(c.OwnerId)).Return(&character.Models{c}, nil)
+			repo.EXPECT().GetCharactersByOwner(gomock.Eq(ctx), gomock.Eq(c.OwnerId)).Return(&character.Characters{c}, nil)
 			outChars, err := svc.GetCharactersByOwner(ctx, c.OwnerId)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outChars).NotTo(BeNil())
