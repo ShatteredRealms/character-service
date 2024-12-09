@@ -52,7 +52,7 @@ var _ = Describe("NewCharacterConfig", func() {
 	})
 
 	It("should read from a config file", func() {
-		randStr := faker.Username()   + "a"
+		randStr := faker.Username() + "a"
 		cfgData := []byte(fmt.Sprintf("keycloak:\n  realm: %s\nserver:\n  host: %s", randStr, randStr))
 		Expect(os.WriteFile("sro-character.yaml", cfgData, 0644)).To(Succeed())
 		defer os.Remove("sro-character.yaml")

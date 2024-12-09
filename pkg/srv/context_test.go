@@ -5,24 +5,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/ShatteredRealms/character-service/pkg/config"
 	"github.com/ShatteredRealms/character-service/pkg/srv"
-	cconfig "github.com/ShatteredRealms/go-common-service/pkg/config"
 )
 
 var _ = Describe("CharacterContext", func() {
 	Describe("NewCharacterContext", func() {
-		var cfg *config.CharacterConfig
-		BeforeEach(func(ctx SpecContext) {
-			var err error
-			cfg, err = config.NewCharacterConfig(ctx)
-			Expect(err).To(BeNil())
-			Expect(cfg).NotTo(BeNil())
-			cfg.Postgres.Master = data.GormConfig
-			cfg.Redis = data.RedisConfig
-			cfg.Kafka = cconfig.ServerAddresses{data.KafkaConfig}
-			Expect(cfg.Kafka).To(HaveLen(1))
-		})
 		Context("invalid input", func() {
 			It("should error given invalid postgres connection", func() {
 				cfg.Postgres.Master.Port = "0"
