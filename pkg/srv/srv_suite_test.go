@@ -2,6 +2,7 @@ package srv_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -28,21 +29,17 @@ type initializeData struct {
 	RedisConfig    cconfig.DBPoolConfig
 	KafkaConfig    cconfig.ServerAddress
 	KeycloakConfig cconfig.KeycloakConfig
+	adminToken     string
+	userToken      string
 }
 
 var (
 	hook *test.Hook
 
-	gdb               *gorm.DB
-	gdbCloseFunc      func() error
-	mdb               *mongo.Database
-	mdbCloseFunc      func() error
-	redisCloseFunc    func() error
-	kafkaCloseFunc    func() error
-	keycloakCloseFunc func() error
+	gdb *gorm.DB
+	mdb *mongo.Database
 
-	data initializeData
-	cfg  *config.CharacterConfig
+	cfg *config.CharacterConfig
 
 	admin = gocloak.User{
 		ID:            new(string),
@@ -79,36 +76,49 @@ var (
 		},
 	}
 
-	incCtxAdmin context.Context
-	incCtxUser  context.Context
+	inCtxAdmin context.Context
+	inCtxUser  context.Context
 )
 
 func TestSrv(t *testing.T) {
-	var err error
-	createCfg := func() {
-		var err error
-		cfg, err = config.NewCharacterConfig(nil)
-		Expect(err).To(BeNil())
-		Expect(cfg).NotTo(BeNil())
-	}
-	setupCfgFunc := func() {
-		cfg.Postgres.Master = data.GormConfig
-		cfg.Redis = data.RedisConfig
-		cfg.Kafka = cconfig.ServerAddresses{data.KafkaConfig}
-		cfg.Keycloak.BaseURL = data.KeycloakConfig.BaseURL
-		Expect(cfg.Kafka).To(HaveLen(1))
-	}
+	var (
+		err               error
+		gdbCloseFunc      func() error
+		mdbCloseFunc      func() error
+		redisCloseFunc    func() error
+		kafkaCloseFunc    func() error
+		keycloakCloseFunc func() error
+	)
+
+	BeforeEach(func() {
+		log.Logger, hook = test.NewNullLogger()
+		GinkgoWriter.Printf("Postgres Config: %+v\n", cfg.Postgres)
+	})
 
 	SynchronizedBeforeSuite(func() []byte {
 		log.Logger, hook = test.NewNullLogger()
-		createCfg()
+		var err error
+
+		cfg, err = config.NewCharacterConfig(nil)
+		Expect(err).To(BeNil())
+		Expect(cfg).NotTo(BeNil())
+
+		var data initializeData
 
 		data.KeycloakConfig = cfg.Keycloak
 		keycloakCloseFunc, data.KeycloakConfig.BaseURL, err = testsro.SetupKeycloakWithDocker()
 		Expect(err).To(BeNil())
 
-		var gormPort string
-		gdbCloseFunc, gormPort, err = testsro.SetupGormWithDocker()
+		data.GormConfig = cconfig.DBConfig{
+			ServerAddress: cconfig.ServerAddress{
+				Host: "localhost",
+			},
+			Name:     testsro.DbName,
+			Username: testsro.Username,
+			Password: testsro.Password,
+		}
+		gdbCloseFunc, data.GormConfig.Port, err = testsro.SetupGormWithDocker()
+		fmt.Printf("Gorm Config: %+v\n", data.GormConfig)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(gdbCloseFunc).NotTo(BeNil())
 
@@ -123,28 +133,6 @@ func TestSrv(t *testing.T) {
 		kafkaCloseFunc, data.KafkaConfig.Port, err = testsro.SetupKafkaWithDocker()
 		Expect(err).To(BeNil())
 
-		data.GormConfig = cconfig.DBConfig{
-			ServerAddress: cconfig.ServerAddress{
-				Port: gormPort,
-				Host: "localhost",
-			},
-			Name:     testsro.DbName,
-			Username: testsro.Username,
-			Password: testsro.Password,
-		}
-		gdb, err = testsro.ConnectGormDocker(data.GormConfig.PostgresDSN())
-		Expect(err).NotTo(HaveOccurred())
-		Expect(gdb).NotTo(BeNil())
-		mdb, err = testsro.ConnectMongoDocker(data.MdbConnStr)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(mdb).NotTo(BeNil())
-
-		var buf bytes.Buffer
-		enc := gob.NewEncoder(&buf)
-		Expect(enc.Encode(data)).To(Succeed())
-
-		setupCfgFunc()
-
 		keycloak := gocloak.NewClient(data.KeycloakConfig.BaseURL)
 		Expect(keycloak).NotTo(BeNil())
 
@@ -156,61 +144,19 @@ func TestSrv(t *testing.T) {
 		)
 		Expect(err).NotTo(HaveOccurred())
 
-		*admin.ID, err = keycloak.CreateUser(context.Background(), clientToken.AccessToken, cfg.Keycloak.Realm, admin)
-		Expect(err).NotTo(HaveOccurred())
-		*user.ID, err = keycloak.CreateUser(context.Background(), clientToken.AccessToken, cfg.Keycloak.Realm, user)
-		Expect(err).NotTo(HaveOccurred())
-
-		saRole, err := keycloak.GetRealmRole(context.Background(), clientToken.AccessToken, cfg.Keycloak.Realm, "super admin")
-		Expect(err).NotTo(HaveOccurred())
-		userRole, err := keycloak.GetRealmRole(context.Background(), clientToken.AccessToken, cfg.Keycloak.Realm, "user")
-		Expect(err).NotTo(HaveOccurred())
-
-		err = keycloak.AddRealmRoleToUser(
-			context.Background(),
-			clientToken.AccessToken,
-			cfg.Keycloak.Realm,
-			*admin.ID,
-			[]gocloak.Role{*saRole},
-		)
-		Expect(err).NotTo(HaveOccurred())
-		err = keycloak.AddRealmRoleToUser(
-			context.Background(),
-			clientToken.AccessToken,
-			cfg.Keycloak.Realm,
-			*user.ID,
-			[]gocloak.Role{*userRole},
-		)
-		Expect(err).NotTo(HaveOccurred())
-
-		return buf.Bytes()
-	}, func(inBytes []byte) {
-		log.Logger, hook = test.NewNullLogger()
-
-		dec := gob.NewDecoder(bytes.NewBuffer(inBytes))
-		Expect(dec.Decode(&data)).To(Succeed())
-		createCfg()
-		setupCfgFunc()
-
-		gdb, err = testsro.ConnectGormDocker(data.GormConfig.PostgresDSN())
-		Expect(err).NotTo(HaveOccurred())
-		Expect(gdb).NotTo(BeNil())
-		mdb, err = testsro.ConnectMongoDocker(data.MdbConnStr)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(mdb).NotTo(BeNil())
-
-		keycloak := gocloak.NewClient(cfg.Keycloak.BaseURL)
-		Expect(keycloak).NotTo(BeNil())
-
-		clientToken, err := keycloak.LoginClient(
-			context.Background(),
-			cfg.Keycloak.ClientId,
-			cfg.Keycloak.ClientSecret,
-			cfg.Keycloak.Realm,
-		)
-		Expect(err).NotTo(HaveOccurred())
-
-		setupUser := func(user *gocloak.User, ctx *context.Context) {
+		setupUser := func(user *gocloak.User, roleName string, tokenStr *string) {
+			*user.ID, err = keycloak.CreateUser(context.Background(), clientToken.AccessToken, cfg.Keycloak.Realm, *user)
+			Expect(err).NotTo(HaveOccurred())
+			role, err := keycloak.GetRealmRole(context.Background(), clientToken.AccessToken, cfg.Keycloak.Realm, roleName)
+			Expect(err).NotTo(HaveOccurred())
+			err = keycloak.AddRealmRoleToUser(
+				context.Background(),
+				clientToken.AccessToken,
+				cfg.Keycloak.Realm,
+				*user.ID,
+				[]gocloak.Role{*role},
+			)
+			Expect(err).NotTo(HaveOccurred())
 			var token *gocloak.JWT
 			Eventually(func() error {
 				token, err = keycloak.Login(
@@ -224,34 +170,44 @@ func TestSrv(t *testing.T) {
 				return err
 			}).Within(time.Minute).Should(Succeed())
 			Expect(err).NotTo(HaveOccurred())
-
-			users, err := keycloak.GetUsers(
-				context.Background(),
-				clientToken.AccessToken,
-				cfg.Keycloak.Realm,
-				gocloak.GetUsersParams{Username: user.Username},
-			)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(users).To(HaveLen(1))
-			user = users[0]
-
-			md := metadata.New(
-				map[string]string{
-					"authorization": "Bearer " + token.AccessToken,
-				},
-			)
-			(*ctx) = metadata.NewIncomingContext(context.Background(), md)
+			(*tokenStr) = token.AccessToken
 		}
 
-		// setupUser(&admin, &incCtxAdmin)
-		setupUser(&user, &incCtxUser)
+		setupUser(&admin, "super admin", &data.adminToken)
+		setupUser(&user, "user", &data.userToken)
 
-	})
+		var buf bytes.Buffer
+		enc := gob.NewEncoder(&buf)
+		Expect(enc.Encode(data)).To(Succeed())
 
-	BeforeEach(func() {
+		return buf.Bytes()
+	}, func(inBytes []byte) {
 		log.Logger, hook = test.NewNullLogger()
-		createCfg()
-		setupCfgFunc()
+		var data initializeData
+
+		dec := gob.NewDecoder(bytes.NewBuffer(inBytes))
+		Expect(dec.Decode(&data)).To(Succeed())
+
+		fmt.Printf("Gorm Config: %+v\n", data.GormConfig)
+		gdb, err = testsro.ConnectGormDocker(data.GormConfig.PostgresDSN())
+		Expect(err).NotTo(HaveOccurred())
+		Expect(gdb).NotTo(BeNil())
+
+		mdb, err = testsro.ConnectMongoDocker(data.MdbConnStr)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(mdb).NotTo(BeNil())
+
+		inCtxAdmin = metadata.NewIncomingContext(context.Background(), mdFn(data.adminToken))
+		inCtxUser = metadata.NewIncomingContext(context.Background(), mdFn(data.userToken))
+
+		cfg, err = config.NewCharacterConfig(nil)
+		Expect(err).To(BeNil())
+		Expect(cfg).NotTo(BeNil())
+		cfg.Postgres.Master = data.GormConfig
+		cfg.Redis = data.RedisConfig
+		cfg.Kafka = cconfig.ServerAddresses{data.KafkaConfig}
+		cfg.Keycloak.BaseURL = data.KeycloakConfig.BaseURL
+		Expect(cfg.Kafka).To(HaveLen(1))
 	})
 
 	SynchronizedAfterSuite(func() {
@@ -278,4 +234,11 @@ func TestSrv(t *testing.T) {
 
 	It("should work", func() {
 	})
+
+}
+
+func mdFn(token string) metadata.MD {
+	return metadata.MD{
+		"Authorization": []string{"Bearer " + token},
+	}
 }
