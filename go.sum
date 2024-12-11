@@ -84,6 +84,8 @@ github.com/ShatteredRealms/go-common-service v0.7.11 h1:M9OfseozNhB7e1zOmrVoKxE1
 github.com/ShatteredRealms/go-common-service v0.7.11/go.mod h1:IjGD8i4MOX7oiMSPDsS2XptMRw6bjWjob6QIyipvniQ=
 github.com/ShatteredRealms/go-common-service v0.7.12 h1:Ky0i5WwER3Pr1VuIWBauWu/YJbJhyM884l/HT1U9sWE=
 github.com/ShatteredRealms/go-common-service v0.7.12/go.mod h1:IjGD8i4MOX7oiMSPDsS2XptMRw6bjWjob6QIyipvniQ=
+github.com/ShatteredRealms/go-common-service v0.7.13 h1:MJwh6xoWnex6/94NiHqfUMON5ODJ4hTH44tD/iOXg14=
+github.com/ShatteredRealms/go-common-service v0.7.13/go.mod h1:IjGD8i4MOX7oiMSPDsS2XptMRw6bjWjob6QIyipvniQ=
 github.com/TwiN/go-away v1.6.14 h1:gjFP+6/A36gmj0NpYX0Sz9hrdU0KtHwtNWYnsJgV4fo=
 github.com/TwiN/go-away v1.6.14/go.mod h1:d+Gv3XuqjIeFqXYuAIzlyNoDzr1vNsP5B/hRY3u/VLs=
 github.com/WilSimpson/gocloak/v13 v13.11.2 h1:PAPQVBxj3rknQKmyaDudGYPAEn/s0fkJUGEm8iSU7xs=

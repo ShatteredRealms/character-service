@@ -10,13 +10,16 @@ import (
 	"encoding/gob"
 
 	"github.com/WilSimpson/gocloak/v13"
+	"github.com/go-faker/faker/v4"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/ShatteredRealms/character-service/pkg/config"
+	"github.com/ShatteredRealms/go-common-service/pkg/auth"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	cconfig "github.com/ShatteredRealms/go-common-service/pkg/config"
-	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	"github.com/ShatteredRealms/go-common-service/pkg/testsro"
 	"github.com/sirupsen/logrus/hooks/test"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -29,8 +32,9 @@ type initializeData struct {
 	RedisConfig    cconfig.DBPoolConfig
 	KafkaConfig    cconfig.ServerAddress
 	KeycloakConfig cconfig.KeycloakConfig
-	adminToken     string
-	userToken      string
+	ServerToken    string
+	AdminToken     string
+	UserToken      string
 }
 
 var (
@@ -76,8 +80,9 @@ var (
 		},
 	}
 
-	inCtxAdmin context.Context
-	inCtxUser  context.Context
+	inCtxServer context.Context
+	inCtxAdmin  context.Context
+	inCtxUser   context.Context
 )
 
 func TestSrv(t *testing.T) {
@@ -91,12 +96,12 @@ func TestSrv(t *testing.T) {
 	)
 
 	BeforeEach(func() {
-		log.Logger, hook = test.NewNullLogger()
+		// log.Logger, hook = test.NewNullLogger()
+		GinkgoWriter.Printf("Process Parallel Proccess: %d\n", GinkgoParallelProcess())
 		GinkgoWriter.Printf("Postgres Config: %+v\n", cfg.Postgres)
 	})
 
 	SynchronizedBeforeSuite(func() []byte {
-		log.Logger, hook = test.NewNullLogger()
 		var err error
 
 		cfg, err = config.NewCharacterConfig(nil)
@@ -133,6 +138,15 @@ func TestSrv(t *testing.T) {
 		kafkaCloseFunc, data.KafkaConfig.Port, err = testsro.SetupKafkaWithDocker()
 		Expect(err).To(BeNil())
 
+		writer := bus.NewKafkaMessageBusWriter(cconfig.ServerAddresses{data.KafkaConfig}, dimensionbus.Message{})
+		Eventually(func() error {
+			return writer.Publish(context.Background(), dimensionbus.Message{
+				Id:      faker.UUIDHyphenated(),
+				Deleted: false,
+			})
+		}).Within(time.Minute).Should(Succeed())
+		Expect(writer.Close()).To(Succeed())
+
 		keycloak := gocloak.NewClient(data.KeycloakConfig.BaseURL)
 		Expect(keycloak).NotTo(BeNil())
 
@@ -143,6 +157,7 @@ func TestSrv(t *testing.T) {
 			cfg.Keycloak.Realm,
 		)
 		Expect(err).NotTo(HaveOccurred())
+		data.ServerToken = clientToken.AccessToken
 
 		setupUser := func(user *gocloak.User, roleName string, tokenStr *string) {
 			*user.ID, err = keycloak.CreateUser(context.Background(), clientToken.AccessToken, cfg.Keycloak.Realm, *user)
@@ -173,8 +188,8 @@ func TestSrv(t *testing.T) {
 			(*tokenStr) = token.AccessToken
 		}
 
-		setupUser(&admin, "super admin", &data.adminToken)
-		setupUser(&user, "user", &data.userToken)
+		setupUser(&admin, "super admin", &data.AdminToken)
+		setupUser(&user, "user", &data.UserToken)
 
 		var buf bytes.Buffer
 		enc := gob.NewEncoder(&buf)
@@ -182,7 +197,6 @@ func TestSrv(t *testing.T) {
 
 		return buf.Bytes()
 	}, func(inBytes []byte) {
-		log.Logger, hook = test.NewNullLogger()
 		var data initializeData
 
 		dec := gob.NewDecoder(bytes.NewBuffer(inBytes))
@@ -197,8 +211,14 @@ func TestSrv(t *testing.T) {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(mdb).NotTo(BeNil())
 
-		inCtxAdmin = metadata.NewIncomingContext(context.Background(), mdFn(data.adminToken))
-		inCtxUser = metadata.NewIncomingContext(context.Background(), mdFn(data.userToken))
+		fn := auth.AuthFunc(gocloak.NewClient(data.KeycloakConfig.BaseURL), data.KeycloakConfig.Realm)
+
+		inCtxServer, err = fn(metadata.NewIncomingContext(context.Background(), mdFn(data.ServerToken)))
+		Expect(err).To(BeNil())
+		inCtxAdmin, err = fn(metadata.NewIncomingContext(context.Background(), mdFn(data.AdminToken)))
+		Expect(err).To(BeNil())
+		inCtxUser, err = fn(metadata.NewIncomingContext(context.Background(), mdFn(data.UserToken)))
+		Expect(err).To(BeNil())
 
 		cfg, err = config.NewCharacterConfig(nil)
 		Expect(err).To(BeNil())
@@ -239,6 +259,6 @@ func TestSrv(t *testing.T) {
 
 func mdFn(token string) metadata.MD {
 	return metadata.MD{
-		"Authorization": []string{"Bearer " + token},
+		"authorization": []string{"Bearer " + token},
 	}
 }
