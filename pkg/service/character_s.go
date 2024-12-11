@@ -17,6 +17,7 @@ var (
 
 type CharacterService interface {
 	GetCharacters(ctx context.Context) (*character.Characters, error)
+	GetDeletedCharacters(ctx context.Context) (*character.Characters, error)
 	GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error)
 
 	GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
@@ -85,6 +86,11 @@ func (c *characterService) GetCharacterById(ctx context.Context, characterId *uu
 // GetCharacters implements CharacterService.
 func (c *characterService) GetCharacters(ctx context.Context) (*character.Characters, error) {
 	return c.repo.GetCharacters(ctx)
+}
+
+// GetDeletedCharacters implements CharacterService.
+func (c *characterService) GetDeletedCharacters(ctx context.Context) (*character.Characters, error) {
+	return c.repo.GetDeletedCharacters(ctx)
 }
 
 // GetCharactersByOwner implements CharacterService.

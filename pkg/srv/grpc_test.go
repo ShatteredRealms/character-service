@@ -23,6 +23,7 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/pb"
 	mock_service "github.com/ShatteredRealms/character-service/pkg/service/mocks"
 	"github.com/ShatteredRealms/character-service/pkg/srv"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/character/characterbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	mock_dimensionbus "github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus/mocks"
@@ -400,5 +401,13 @@ func (m MockCharacterBusWriter) Publish(ctx context.Context, message characterbu
 }
 
 func (m MockCharacterBusWriter) Close() error {
+	return m.RetErr
+}
+
+func (m MockCharacterBusWriter) GetMessageType() bus.BusMessageType {
+	return "test"
+}
+
+func (m MockCharacterBusWriter) PublishMany(ctx context.Context, messages []characterbus.Message) error {
 	return m.RetErr
 }

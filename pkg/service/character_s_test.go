@@ -10,22 +10,22 @@ import (
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 
-	"github.com/ShatteredRealms/character-service/pkg/mocks"
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
+	mock_repository "github.com/ShatteredRealms/character-service/pkg/repository/mocks"
 	"github.com/ShatteredRealms/character-service/pkg/service"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	cgame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 )
 
 var _ = Describe("CharacterS", func() {
-	var repo *mocks.MockCharacterRepository
+	var repo *mock_repository.MockCharacterRepository
 	var svc service.CharacterService
 	var c *character.Character
 	BeforeEach(func() {
 		controller := gomock.NewController(GinkgoT())
 		Expect(controller).NotTo(BeNil())
-		repo = mocks.NewMockCharacterRepository(controller)
+		repo = mock_repository.NewMockCharacterRepository(controller)
 		Expect(repo).NotTo(BeNil())
 		svc = service.NewCharacterService(repo)
 		Expect(svc).NotTo(BeNil())

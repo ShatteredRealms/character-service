@@ -11,6 +11,7 @@ type CharacterRepository interface {
 	GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
 	GetCharacters(ctx context.Context) (*character.Characters, error)
+	GetDeletedCharacters(ctx context.Context) (*character.Characters, error)
 	GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error)
 
 	CreateCharacter(ctx context.Context, newCharacter *character.Character) (*character.Character, error)

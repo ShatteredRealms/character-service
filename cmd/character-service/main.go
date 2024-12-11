@@ -8,6 +8,8 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/config"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
 	"github.com/ShatteredRealms/character-service/pkg/srv"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	commonpb "github.com/ShatteredRealms/go-common-service/pkg/pb"
 	commonsrv "github.com/ShatteredRealms/go-common-service/pkg/srv"
@@ -19,8 +21,10 @@ import (
 )
 
 func main() {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	interuptCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
+
+	ctx := context.Background()
 
 	// Load configuration and setup server context
 	cfg, err := config.NewCharacterConfig(ctx)
@@ -34,6 +38,8 @@ func main() {
 		log.Logger.WithContext(ctx).Errorf("character server context: %v", err)
 		return
 	}
+	defer srvCtx.Close()
+
 	ctx, span := srvCtx.Tracer.Start(ctx, "main")
 	defer span.End()
 
@@ -67,6 +73,22 @@ func main() {
 		return
 	}
 
+	// Bus service
+	busService, err := commonsrv.NewBusServiceServer(
+		ctx,
+		*srvCtx.Context,
+		map[bus.BusMessageType]bus.Resettable{
+			dimensionbus.Message{}.GetType(): srvCtx.DimensionService.GetResetter(),
+		},
+		map[bus.BusMessageType]commonsrv.WriterResetCallback{},
+	)
+	commonpb.RegisterBusServiceServer(grpcServer, busService)
+	err = commonpb.RegisterBusServiceHandlerFromEndpoint(ctx, gwmux, cfg.Server.Address(), opts)
+	if err != nil {
+		log.Logger.WithContext(ctx).Errorf("register bus service handler endpoint: %v", err)
+		return
+	}
+
 	// Character Service
 	characterService, err := srv.NewCharacterServiceServer(ctx, srvCtx)
 	if err != nil {
@@ -84,6 +106,7 @@ func main() {
 	log.Logger.WithContext(ctx).Info("Initializtion complete")
 	span.End()
 	srv, srvErr := util.StartServer(ctx, grpcServer, gwmux, cfg.Server.Address())
+	defer srv.Shutdown(ctx)
 
 	select {
 	case err := <-srvErr:
@@ -91,9 +114,8 @@ func main() {
 			log.Logger.Error(err)
 		}
 
-	case <-ctx.Done():
+	case <-interuptCtx.Done():
 		log.Logger.Info("Server canceled by user input.")
-		srv.Shutdown(ctx)
 		stop()
 	}
 

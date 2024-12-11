@@ -147,3 +147,18 @@ func (mr *MockCharacterServiceMockRecorder) GetCharactersByOwner(ctx, ownerId an
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCharactersByOwner", reflect.TypeOf((*MockCharacterService)(nil).GetCharactersByOwner), ctx, ownerId)
 }
+
+// GetDeletedCharacters mocks base method.
+func (m *MockCharacterService) GetDeletedCharacters(ctx context.Context) (*character.Characters, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDeletedCharacters", ctx)
+	ret0, _ := ret[0].(*character.Characters)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDeletedCharacters indicates an expected call of GetDeletedCharacters.
+func (mr *MockCharacterServiceMockRecorder) GetDeletedCharacters(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeletedCharacters", reflect.TypeOf((*MockCharacterService)(nil).GetDeletedCharacters), ctx)
+}

@@ -49,6 +49,11 @@ func (p *postgresCharacterRepository) GetCharacters(ctx context.Context) (charac
 	return characters, p.db(ctx).Find(&characters).Error
 }
 
+// GetDeletedCharacters implements CharacterRepository.
+func (p *postgresCharacterRepository) GetDeletedCharacters(ctx context.Context) (characters *character.Characters, _ error) {
+	return characters, p.db(ctx).Unscoped().Where("deleted_at > 0").Find(&characters).Error
+}
+
 // GetCharacterById implements CharacterRepository.
 func (p *postgresCharacterRepository) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
 	var character *character.Character

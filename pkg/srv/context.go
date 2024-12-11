@@ -17,7 +17,7 @@ import (
 type CharacterContext struct {
 	*commonsrv.Context
 
-	CharacterBusWriter bus.MessageBusWriter[characterbus.Message]
+	CharacterBusWriter characterbus.BusWriter
 
 	CharacterService service.CharacterService
 
@@ -52,4 +52,43 @@ func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, servi
 	characterCtx.DimensionService.StartProcessing(ctx)
 
 	return characterCtx, nil
+}
+
+func (c *CharacterContext) Close() {
+	c.DimensionService.StopProcessing()
+}
+
+func (c *CharacterContext) ResetCharacterBus(ctx context.Context) commonsrv.WriterResetCallback {
+	return func() error {
+		chars, err := c.CharacterService.GetCharacters(ctx)
+		if err != nil {
+			return fmt.Errorf("get characters: %w", err)
+		}
+		deletedChars, err := c.CharacterService.GetDeletedCharacters(ctx)
+		if err != nil {
+			return fmt.Errorf("get deleted characters: %w", err)
+		}
+
+		msgs := make([]characterbus.Message, len(*chars)+len(*deletedChars))
+		for idx, char := range *chars {
+			msgs[idx] = characterbus.Message{
+				Id:          char.Id.String(),
+				OwnerId:     char.OwnerId,
+				DimensionId: char.Dimension.Id,
+				MapId:       char.Location.World,
+				Deleted:     false,
+			}
+		}
+		for idx, char := range *deletedChars {
+			msgs[idx+len(*chars)] = characterbus.Message{
+				Id:          char.Id.String(),
+				OwnerId:     char.OwnerId,
+				DimensionId: char.Dimension.Id,
+				MapId:       char.Location.World,
+				Deleted:     true,
+			}
+		}
+
+		return c.CharacterBusWriter.PublishMany(ctx, msgs)
+	}
 }
