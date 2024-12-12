@@ -58,8 +58,10 @@ func (c *CharacterContext) Close() {
 	c.DimensionService.StopProcessing()
 }
 
-func (c *CharacterContext) ResetCharacterBus(ctx context.Context) commonsrv.WriterResetCallback {
-	return func() error {
+func (c *CharacterContext) ResetCharacterBus() commonsrv.WriterResetCallback {
+	return func(ctx context.Context) error {
+		ctx, span := c.Context.Tracer.Start(ctx, "character.reset_character_bus")
+		defer span.End()
 		chars, err := c.CharacterService.GetCharacters(ctx)
 		if err != nil {
 			return fmt.Errorf("get characters: %w", err)

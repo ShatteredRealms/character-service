@@ -9,6 +9,7 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/pb"
 	"github.com/ShatteredRealms/character-service/pkg/srv"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus"
+	"github.com/ShatteredRealms/go-common-service/pkg/bus/character/characterbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	commonpb "github.com/ShatteredRealms/go-common-service/pkg/pb"
@@ -80,7 +81,9 @@ func main() {
 		map[bus.BusMessageType]bus.Resettable{
 			dimensionbus.Message{}.GetType(): srvCtx.DimensionService.GetResetter(),
 		},
-		map[bus.BusMessageType]commonsrv.WriterResetCallback{},
+		map[bus.BusMessageType]commonsrv.WriterResetCallback{
+			characterbus.Message{}.GetType(): srvCtx.ResetCharacterBus(),
+		},
 	)
 	commonpb.RegisterBusServiceServer(grpcServer, busService)
 	err = commonpb.RegisterBusServiceHandlerFromEndpoint(ctx, gwmux, cfg.Server.Address(), opts)
