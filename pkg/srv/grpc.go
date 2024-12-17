@@ -119,7 +119,7 @@ func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 	s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
 		Id:          *character.Id,
 		OwnerId:     character.OwnerId,
-		DimensionId: character.Dimension.Id,
+		DimensionId: character.DimensionId,
 		MapId:       character.Location.WorldId,
 		Deleted:     false,
 	})
@@ -205,7 +205,7 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		if err != nil {
 			return nil, err
 		}
-		char.Dimension.Id = dimension.Id
+		char.DimensionId = dimension.Id
 		publishChanges = true
 	}
 
@@ -222,7 +222,7 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
 			Id:          *c.Id,
 			OwnerId:     c.OwnerId,
-			DimensionId: c.Dimension.Id,
+			DimensionId: c.DimensionId,
 			MapId:       c.Location.WorldId,
 			Deleted:     false,
 		})

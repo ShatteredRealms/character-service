@@ -4,7 +4,7 @@ go 1.23.3
 
 require (
 	ariga.io/atlas-provider-gorm v0.5.0
-	github.com/ShatteredRealms/go-common-service v0.9.2
+	github.com/ShatteredRealms/go-common-service v0.9.3
 	github.com/WilSimpson/gocloak/v13 v13.11.2
 	github.com/go-faker/faker/v4 v4.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0

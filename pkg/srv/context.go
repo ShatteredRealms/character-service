@@ -76,7 +76,7 @@ func (c *CharacterContext) ResetCharacterBus() commonsrv.WriterResetCallback {
 			msgs[idx] = characterbus.Message{
 				Id:          *char.Id,
 				OwnerId:     char.OwnerId,
-				DimensionId: char.Dimension.Id,
+				DimensionId: char.DimensionId,
 				MapId:       char.Location.WorldId,
 				Deleted:     false,
 			}
@@ -85,7 +85,7 @@ func (c *CharacterContext) ResetCharacterBus() commonsrv.WriterResetCallback {
 			msgs[idx+len(*chars)] = characterbus.Message{
 				Id:          *char.Id,
 				OwnerId:     char.OwnerId,
-				DimensionId: char.Dimension.Id,
+				DimensionId: char.DimensionId,
 				MapId:       char.Location.WorldId,
 				Deleted:     true,
 			}
