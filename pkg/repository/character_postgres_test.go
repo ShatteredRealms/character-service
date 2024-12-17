@@ -17,11 +17,11 @@ import (
 var _ = Describe("CharacterPostgres", Ordered, func() {
 	var repo repository.CharacterRepository
 	var c, c2 *character.Character
-	var dimensionId string
+	var dimensionId uuid.UUID
 
 	BeforeAll(func() {
 		var err error
-		dimensionId = faker.UUIDHyphenated()
+		dimensionId = uuid.New()
 		Expect(gdb.Exec(
 			"CREATE TABLE dimensions (id TEXT PRIMARY KEY, updated_at TIMESTAMP, created_at TIMESTAMP);",
 		).Error).NotTo(HaveOccurred())
@@ -33,20 +33,20 @@ var _ = Describe("CharacterPostgres", Ordered, func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(repo).NotTo(BeNil())
 		c = &character.Character{
-			OwnerId:     faker.UUIDHyphenated(),
+			OwnerId:     uuid.New(),
 			Name:        faker.Username(),
 			Gender:      game.GenderMale,
 			Realm:       game.RealmHuman,
-			DimensionId: faker.UUIDHyphenated(),
+			DimensionId: uuid.New(),
 			PlayTime:    0,
 			Location: cgame.Location{
-				World: faker.Username(),
-				X:     rand.Float32(),
-				Y:     rand.Float32(),
-				Z:     rand.Float32(),
-				Roll:  rand.Float32(),
-				Pitch: rand.Float32(),
-				Yaw:   rand.Float32(),
+				WorldId: uuid.New(),
+				X:       rand.Float32(),
+				Y:       rand.Float32(),
+				Z:       rand.Float32(),
+				Roll:    rand.Float32(),
+				Pitch:   rand.Float32(),
+				Yaw:     rand.Float32(),
 			},
 		}
 	})
@@ -97,19 +97,19 @@ var _ = Describe("CharacterPostgres", Ordered, func() {
 		})
 		It("should not allow duplicate names", func(ctx SpecContext) {
 			c2 = &character.Character{
-				OwnerId:     faker.UUIDHyphenated(),
+				OwnerId:     uuid.New(),
 				Name:        c.Name,
 				Gender:      game.GenderMale,
 				Realm:       game.RealmHuman,
 				DimensionId: dimensionId,
 				Location: cgame.Location{
-					World: faker.Username(),
-					X:     rand.Float32(),
-					Y:     rand.Float32(),
-					Z:     rand.Float32(),
-					Roll:  rand.Float32(),
-					Pitch: rand.Float32(),
-					Yaw:   rand.Float32(),
+					WorldId: uuid.New(),
+					X:       rand.Float32(),
+					Y:       rand.Float32(),
+					Z:       rand.Float32(),
+					Roll:    rand.Float32(),
+					Pitch:   rand.Float32(),
+					Yaw:     rand.Float32(),
 				},
 			}
 			outC, err := repo.CreateCharacter(ctx, c2)
@@ -182,7 +182,7 @@ var _ = Describe("CharacterPostgres", Ordered, func() {
 		})
 
 		It("should return a character if there is a match", func(ctx SpecContext) {
-			outChars, err := repo.GetCharactersByOwner(ctx, c.OwnerId)
+			outChars, err := repo.GetCharactersByOwner(ctx, c.OwnerId.String())
 			Expect(err).To(BeNil())
 			Expect(outChars).NotTo(BeNil())
 			Expect(*outChars).To(HaveLen(1))
@@ -272,7 +272,7 @@ var _ = Describe("CharacterPostgres", Ordered, func() {
 		})
 
 		It("should delete a character if there is a match", func(ctx SpecContext) {
-			outChars, err := repo.DeleteCharactersByOwner(ctx, c2.OwnerId)
+			outChars, err := repo.DeleteCharactersByOwner(ctx, c2.OwnerId.String())
 			Expect(err).To(BeNil())
 			Expect(outChars).NotTo(BeNil())
 			Expect(*outChars).To(HaveLen(1))

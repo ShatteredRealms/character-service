@@ -32,7 +32,7 @@ func (c *characterServiceServer) getCharacterAndAuthCheck(ctx context.Context, c
 		return nil, status.Error(codes.NotFound, ErrCharacterDoesNotExist.Error())
 	}
 
-	if claims.Subject != character.OwnerId && !claims.HasResourceRole(RoleCharacterManagementOther, c.Context.Config.Keycloak.ClientId) {
+	if claims.Subject != character.OwnerId.String() && !claims.HasResourceRole(RoleCharacterManagementOther, c.Context.Config.Keycloak.ClientId) {
 		return nil, commonsrv.ErrPermissionDenied
 	}
 

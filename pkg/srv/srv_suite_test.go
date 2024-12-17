@@ -10,7 +10,7 @@ import (
 	"encoding/gob"
 
 	"github.com/WilSimpson/gocloak/v13"
-	"github.com/go-faker/faker/v4"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc/metadata"
@@ -122,7 +122,7 @@ func TestSrv(t *testing.T) {
 			Username: testsro.Username,
 			Password: testsro.Password,
 		}
-		gdbCloseFunc, data.GormConfig.Port, err = testsro.SetupGormWithDocker()
+		gdbCloseFunc, data.GormConfig.Port, err = testsro.SetupPostgresWithDocker()
 		fmt.Printf("Gorm Config: %+v\n", data.GormConfig)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(gdbCloseFunc).NotTo(BeNil())
@@ -141,7 +141,7 @@ func TestSrv(t *testing.T) {
 		writer := bus.NewKafkaMessageBusWriter(cconfig.ServerAddresses{data.KafkaConfig}, dimensionbus.Message{})
 		Eventually(func() error {
 			return writer.Publish(context.Background(), dimensionbus.Message{
-				Id:      faker.UUIDHyphenated(),
+				Id:      uuid.New(),
 				Deleted: false,
 			})
 		}).Within(time.Minute).Should(Succeed())

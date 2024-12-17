@@ -72,6 +72,7 @@ message CharacterDetails {
   uint64 play_time = 6;
   sro.Location location = 8;
   string dimension_id = 9;
+  uint64 created_at = 10;
 }
 
 message CharactersDetails { repeated CharacterDetails characters = 1; }

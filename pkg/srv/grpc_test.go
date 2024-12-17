@@ -92,20 +92,21 @@ var _ = Describe("Grpc Server", func() {
 			id, err := uuid.NewV7()
 			Expect(err).To(BeNil())
 			dim = &dimensionbus.Dimension{
-				Id:        id.String(),
+				Id:        id,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			}
 
 			id, err = uuid.NewV7()
 			Expect(err).To(BeNil())
+
 			userChar = &character.Character{
 				Model: model.Model{
 					Id:        &id,
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				OwnerId:     *user.ID,
+				OwnerId:     uuid.MustParse(*user.ID),
 				Name:        faker.Username(),
 				Gender:      game.GenderMale,
 				Realm:       game.RealmHuman,
@@ -113,7 +114,7 @@ var _ = Describe("Grpc Server", func() {
 				Dimension:   dim,
 				PlayTime:    rand.Uint64N(1000),
 				Location: commongame.Location{
-					World: faker.Username(),
+					WorldId: uuid.New(),
 				},
 			}
 
@@ -125,7 +126,7 @@ var _ = Describe("Grpc Server", func() {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				OwnerId:     *admin.ID,
+				OwnerId:     uuid.MustParse(*admin.ID),
 				Name:        faker.Username(),
 				Gender:      game.GenderMale,
 				Realm:       game.RealmHuman,
@@ -133,7 +134,7 @@ var _ = Describe("Grpc Server", func() {
 				Dimension:   dim,
 				PlayTime:    rand.Uint64N(1000),
 				Location: commongame.Location{
-					World: faker.Username(),
+					WorldId: uuid.New(),
 				},
 			}
 		})

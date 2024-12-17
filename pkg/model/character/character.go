@@ -11,6 +11,7 @@ import (
 	"github.com/ShatteredRealms/go-common-service/pkg/model"
 	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 	goaway "github.com/TwiN/go-away"
+	"github.com/google/uuid"
 )
 
 const (
@@ -41,11 +42,11 @@ type Character struct {
 	model.Model
 
 	// Owner The username/account that owns the character
-	OwnerId     string                  `gorm:"not null" json:"owner"`
+	OwnerId     uuid.UUID               `gorm:"not null" json:"owner"`
 	Name        string                  `gorm:"not null;uniqueIndex:idx_deleted" json:"name"`
 	Gender      game.Gender             `gorm:"not null" json:"gender"`
 	Realm       game.Realm              `gorm:"not null" json:"realm"`
-	DimensionId string                  `gorm:"not null" json:"dimensionId"`
+	DimensionId uuid.UUID               `gorm:"not null" json:"dimensionId"`
 	Dimension   *dimensionbus.Dimension `gorm:"not null" json:"dimension"`
 
 	// PlayTime Time in minutes the character has played
@@ -116,13 +117,14 @@ func (c *Character) ValidateRealm() error {
 func (c *Character) ToPb() *pb.CharacterDetails {
 	return &pb.CharacterDetails{
 		CharacterId: c.Id.String(),
-		OwnerId:     c.OwnerId,
+		OwnerId:     c.OwnerId.String(),
 		Name:        c.Name,
 		Gender:      string(c.Gender),
 		Realm:       string(c.Realm),
 		PlayTime:    c.PlayTime,
 		Location:    c.Location.ToPb(),
-		DimensionId: c.DimensionId,
+		DimensionId: c.DimensionId.String(),
+		CreatedAt:   uint64(c.CreatedAt.Unix()),
 	}
 }
 

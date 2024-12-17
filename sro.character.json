@@ -20,6 +20,11 @@
           "characterId": {
             "type": "string"
           },
+          "createdAt": {
+            "format": "int64",
+            "type": "integer",
+            "x-kubernetes-int-or-string": true
+          },
           "dimensionId": {
             "type": "string"
           },
@@ -76,6 +81,11 @@
               "properties": {
                 "characterId": {
                   "type": "string"
+                },
+                "createdAt": {
+                  "format": "int64",
+                  "type": "integer",
+                  "x-kubernetes-int-or-string": true
                 },
                 "dimensionId": {
                   "type": "string"

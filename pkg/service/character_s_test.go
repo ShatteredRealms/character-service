@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-faker/faker/v4"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
@@ -29,9 +30,9 @@ var _ = Describe("CharacterS", func() {
 		Expect(repo).NotTo(BeNil())
 		svc = service.NewCharacterService(repo)
 		Expect(svc).NotTo(BeNil())
-		dimensionId := faker.UUIDHyphenated()
+		dimensionId := uuid.New()
 		c = &character.Character{
-			OwnerId:     faker.UUIDHyphenated(),
+			OwnerId:     uuid.New(),
 			Name:        faker.Username(),
 			Gender:      game.GenderMale,
 			Realm:       game.RealmHuman,
@@ -43,13 +44,13 @@ var _ = Describe("CharacterS", func() {
 			},
 			PlayTime: rand.Uint64(),
 			Location: cgame.Location{
-				World: faker.Username(),
-				X:     rand.Float32(),
-				Y:     rand.Float32(),
-				Z:     rand.Float32(),
-				Roll:  rand.Float32(),
-				Pitch: rand.Float32(),
-				Yaw:   rand.Float32(),
+				WorldId: uuid.New(),
+				X:       rand.Float32(),
+				Y:       rand.Float32(),
+				Z:       rand.Float32(),
+				Roll:    rand.Float32(),
+				Pitch:   rand.Float32(),
+				Yaw:     rand.Float32(),
 			},
 		}
 	})
@@ -91,14 +92,14 @@ var _ = Describe("CharacterS", func() {
 				repo.EXPECT().CreateCharacter(gomock.Any(), gomock.Any()).Return(nil, errors.New("repo"))
 			})
 			AfterEach(func(ctx SpecContext) {
-				outC, err := svc.CreateCharacter(ctx, c.OwnerId, c.Name, string(c.Gender), string(c.Realm), c.Dimension)
+				outC, err := svc.CreateCharacter(ctx, c.OwnerId.String(), c.Name, string(c.Gender), string(c.Realm), c.Dimension)
 				Expect(err).To(HaveOccurred())
 				Expect(outC).To(BeNil())
 			})
 		})
 		It("should create a character if it is valid", func(ctx SpecContext) {
 			repo.EXPECT().CreateCharacter(gomock.Eq(ctx), gomock.Any()).Return(c, nil)
-			outC, err := svc.CreateCharacter(ctx, c.OwnerId, c.Name, string(c.Gender), string(c.Realm), c.Dimension)
+			outC, err := svc.CreateCharacter(ctx, c.OwnerId.String(), c.Name, string(c.Gender), string(c.Realm), c.Dimension)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outC).NotTo(BeNil())
 			Expect(outC).To(Equal(c))
@@ -129,7 +130,7 @@ var _ = Describe("CharacterS", func() {
 		})
 		It("should create a character if it is valid", func(ctx SpecContext) {
 			repo.EXPECT().CreateCharacter(gomock.Eq(ctx), gomock.Any()).Return(c, nil)
-			outC, err := svc.CreateCharacter(ctx, c.OwnerId, c.Name, string(c.Gender), string(c.Realm), c.Dimension)
+			outC, err := svc.CreateCharacter(ctx, c.OwnerId.String(), c.Name, string(c.Gender), string(c.Realm), c.Dimension)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outC).NotTo(BeNil())
 			Expect(outC).To(Equal(c))
@@ -184,13 +185,13 @@ var _ = Describe("CharacterS", func() {
 	Describe("GetCharactersByOwner", func() {
 		It("should fail if the character does not exist", func(ctx SpecContext) {
 			repo.EXPECT().GetCharactersByOwner(gomock.Eq(ctx), gomock.Eq(c.OwnerId)).Return(nil, errors.New("repo"))
-			outChars, err := svc.GetCharactersByOwner(ctx, c.OwnerId)
+			outChars, err := svc.GetCharactersByOwner(ctx, c.OwnerId.String())
 			Expect(err).To(HaveOccurred())
 			Expect(outChars).To(BeNil())
 		})
 		It("should return the results of the repo if it succeeds", func(ctx SpecContext) {
 			repo.EXPECT().GetCharactersByOwner(gomock.Eq(ctx), gomock.Eq(c.OwnerId)).Return(&character.Characters{c}, nil)
-			outChars, err := svc.GetCharactersByOwner(ctx, c.OwnerId)
+			outChars, err := svc.GetCharactersByOwner(ctx, c.OwnerId.String())
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outChars).NotTo(BeNil())
 			Expect((*outChars)).To(HaveLen(1))

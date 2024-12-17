@@ -47,15 +47,19 @@ func (c *characterService) AddCharacterPlaytime(ctx context.Context, character *
 
 // CreateCharacter implements CharacterService.
 func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, name string, gender string, realm string, dimension *dimensionbus.Dimension) (*character.Character, error) {
+	ownerIdUUID, err := uuid.Parse(ownerId)
+	if err != nil {
+		return nil, err
+	}
 	character := &character.Character{
 		Name:      name,
-		OwnerId:   ownerId,
+		OwnerId:   ownerIdUUID,
 		Gender:    game.Gender(gender),
 		Realm:     game.Realm(realm),
 		Dimension: dimension,
 	}
 
-	err := character.Validate()
+	err = character.Validate()
 	if err != nil {
 		return nil, err
 	}

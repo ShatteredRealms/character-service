@@ -74,19 +74,19 @@ func (c *CharacterContext) ResetCharacterBus() commonsrv.WriterResetCallback {
 		msgs := make([]characterbus.Message, len(*chars)+len(*deletedChars))
 		for idx, char := range *chars {
 			msgs[idx] = characterbus.Message{
-				Id:          char.Id.String(),
+				Id:          *char.Id,
 				OwnerId:     char.OwnerId,
 				DimensionId: char.Dimension.Id,
-				MapId:       char.Location.World,
+				MapId:       char.Location.WorldId,
 				Deleted:     false,
 			}
 		}
 		for idx, char := range *deletedChars {
 			msgs[idx+len(*chars)] = characterbus.Message{
-				Id:          char.Id.String(),
+				Id:          *char.Id,
 				OwnerId:     char.OwnerId,
 				DimensionId: char.Dimension.Id,
-				MapId:       char.Location.World,
+				MapId:       char.Location.WorldId,
 				Deleted:     true,
 			}
 		}

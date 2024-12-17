@@ -29,7 +29,7 @@ var _ = Describe("pkg/model/character.Character", func() {
 		c.Id = &id
 		id, err = uuid.NewV7()
 		Expect(err).NotTo(HaveOccurred())
-		c.OwnerId = id.String()
+		c.OwnerId = id
 	})
 
 	Describe("proto conversions", func() {
