@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ShatteredRealms/character-service/pkg/config"
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
@@ -64,6 +65,32 @@ var (
 )
 
 var (
+	CompositeCharacterRoles = make([]*gocloak.Role, 0)
+
+	RoleManageCharactersSelf = util.RegisterRole(&gocloak.Role{
+		Name:        gocloak.StringP("characters.manage.self"),
+		Description: gocloak.StringP("Allows managing a character if the user is the owner"),
+		Composite:   gocloak.BoolP(true),
+		Composites: &gocloak.CompositesRepresentation{
+			Client: &map[string][]string{
+				config.GlobalConfig.Keycloak.ClientId: {"characters.get.self", "characters.create.self", "characters.delete.self"},
+			},
+		},
+	}, &CompositeCharacterRoles)
+
+	RoleManageCharactersAll = util.RegisterRole(&gocloak.Role{
+		Name:        gocloak.StringP("characters.manage.all"),
+		Description: gocloak.StringP("Allows managing a character even if the user is not the owner and editing character details"),
+		Composite:   gocloak.BoolP(true),
+		Composites: &gocloak.CompositesRepresentation{
+			Client: &map[string][]string{
+				config.GlobalConfig.Keycloak.ClientId: {"character.get.all", "character.create.all", "character.delete.all", "character.edit"},
+			},
+		},
+	}, &CompositeCharacterRoles)
+)
+
+var (
 	ErrCharacterDoesNotExist   = errors.New("CS-C-00")
 	ErrCharacterCreate         = errors.New("CS-C-01")
 	ErrCharacterDelete         = errors.New("CS-C-02")
@@ -88,6 +115,11 @@ func NewCharacterServiceServer(ctx context.Context, srvCtx *CharacterContext) (p
 	if err != nil {
 		return nil, err
 	}
+	err = srvCtx.CreateRoles(ctx, &CompositeCharacterRoles)
+	if err != nil {
+		return nil, err
+	}
+
 	s := &characterServiceServer{
 		Context: srvCtx,
 	}

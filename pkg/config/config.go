@@ -8,9 +8,15 @@ import (
 )
 
 var (
-	Version     = "v1.0.0"
-	ServiceName = "CharacterService"
+	Version         = "v1.0.0"
+	ServiceName     = "CharacterService"
+	GlobalConfig    *CharacterConfig
+	GlobalConfigErr error
 )
+
+func init() {
+	GlobalConfig, GlobalConfigErr = NewCharacterConfig(context.Background())
+}
 
 type CharacterConfig struct {
 	cconfig.BaseConfig `yaml:",inline" mapstructure:",squash"`

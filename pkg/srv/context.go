@@ -25,20 +25,20 @@ type CharacterContext struct {
 	DimensionService dimensionbus.Service
 }
 
-func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, serviceName string) (*CharacterContext, error) {
+func NewCharacterContext(ctx context.Context) (*CharacterContext, error) {
 	characterCtx := &CharacterContext{
-		Context:            commonsrv.NewContext(&cfg.BaseConfig, serviceName),
-		CharacterBusWriter: bus.NewKafkaMessageBusWriter(cfg.Kafka, characterbus.Message{}),
+		Context:            commonsrv.NewContext(&config.GlobalConfig.BaseConfig, config.ServiceName),
+		CharacterBusWriter: bus.NewKafkaMessageBusWriter(config.GlobalConfig.BaseConfig.Kafka, characterbus.Message{}),
 	}
 	ctx, span := characterCtx.Tracer.Start(ctx, "context.character.new")
 	defer span.End()
 
-	pg, err := commonrepo.ConnectDB(ctx, cconfig.DBPoolConfig{Master: cfg.Postgres}, cfg.Redis)
+	pg, err := commonrepo.ConnectDB(ctx, cconfig.DBPoolConfig{Master: config.GlobalConfig.Postgres}, config.GlobalConfig.Redis)
 	if err != nil {
 		return nil, fmt.Errorf("connect db: %w", err)
 	}
 
-	migrater, err := commonrepo.NewPgxMigrater(ctx, cfg.Postgres.PostgresDSN(), cfg.MigrationPath)
+	migrater, err := commonrepo.NewPgxMigrater(ctx, config.GlobalConfig.Postgres.PostgresDSN(), config.GlobalConfig.MigrationPath)
 	if err != nil {
 		return nil, fmt.Errorf("postgres migrater: %w", err)
 	}
@@ -50,7 +50,7 @@ func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, servi
 	)
 	characterCtx.DimensionService = dimensionbus.NewService(
 		dimensionbus.NewPostgresRepository(pg),
-		bus.NewKafkaMessageBusReader(cfg.Kafka, serviceName, dimensionbus.Message{}),
+		bus.NewKafkaMessageBusReader(config.GlobalConfig.Kafka, config.ServiceName, dimensionbus.Message{}),
 	)
 	characterCtx.DimensionService.StartProcessing(ctx)
 

@@ -32,13 +32,13 @@ func main() {
 	ctx := context.Background()
 
 	// Load configuration and setup server context
-	cfg, err := config.NewCharacterConfig(ctx)
-	if err != nil {
-		log.Logger.WithContext(ctx).Error("loading config: %w", err)
+	if config.GlobalConfigErr != nil {
+		log.Logger.WithContext(ctx).Error("loading config: %w", config.GlobalConfigErr)
 		return
 	}
+	cfg := config.GlobalConfig
 
-	srvCtx, err := srv.NewCharacterContext(ctx, cfg, config.ServiceName)
+	srvCtx, err := srv.NewCharacterContext(ctx)
 	defer srvCtx.Close()
 	if err != nil {
 		log.Logger.WithContext(ctx).Error("creating character context: %w", err)

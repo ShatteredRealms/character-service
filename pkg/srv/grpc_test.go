@@ -58,7 +58,7 @@ var _ = Describe("Grpc Server", func() {
 		It("should create roles", func(ctx SpecContext) {
 			keycloakClientMock.EXPECT().
 				LoginClient(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-				Return(&gocloak.JWT{}, nil)
+				Return(&gocloak.JWT{}, nil).Times(2)
 			keycloakClientMock.EXPECT().
 				CreateClientRole(
 					gomock.Any(),
@@ -67,7 +67,7 @@ var _ = Describe("Grpc Server", func() {
 					gomock.Any(),
 					gomock.Any(),
 				).
-				Times(len(srv.CharacterRoles)).
+				Times(len(srv.CharacterRoles)+len(srv.CompositeCharacterRoles)).
 				Return("", nil)
 			server, err := srv.NewCharacterServiceServer(ctx, srvCtx)
 			Expect(err).NotTo(HaveOccurred())
@@ -84,7 +84,7 @@ var _ = Describe("Grpc Server", func() {
 			var err error
 			keycloakClientMock.EXPECT().
 				LoginClient(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-				Return(&gocloak.JWT{}, nil)
+				Return(&gocloak.JWT{}, nil).AnyTimes()
 			keycloakClientMock.EXPECT().
 				CreateClientRole(
 					gomock.Any(),
@@ -93,8 +93,8 @@ var _ = Describe("Grpc Server", func() {
 					gomock.Any(),
 					gomock.Any(),
 				).
-				Times(len(srv.CharacterRoles)).
-				Return("", nil)
+				Return("", nil).
+				AnyTimes()
 			server, err = srv.NewCharacterServiceServer(ctx, srvCtx)
 			Expect(err).To(BeNil())
 			Expect(server).NotTo(BeNil())
