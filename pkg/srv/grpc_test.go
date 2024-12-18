@@ -106,7 +106,7 @@ var _ = Describe("Grpc Server", func() {
 			Describe("AddCharacterPlayTime", func() {
 				It("should add play time to a character", func() {
 					amount := rand.Uint64N(1000)
-					ctx := ReturnClaimsWithRole(srv.RoleAddPlaytime, userChar.OwnerId.String())
+					ctx := ReturnClaimsWithRole(srv.RolePlaytime, userChar.OwnerId.String())
 					mockCharService.EXPECT().GetCharacterById(ctx, &userChar.Id).Return(userChar, nil)
 					mockCharService.EXPECT().AddCharacterPlaytime(ctx, userChar, amount).Return(userChar, nil)
 					out, err := server.AddCharacterPlayTime(ctx, &pb.AddPlayTimeRequest{
@@ -119,7 +119,7 @@ var _ = Describe("Grpc Server", func() {
 				It("should fail if adding to playtime fails", func() {
 					amount := rand.Uint64N(1000)
 					retErr := errors.New(faker.Username())
-					ctx := ReturnClaimsWithRole(srv.RoleAddPlaytime, userChar.OwnerId.String())
+					ctx := ReturnClaimsWithRole(srv.RolePlaytime, userChar.OwnerId.String())
 					mockCharService.EXPECT().GetCharacterById(ctx, &userChar.Id).Return(userChar, nil)
 					mockCharService.EXPECT().AddCharacterPlaytime(ctx, userChar, amount).Return(nil, retErr)
 					out, err := server.AddCharacterPlayTime(ctx, &pb.AddPlayTimeRequest{
@@ -135,7 +135,7 @@ var _ = Describe("Grpc Server", func() {
 					Expect(out).To(BeNil())
 				})
 				It("should fail if the given character id is invalid", func() {
-					ctx := ReturnClaimsWithRole(srv.RoleAddPlaytime, userChar.OwnerId.String())
+					ctx := ReturnClaimsWithRole(srv.RolePlaytime, userChar.OwnerId.String())
 					out, err := server.AddCharacterPlayTime(ctx, &pb.AddPlayTimeRequest{})
 					Expect(err).NotTo(BeNil())
 
@@ -146,7 +146,7 @@ var _ = Describe("Grpc Server", func() {
 					Expect(out).To(BeNil())
 				})
 				It("should fail if the given character does not exist", func() {
-					ctx := ReturnClaimsWithRole(srv.RoleAddPlaytime, userChar.OwnerId.String())
+					ctx := ReturnClaimsWithRole(srv.RolePlaytime, userChar.OwnerId.String())
 					mockCharService.EXPECT().GetCharacterById(ctx, &userChar.Id).Return(nil, nil)
 					out, err := server.AddCharacterPlayTime(ctx, &pb.AddPlayTimeRequest{
 						CharacterId: userChar.Id.String(),
@@ -178,7 +178,7 @@ var _ = Describe("Grpc Server", func() {
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleAddPlaytime,
+						srv.RolePlaytime,
 					},
 				},
 
@@ -188,8 +188,8 @@ var _ = Describe("Grpc Server", func() {
 						return server.CreateCharacter(ctx, &pb.CreateCharacterRequest{})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagement,
-						srv.RoleCharacterManagementOther,
+						srv.RoleCreateCharactersSelf,
+						srv.RoleCreateCharactersAll,
 					},
 				},
 				{
@@ -200,7 +200,7 @@ var _ = Describe("Grpc Server", func() {
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagement,
+						srv.RoleCreateCharactersAll,
 					},
 				},
 
@@ -213,7 +213,7 @@ var _ = Describe("Grpc Server", func() {
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagementOther,
+						srv.RoleDeleteCharactersAll,
 					},
 				},
 				{
@@ -224,8 +224,8 @@ var _ = Describe("Grpc Server", func() {
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagement,
-						srv.RoleCharacterManagementOther,
+						srv.RoleDeleteCharactersSelf,
+						srv.RoleDeleteCharactersAll,
 					},
 				},
 
@@ -237,7 +237,7 @@ var _ = Describe("Grpc Server", func() {
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagementOther,
+						srv.RoleEditCharacter,
 					},
 				},
 				{
@@ -248,7 +248,7 @@ var _ = Describe("Grpc Server", func() {
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagementOther,
+						srv.RoleEditCharacter,
 					},
 				},
 
@@ -260,8 +260,8 @@ var _ = Describe("Grpc Server", func() {
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagement,
-						srv.RoleCharacterManagementOther,
+						srv.RoleGetCharactersSelf,
+						srv.RoleGetCharactersAll,
 					},
 				},
 				{
@@ -273,7 +273,7 @@ var _ = Describe("Grpc Server", func() {
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagementOther,
+						srv.RoleGetCharactersAll,
 					},
 				},
 
@@ -283,7 +283,7 @@ var _ = Describe("Grpc Server", func() {
 						return server.GetCharacters(ctx, &emptypb.Empty{})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagementOther,
+						srv.RoleGetCharactersAll,
 					},
 				},
 
@@ -291,12 +291,12 @@ var _ = Describe("Grpc Server", func() {
 					function: "GetCharactersForUser (owner)",
 					fn: func(ctx context.Context) (any, error) {
 						return server.GetCharactersForUser(ctx, &commonpb.TargetId{
-							Id: adminChar.OwnerId.String(),
+							Id: userChar.OwnerId.String(),
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagement,
-						srv.RoleCharacterManagementOther,
+						srv.RoleGetCharactersSelf,
+						srv.RoleGetCharactersAll,
 					},
 				},
 				{
@@ -307,7 +307,7 @@ var _ = Describe("Grpc Server", func() {
 						})
 					},
 					roles: []*gocloak.Role{
-						srv.RoleCharacterManagement,
+						srv.RoleGetCharactersAll,
 					},
 				},
 			} {

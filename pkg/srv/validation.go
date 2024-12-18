@@ -14,43 +14,50 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (c *characterServiceServer) getCharacterAndAuthCheck(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
+func (c *characterServiceServer) validateUserPermissions(ctx context.Context, ownerId string, selfRole, otherRole *gocloak.Role) error {
+	claims, ok := auth.RetrieveClaims(ctx)
+	if !ok {
+		return commonsrv.ErrPermissionDenied
+	}
+	if !claims.HasResourceRole(selfRole, c.Context.Config.Keycloak.ClientId) {
+		return commonsrv.ErrPermissionDenied
+	}
+	if claims.Subject != ownerId && !claims.HasResourceRole(otherRole, c.Context.Config.Keycloak.ClientId) {
+		return commonsrv.ErrPermissionDenied
+	}
+	return nil
+}
+
+func (c *characterServiceServer) validateCharacterPermissions(ctx context.Context, characterId string, selfRole, otherRole *gocloak.Role) (*character.Character, error) {
 	claims, ok := auth.RetrieveClaims(ctx)
 	if !ok {
 		return nil, commonsrv.ErrPermissionDenied
 	}
-	if !claims.HasResourceRole(RoleCharacterManagement, c.Context.Config.Keycloak.ClientId) {
+
+	if !claims.HasResourceRole(selfRole, c.Context.Config.Keycloak.ClientId) {
 		return nil, commonsrv.ErrPermissionDenied
 	}
 
-	character, err := c.Context.CharacterService.GetCharacterById(ctx, characterId)
+	id, err := uuid.Parse(characterId)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, ErrCharacterIdInvalid.Error())
+	}
+
+	character, err := c.Context.CharacterService.GetCharacterById(ctx, &id)
+	if err != nil {
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
+		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
 	}
 
 	if character == nil {
 		return nil, status.Error(codes.NotFound, ErrCharacterDoesNotExist.Error())
 	}
 
-	if claims.Subject != character.OwnerId.String() && !claims.HasResourceRole(RoleCharacterManagementOther, c.Context.Config.Keycloak.ClientId) {
+	if claims.Subject != character.OwnerId.String() && !claims.HasResourceRole(otherRole, c.Context.Config.Keycloak.ClientId) {
 		return nil, commonsrv.ErrPermissionDenied
 	}
 
 	return character, nil
-}
-
-func (c *characterServiceServer) validateManagementPermission(ctx context.Context, ownerId string) error {
-	claims, ok := auth.RetrieveClaims(ctx)
-	if !ok {
-		return commonsrv.ErrPermissionDenied
-	}
-	if !claims.HasResourceRole(RoleCharacterManagement, c.Context.Config.Keycloak.ClientId) {
-		return commonsrv.ErrPermissionDenied
-	}
-	if claims.Subject != ownerId && !claims.HasResourceRole(RoleCharacterManagementOther, c.Context.Config.Keycloak.ClientId) {
-		return commonsrv.ErrPermissionDenied
-	}
-	return nil
 }
 
 func (c *characterServiceServer) validateRole(ctx context.Context, role *gocloak.Role) error {
