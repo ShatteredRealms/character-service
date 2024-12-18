@@ -1,0 +1,26 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+CREATE TABLE characters (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id UUID NOT NULL,
+  dimension_id UUID NOT NULL,
+  name TEXT CHECK (name <> ''),
+  gender TEXT CHECK (gender <> ''),
+  realm TEXT CHECK (realm <> ''),
+  play_time BIGINT CHECK (play_time >= 0) DEFAULT 0,
+  world_id UUID NOT NULL,
+  x DOUBLE PRECISION DEFAULT 0,
+  y DOUBLE PRECISION DEFAULT 0,
+  z DOUBLE PRECISION DEFAULT 0,
+  roll DOUBLE PRECISION DEFAULT 0,
+  pitch DOUBLE PRECISION DEFAULT 0,
+  yaw DOUBLE PRECISION DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP,
+  EXCLUDE USING GIST (
+    name WITH =
+  ) WHERE (deleted_at IS NULL)
+);
+

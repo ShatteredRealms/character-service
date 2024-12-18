@@ -7,7 +7,6 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/repository"
-	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	"github.com/google/uuid"
 )
 
@@ -16,13 +15,13 @@ var (
 )
 
 type CharacterService interface {
-	GetCharacters(ctx context.Context) (*character.Characters, error)
-	GetDeletedCharacters(ctx context.Context) (*character.Characters, error)
-	GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error)
+	GetCharacters(ctx context.Context) (character.Characters, error)
+	GetDeletedCharacters(ctx context.Context) (character.Characters, error)
+	GetCharactersByOwner(ctx context.Context, ownerId string) (character.Characters, error)
 
 	GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
-	CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, dimension *dimensionbus.Dimension) (*character.Character, error)
+	CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, dimensionId *uuid.UUID) (*character.Character, error)
 
 	DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
@@ -46,17 +45,24 @@ func (c *characterService) AddCharacterPlaytime(ctx context.Context, character *
 }
 
 // CreateCharacter implements CharacterService.
-func (c *characterService) CreateCharacter(ctx context.Context, ownerId string, name string, gender string, realm string, dimension *dimensionbus.Dimension) (*character.Character, error) {
+func (c *characterService) CreateCharacter(
+	ctx context.Context,
+	ownerId string,
+	name string,
+	gender string,
+	realm string,
+	dimensionId *uuid.UUID,
+) (*character.Character, error) {
 	ownerIdUUID, err := uuid.Parse(ownerId)
 	if err != nil {
 		return nil, err
 	}
 	character := &character.Character{
-		Name:      name,
-		OwnerId:   ownerIdUUID,
-		Gender:    game.Gender(gender),
-		Realm:     game.Realm(realm),
-		Dimension: dimension,
+		Name:        name,
+		OwnerId:     ownerIdUUID,
+		Gender:      game.Gender(gender),
+		Realm:       game.Realm(realm),
+		DimensionId: *dimensionId,
 	}
 
 	err = character.Validate()
@@ -88,16 +94,20 @@ func (c *characterService) GetCharacterById(ctx context.Context, characterId *uu
 }
 
 // GetCharacters implements CharacterService.
-func (c *characterService) GetCharacters(ctx context.Context) (*character.Characters, error) {
+func (c *characterService) GetCharacters(ctx context.Context) (character.Characters, error) {
 	return c.repo.GetCharacters(ctx)
 }
 
 // GetDeletedCharacters implements CharacterService.
-func (c *characterService) GetDeletedCharacters(ctx context.Context) (*character.Characters, error) {
+func (c *characterService) GetDeletedCharacters(ctx context.Context) (character.Characters, error) {
 	return c.repo.GetDeletedCharacters(ctx)
 }
 
 // GetCharactersByOwner implements CharacterService.
-func (c *characterService) GetCharactersByOwner(ctx context.Context, ownerId string) (*character.Characters, error) {
-	return c.repo.GetCharactersByOwner(ctx, ownerId)
+func (c *characterService) GetCharactersByOwner(ctx context.Context, ownerId string) (character.Characters, error) {
+	id, err := uuid.Parse(ownerId)
+	if err != nil {
+		return nil, ErrInvalidOwnerId
+	}
+	return c.repo.GetCharactersByOwner(ctx, &id)
 }

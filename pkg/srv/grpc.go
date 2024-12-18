@@ -110,14 +110,14 @@ func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 		return nil, err
 	}
 
-	character, err := s.Context.CharacterService.CreateCharacter(ctx, request.OwnerId, request.Name, request.Gender, request.Realm, dimension)
+	character, err := s.Context.CharacterService.CreateCharacter(ctx, request.OwnerId, request.Name, request.Gender, request.Realm, &dimension.Id)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterCreate, err)
 		return nil, status.Error(codes.Internal, ErrCharacterCreate.Error())
 	}
 
 	s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
-		Id:          *character.Id,
+		Id:          character.Id,
 		OwnerId:     character.OwnerId,
 		DimensionId: character.DimensionId,
 		MapId:       character.Location.WorldId,
@@ -146,7 +146,7 @@ func (s *characterServiceServer) DeleteCharacter(ctx context.Context, request *c
 	}
 
 	s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
-		Id:      *c.Id,
+		Id:      c.Id,
 		OwnerId: c.OwnerId,
 		Deleted: true,
 	})
@@ -220,7 +220,7 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 
 	if publishChanges {
 		s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
-			Id:          *c.Id,
+			Id:          c.Id,
 			OwnerId:     c.OwnerId,
 			DimensionId: c.DimensionId,
 			MapId:       c.Location.WorldId,

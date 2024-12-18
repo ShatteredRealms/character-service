@@ -14,7 +14,7 @@ var (
 
 type CharacterConfig struct {
 	cconfig.BaseConfig `yaml:",inline" mapstructure:",squash"`
-	Postgres           cconfig.DBPoolConfig `yaml:"postgres"`
+	Postgres           cconfig.DBConfig     `yaml:"postgres"`
 	Redis              cconfig.DBPoolConfig `yaml:"redis"`
 }
 
@@ -42,16 +42,14 @@ func NewCharacterConfig(ctx context.Context) (*CharacterConfig, error) {
 				},
 			},
 		},
-		Postgres: cconfig.DBPoolConfig{
-			Master: cconfig.DBConfig{
-				ServerAddress: cconfig.ServerAddress{
-					Host: "localhost",
-					Port: "5432",
-				},
-				Name:     "character_service",
-				Username: "postgres",
-				Password: "password",
+		Postgres: cconfig.DBConfig{
+			ServerAddress: cconfig.ServerAddress{
+				Host: "localhost",
+				Port: "5432",
 			},
+			Name:     "character_service",
+			Username: "postgres",
+			Password: "password",
 		},
 		Redis: cconfig.DBPoolConfig{
 			Master: cconfig.DBConfig{

@@ -22,6 +22,10 @@ import (
 )
 
 func main() {
+	defer func() {
+		log.Logger.Info("Server stopped.")
+	}()
+
 	interuptCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
@@ -30,16 +34,16 @@ func main() {
 	// Load configuration and setup server context
 	cfg, err := config.NewCharacterConfig(ctx)
 	if err != nil {
-		log.Logger.WithContext(ctx).Errorf("loading config: %v", err)
+		log.Logger.WithContext(ctx).Error("loading config: %w", err)
 		return
 	}
 
 	srvCtx, err := srv.NewCharacterContext(ctx, cfg, config.ServiceName)
+	defer srvCtx.Close()
 	if err != nil {
-		log.Logger.WithContext(ctx).Errorf("character server context: %v", err)
+		log.Logger.WithContext(ctx).Error("creating character context: %w", err)
 		return
 	}
-	defer srvCtx.Close()
 
 	ctx, span := srvCtx.Tracer.Start(ctx, "main")
 	defer span.End()
@@ -48,14 +52,7 @@ func main() {
 
 	// OpenTelemetry setup
 	otelShutdown, err := telemetry.SetupOTelSDK(ctx, "character", config.Version, cfg.OpenTelemtryAddress)
-	defer func() {
-		log.Logger.Infof("Shutting down")
-		err = otelShutdown(context.Background())
-		if err != nil {
-			log.Logger.Warnf("Error shutting down: %v", err)
-		}
-	}()
-
+	defer otelShutdown(ctx)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("connecting to otel: %v", err)
 		return
@@ -121,6 +118,4 @@ func main() {
 		log.Logger.Info("Server canceled by user input.")
 		stop()
 	}
-
-	log.Logger.Info("Server stopped.")
 }

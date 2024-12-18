@@ -10,6 +10,7 @@ import (
 	"github.com/ShatteredRealms/go-common-service/pkg/bus"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/character/characterbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
+	cconfig "github.com/ShatteredRealms/go-common-service/pkg/config"
 	commonrepo "github.com/ShatteredRealms/go-common-service/pkg/repository"
 	commonsrv "github.com/ShatteredRealms/go-common-service/pkg/srv"
 )
@@ -32,15 +33,17 @@ func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, servi
 	ctx, span := characterCtx.Tracer.Start(ctx, "context.character.new")
 	defer span.End()
 
-	pg, err := commonrepo.ConnectDB(ctx, cfg.Postgres, cfg.Redis)
+	pg, err := commonrepo.ConnectDB(ctx, cconfig.DBPoolConfig{Master: cfg.Postgres}, cfg.Redis)
 	if err != nil {
 		return nil, fmt.Errorf("connect db: %w", err)
 	}
 
-	repo, err := repository.NewPostgresCharacter(pg)
+	migrater, err := commonrepo.NewPgxMigrater(ctx, cfg.Postgres.PostgresDSN(), cfg.MigrationPath)
 	if err != nil {
-		return nil, fmt.Errorf("postgres character repository: %w", err)
+		return nil, fmt.Errorf("postgres migrater: %w", err)
 	}
+
+	repo := repository.NewPgxCharacterRepository(migrater)
 
 	characterCtx.CharacterService = service.NewCharacterService(
 		repo,
@@ -55,7 +58,9 @@ func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig, servi
 }
 
 func (c *CharacterContext) Close() {
-	c.DimensionService.StopProcessing()
+	if c.DimensionService != nil {
+		c.DimensionService.StopProcessing()
+	}
 }
 
 func (c *CharacterContext) ResetCharacterBus() commonsrv.WriterResetCallback {
@@ -71,19 +76,19 @@ func (c *CharacterContext) ResetCharacterBus() commonsrv.WriterResetCallback {
 			return fmt.Errorf("get deleted characters: %w", err)
 		}
 
-		msgs := make([]characterbus.Message, len(*chars)+len(*deletedChars))
-		for idx, char := range *chars {
+		msgs := make([]characterbus.Message, len(chars)+len(deletedChars))
+		for idx, char := range chars {
 			msgs[idx] = characterbus.Message{
-				Id:          *char.Id,
+				Id:          char.Id,
 				OwnerId:     char.OwnerId,
 				DimensionId: char.DimensionId,
 				MapId:       char.Location.WorldId,
 				Deleted:     false,
 			}
 		}
-		for idx, char := range *deletedChars {
-			msgs[idx+len(*chars)] = characterbus.Message{
-				Id:          *char.Id,
+		for idx, char := range deletedChars {
+			msgs[idx+len(chars)] = characterbus.Message{
+				Id:          char.Id,
 				OwnerId:     char.OwnerId,
 				DimensionId: char.DimensionId,
 				MapId:       char.Location.WorldId,

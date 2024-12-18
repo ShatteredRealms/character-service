@@ -3,6 +3,7 @@
 package tools
 
 import (
+	_ "github.com/golang-migrate/migrate/v4/cmd/migrate" //-tags "postgres"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "github.com/mitranim/gow"

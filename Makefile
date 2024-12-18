@@ -83,6 +83,7 @@ dev-watch: test-watch report-watch
 
 mocks: $(MOCK_INTERFACES)
 $(MOCK_INTERFACES):
+	rm -rf "$(@D)/mocks"
 	mockgen \
 		-source="$@.go" \
 		-destination="$(@D)/mocks/$(@F).go"

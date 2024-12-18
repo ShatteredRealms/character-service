@@ -26,7 +26,7 @@ var _ = Describe("pkg/model/character.Character", func() {
 		}
 		id, err := uuid.NewV7()
 		Expect(err).NotTo(HaveOccurred())
-		c.Id = &id
+		c.Id = id
 		id, err = uuid.NewV7()
 		Expect(err).NotTo(HaveOccurred())
 		c.OwnerId = id
@@ -58,13 +58,13 @@ var _ = Describe("pkg/model/character.Character", func() {
 					continue
 				}
 				Expect(pb.CharacterId).To(Equal(characters[idx].Id.String()))
-				Expect(pb.OwnerId).To(Equal(characters[idx].OwnerId))
+				Expect(pb.OwnerId).To(Equal(characters[idx].OwnerId.String()))
 				Expect(pb.Name).To(Equal(characters[idx].Name))
 				Expect(pb.Gender).To(Equal(string(characters[idx].Gender)))
 				Expect(pb.Realm).To(Equal(string(characters[idx].Realm)))
 				Expect(pb.PlayTime).To(Equal(characters[idx].PlayTime))
 				Expect(pb.Location).To(Equal(characters[idx].Location.ToPb()))
-				Expect(pb.DimensionId).To(Equal(characters[idx].DimensionId))
+				Expect(pb.DimensionId).To(Equal(characters[idx].DimensionId.String()))
 			}
 		})
 	})

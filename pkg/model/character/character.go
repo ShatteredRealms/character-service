@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
-	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
-	"github.com/ShatteredRealms/go-common-service/pkg/model"
 	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 	goaway "github.com/TwiN/go-away"
 	"github.com/google/uuid"
@@ -39,21 +38,24 @@ var (
 )
 
 type Character struct {
-	model.Model
+	// model.Model `mapstructure:",squash"`
+	Id        uuid.UUID  `db:"id" json:"id" mapstructure:"id"`
+	CreatedAt time.Time  `db:"created_at" json:"createdAt" mapstructure:"created_at"`
+	UpdatedAt time.Time  `db:"updated_at" json:"updatedAt" mapstructure:"updated_at"`
+	DeletedAt *time.Time `db:"deleted_at" json:"deletedAt" mapstructure:"deleted_at"`
 
-	// Owner The username/account that owns the character
-	OwnerId     uuid.UUID               `gorm:"not null" json:"owner"`
-	Name        string                  `gorm:"not null;uniqueIndex:idx_deleted" json:"name"`
-	Gender      game.Gender             `gorm:"not null" json:"gender"`
-	Realm       game.Realm              `gorm:"not null" json:"realm"`
-	DimensionId uuid.UUID               `gorm:"not null" json:"dimensionId"`
-	Dimension   *dimensionbus.Dimension `gorm:"not null" json:"dimension"`
+	// Owner The account that owns the character
+	OwnerId     uuid.UUID   `db:"owner_id" json:"ownerId" mapstructure:"owner_id"`
+	Name        string      `db:"name" json:"name" mapstructure:"name"`
+	Gender      game.Gender `db:"gender" json:"gender" mapstructure:"gender"`
+	Realm       game.Realm  `db:"realm" json:"realm" mapstructure:"realm"`
+	DimensionId uuid.UUID   `db:"dimension_id" json:"dimensionId" mapstructure:"dimension_id"`
 
-	// PlayTime Time in minutes the character has played
-	PlayTime uint64 `gorm:"not null" json:"play_time"`
+	// PlayTime Time in seconds the character has played
+	PlayTime uint64 `db:"play_time" json:"playTime" mapstructure:"play_time"`
 
 	// Location last location recorded for the character
-	Location commongame.Location `gorm:"type:bytes;serializer:gob" json:"location"`
+	commongame.Location `json:"location" mapstructure:",squash"`
 }
 type Characters []*Character
 
