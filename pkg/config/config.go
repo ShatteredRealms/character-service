@@ -47,6 +47,7 @@ func NewCharacterConfig(ctx context.Context) (*CharacterConfig, error) {
 					Port: "29092",
 				},
 			},
+			MigrationPath: "migrations",
 		},
 		Postgres: cconfig.DBConfig{
 			ServerAddress: cconfig.ServerAddress{
