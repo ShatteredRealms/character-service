@@ -38,7 +38,7 @@ service CharacterService {
     };
   }
 
-  rpc EditCharacter(EditCharacterRequest) returns (google.protobuf.Empty) {
+  rpc EditCharacter(EditCharacterRequest) returns (CharacterDetails) {
     option (google.api.http) = {
       put : "/v1/characters/id/{character_id}"
       body : "*"

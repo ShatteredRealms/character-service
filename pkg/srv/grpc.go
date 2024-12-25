@@ -197,7 +197,7 @@ func (s *characterServiceServer) DeleteCharacter(ctx context.Context, request *c
 }
 
 // EditCharacter implements pb.CharacterServiceServer.
-func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.EditCharacterRequest) (*emptypb.Empty, error) {
+func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.EditCharacterRequest) (*pb.CharacterDetails, error) {
 	char, err := s.validateCharacterPermissions(ctx, request.GetCharacterId(), RoleEditCharacter, RoleEditCharacter)
 	if err != nil {
 		return nil, err
@@ -245,7 +245,7 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		publishChanges = true
 	}
 
-	c, err := s.Context.CharacterService.EditCharacter(ctx, char)
+	editedCharacter, err := s.Context.CharacterService.EditCharacter(ctx, char)
 	if err != nil {
 		if errors.Is(err, character.ErrValidation) {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -256,15 +256,15 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 
 	if publishChanges {
 		s.Context.CharacterBusWriter.Publish(ctx, characterbus.Message{
-			Id:          c.Id,
-			OwnerId:     c.OwnerId,
-			DimensionId: c.DimensionId,
-			MapId:       c.Location.WorldId,
+			Id:          editedCharacter.Id,
+			OwnerId:     editedCharacter.OwnerId,
+			DimensionId: editedCharacter.DimensionId,
+			MapId:       editedCharacter.Location.WorldId,
 			Deleted:     false,
 		})
 	}
 
-	return &emptypb.Empty{}, nil
+	return editedCharacter.ToPb(), nil
 }
 
 // GetCharacter implements pb.CharacterServiceServer.
