@@ -17,7 +17,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
@@ -105,26 +104,26 @@ var _ = Describe("Grpc Server", func() {
 		Context("valid permissions", func() {
 			Describe("AddCharacterPlayTime", func() {
 				It("should add play time to a character", func() {
-					amount := rand.Uint64N(1000)
+					amount := rand.Int32N(1000)
 					ctx := ReturnClaimsWithRole(srv.RolePlaytime, userChar.OwnerId.String())
 					mockCharService.EXPECT().GetCharacterById(ctx, &userChar.Id).Return(userChar, nil)
 					mockCharService.EXPECT().AddCharacterPlaytime(ctx, userChar, amount).Return(userChar, nil)
 					out, err := server.AddCharacterPlayTime(ctx, &pb.AddPlayTimeRequest{
-						CharacterId: userChar.Id.String(),
-						Time:        amount,
+						Id:   userChar.Id.String(),
+						Time: amount,
 					})
 					Expect(err).To(BeNil())
 					Expect(out).NotTo(BeNil())
 				})
 				It("should fail if adding to playtime fails", func() {
-					amount := rand.Uint64N(1000)
+					amount := rand.Int32N(1000)
 					retErr := errors.New(faker.Username())
 					ctx := ReturnClaimsWithRole(srv.RolePlaytime, userChar.OwnerId.String())
 					mockCharService.EXPECT().GetCharacterById(ctx, &userChar.Id).Return(userChar, nil)
 					mockCharService.EXPECT().AddCharacterPlaytime(ctx, userChar, amount).Return(nil, retErr)
 					out, err := server.AddCharacterPlayTime(ctx, &pb.AddPlayTimeRequest{
-						CharacterId: userChar.Id.String(),
-						Time:        amount,
+						Id:   userChar.Id.String(),
+						Time: amount,
 					})
 					Expect(err).NotTo(BeNil())
 
@@ -149,7 +148,7 @@ var _ = Describe("Grpc Server", func() {
 					ctx := ReturnClaimsWithRole(srv.RolePlaytime, userChar.OwnerId.String())
 					mockCharService.EXPECT().GetCharacterById(ctx, &userChar.Id).Return(nil, nil)
 					out, err := server.AddCharacterPlayTime(ctx, &pb.AddPlayTimeRequest{
-						CharacterId: userChar.Id.String(),
+						Id: userChar.Id.String(),
 					})
 					Expect(err).NotTo(BeNil())
 
@@ -173,8 +172,8 @@ var _ = Describe("Grpc Server", func() {
 					function: "AddCharacterPlayTime",
 					fn: func(ctx context.Context) (any, error) {
 						return server.AddCharacterPlayTime(ctx, &pb.AddPlayTimeRequest{
-							CharacterId: userChar.Id.String(),
-							Time:        100 + rand.Uint64N(900),
+							Id:   userChar.Id.String(),
+							Time: 100 + rand.Int32N(900),
 						})
 					},
 					roles: []*gocloak.Role{
@@ -233,7 +232,9 @@ var _ = Describe("Grpc Server", func() {
 					function: "EditCharacter (other)",
 					fn: func(ctx context.Context) (any, error) {
 						return server.EditCharacter(ctx, &pb.EditCharacterRequest{
-							CharacterId: adminChar.Id.String(),
+							Character: &pb.Character{
+								Id: adminChar.Id.String(),
+							},
 						})
 					},
 					roles: []*gocloak.Role{
@@ -244,7 +245,9 @@ var _ = Describe("Grpc Server", func() {
 					function: "EditCharacter (owner)",
 					fn: func(ctx context.Context) (any, error) {
 						return server.EditCharacter(ctx, &pb.EditCharacterRequest{
-							CharacterId: userChar.Id.String(),
+							Character: &pb.Character{
+								Id: adminChar.Id.String(),
+							},
 						})
 					},
 					roles: []*gocloak.Role{
@@ -255,7 +258,7 @@ var _ = Describe("Grpc Server", func() {
 				{
 					function: "GetCharacter (owner)",
 					fn: func(ctx context.Context) (any, error) {
-						return server.GetCharacter(ctx, &commonpb.TargetId{
+						return server.GetCharacter(ctx, &pb.GetCharacterRequest{
 							Id: userChar.Id.String(),
 						})
 					},
@@ -268,7 +271,7 @@ var _ = Describe("Grpc Server", func() {
 					function: "GetCharacter (other)",
 					fn: func(ctx context.Context) (any, error) {
 						mockCharService.EXPECT().GetCharacterById(ctx, &adminChar.Id).Return(adminChar, nil).AnyTimes()
-						return server.GetCharacter(ctx, &commonpb.TargetId{
+						return server.GetCharacter(ctx, &pb.GetCharacterRequest{
 							Id: adminChar.Id.String(),
 						})
 					},
@@ -280,7 +283,7 @@ var _ = Describe("Grpc Server", func() {
 				{
 					function: "GetCharacters",
 					fn: func(ctx context.Context) (any, error) {
-						return server.GetCharacters(ctx, &emptypb.Empty{})
+						return server.GetCharacters(ctx, &pb.GetCharactersRequest{})
 					},
 					roles: []*gocloak.Role{
 						srv.RoleGetCharactersAll,
@@ -290,8 +293,8 @@ var _ = Describe("Grpc Server", func() {
 				{
 					function: "GetCharactersForUser (owner)",
 					fn: func(ctx context.Context) (any, error) {
-						return server.GetCharactersForUser(ctx, &commonpb.TargetId{
-							Id: userChar.OwnerId.String(),
+						return server.GetCharactersForUser(ctx, &pb.GetUserCharactersRequest{
+							OwnerId: userChar.OwnerId.String(),
 						})
 					},
 					roles: []*gocloak.Role{
@@ -302,8 +305,8 @@ var _ = Describe("Grpc Server", func() {
 				{
 					function: "GetCharactersForUser (other)",
 					fn: func(ctx context.Context) (any, error) {
-						return server.GetCharactersForUser(ctx, &commonpb.TargetId{
-							Id: adminChar.Id.String(),
+						return server.GetCharactersForUser(ctx, &pb.GetUserCharactersRequest{
+							OwnerId: adminChar.Id.String(),
 						})
 					},
 					roles: []*gocloak.Role{
@@ -383,7 +386,7 @@ func NewCharacter() *character.Character {
 		Gender:      game.GenderMale,
 		Realm:       game.RealmHuman,
 		DimensionId: uuid.New(),
-		PlayTime:    rand.Uint64N(1000),
+		PlayTime:    rand.Int32N(1000),
 		Location: commongame.Location{
 			WorldId: uuid.New(),
 		},

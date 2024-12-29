@@ -34,15 +34,15 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CharacterServiceClient interface {
-	GetCharacter(ctx context.Context, in *pb.TargetId, opts ...grpc.CallOption) (*CharacterDetails, error)
-	GetCharacters(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CharactersDetails, error)
-	GetCharactersForUser(ctx context.Context, in *pb.TargetId, opts ...grpc.CallOption) (*CharactersDetails, error)
-	CreateCharacter(ctx context.Context, in *CreateCharacterRequest, opts ...grpc.CallOption) (*CharacterDetails, error)
+	GetCharacter(ctx context.Context, in *GetCharacterRequest, opts ...grpc.CallOption) (*Character, error)
+	GetCharacters(ctx context.Context, in *GetCharactersRequest, opts ...grpc.CallOption) (*Characters, error)
+	GetCharactersForUser(ctx context.Context, in *GetUserCharactersRequest, opts ...grpc.CallOption) (*Characters, error)
+	CreateCharacter(ctx context.Context, in *CreateCharacterRequest, opts ...grpc.CallOption) (*Character, error)
 	DeleteCharacter(ctx context.Context, in *pb.TargetId, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	EditCharacter(ctx context.Context, in *EditCharacterRequest, opts ...grpc.CallOption) (*CharacterDetails, error)
+	EditCharacter(ctx context.Context, in *EditCharacterRequest, opts ...grpc.CallOption) (*Character, error)
 	// Adds the given amount of playtime to the character and returns the total
 	// playtime
-	AddCharacterPlayTime(ctx context.Context, in *AddPlayTimeRequest, opts ...grpc.CallOption) (*PlayTimeResponse, error)
+	AddCharacterPlayTime(ctx context.Context, in *AddPlayTimeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type characterServiceClient struct {
@@ -53,9 +53,9 @@ func NewCharacterServiceClient(cc grpc.ClientConnInterface) CharacterServiceClie
 	return &characterServiceClient{cc}
 }
 
-func (c *characterServiceClient) GetCharacter(ctx context.Context, in *pb.TargetId, opts ...grpc.CallOption) (*CharacterDetails, error) {
+func (c *characterServiceClient) GetCharacter(ctx context.Context, in *GetCharacterRequest, opts ...grpc.CallOption) (*Character, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CharacterDetails)
+	out := new(Character)
 	err := c.cc.Invoke(ctx, CharacterService_GetCharacter_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -63,9 +63,9 @@ func (c *characterServiceClient) GetCharacter(ctx context.Context, in *pb.Target
 	return out, nil
 }
 
-func (c *characterServiceClient) GetCharacters(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CharactersDetails, error) {
+func (c *characterServiceClient) GetCharacters(ctx context.Context, in *GetCharactersRequest, opts ...grpc.CallOption) (*Characters, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CharactersDetails)
+	out := new(Characters)
 	err := c.cc.Invoke(ctx, CharacterService_GetCharacters_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -73,9 +73,9 @@ func (c *characterServiceClient) GetCharacters(ctx context.Context, in *emptypb.
 	return out, nil
 }
 
-func (c *characterServiceClient) GetCharactersForUser(ctx context.Context, in *pb.TargetId, opts ...grpc.CallOption) (*CharactersDetails, error) {
+func (c *characterServiceClient) GetCharactersForUser(ctx context.Context, in *GetUserCharactersRequest, opts ...grpc.CallOption) (*Characters, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CharactersDetails)
+	out := new(Characters)
 	err := c.cc.Invoke(ctx, CharacterService_GetCharactersForUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -83,9 +83,9 @@ func (c *characterServiceClient) GetCharactersForUser(ctx context.Context, in *p
 	return out, nil
 }
 
-func (c *characterServiceClient) CreateCharacter(ctx context.Context, in *CreateCharacterRequest, opts ...grpc.CallOption) (*CharacterDetails, error) {
+func (c *characterServiceClient) CreateCharacter(ctx context.Context, in *CreateCharacterRequest, opts ...grpc.CallOption) (*Character, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CharacterDetails)
+	out := new(Character)
 	err := c.cc.Invoke(ctx, CharacterService_CreateCharacter_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -103,9 +103,9 @@ func (c *characterServiceClient) DeleteCharacter(ctx context.Context, in *pb.Tar
 	return out, nil
 }
 
-func (c *characterServiceClient) EditCharacter(ctx context.Context, in *EditCharacterRequest, opts ...grpc.CallOption) (*CharacterDetails, error) {
+func (c *characterServiceClient) EditCharacter(ctx context.Context, in *EditCharacterRequest, opts ...grpc.CallOption) (*Character, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CharacterDetails)
+	out := new(Character)
 	err := c.cc.Invoke(ctx, CharacterService_EditCharacter_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -113,9 +113,9 @@ func (c *characterServiceClient) EditCharacter(ctx context.Context, in *EditChar
 	return out, nil
 }
 
-func (c *characterServiceClient) AddCharacterPlayTime(ctx context.Context, in *AddPlayTimeRequest, opts ...grpc.CallOption) (*PlayTimeResponse, error) {
+func (c *characterServiceClient) AddCharacterPlayTime(ctx context.Context, in *AddPlayTimeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PlayTimeResponse)
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, CharacterService_AddCharacterPlayTime_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -127,15 +127,15 @@ func (c *characterServiceClient) AddCharacterPlayTime(ctx context.Context, in *A
 // All implementations must embed UnimplementedCharacterServiceServer
 // for forward compatibility.
 type CharacterServiceServer interface {
-	GetCharacter(context.Context, *pb.TargetId) (*CharacterDetails, error)
-	GetCharacters(context.Context, *emptypb.Empty) (*CharactersDetails, error)
-	GetCharactersForUser(context.Context, *pb.TargetId) (*CharactersDetails, error)
-	CreateCharacter(context.Context, *CreateCharacterRequest) (*CharacterDetails, error)
+	GetCharacter(context.Context, *GetCharacterRequest) (*Character, error)
+	GetCharacters(context.Context, *GetCharactersRequest) (*Characters, error)
+	GetCharactersForUser(context.Context, *GetUserCharactersRequest) (*Characters, error)
+	CreateCharacter(context.Context, *CreateCharacterRequest) (*Character, error)
 	DeleteCharacter(context.Context, *pb.TargetId) (*emptypb.Empty, error)
-	EditCharacter(context.Context, *EditCharacterRequest) (*CharacterDetails, error)
+	EditCharacter(context.Context, *EditCharacterRequest) (*Character, error)
 	// Adds the given amount of playtime to the character and returns the total
 	// playtime
-	AddCharacterPlayTime(context.Context, *AddPlayTimeRequest) (*PlayTimeResponse, error)
+	AddCharacterPlayTime(context.Context, *AddPlayTimeRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCharacterServiceServer()
 }
 
@@ -146,25 +146,25 @@ type CharacterServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCharacterServiceServer struct{}
 
-func (UnimplementedCharacterServiceServer) GetCharacter(context.Context, *pb.TargetId) (*CharacterDetails, error) {
+func (UnimplementedCharacterServiceServer) GetCharacter(context.Context, *GetCharacterRequest) (*Character, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCharacter not implemented")
 }
-func (UnimplementedCharacterServiceServer) GetCharacters(context.Context, *emptypb.Empty) (*CharactersDetails, error) {
+func (UnimplementedCharacterServiceServer) GetCharacters(context.Context, *GetCharactersRequest) (*Characters, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCharacters not implemented")
 }
-func (UnimplementedCharacterServiceServer) GetCharactersForUser(context.Context, *pb.TargetId) (*CharactersDetails, error) {
+func (UnimplementedCharacterServiceServer) GetCharactersForUser(context.Context, *GetUserCharactersRequest) (*Characters, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCharactersForUser not implemented")
 }
-func (UnimplementedCharacterServiceServer) CreateCharacter(context.Context, *CreateCharacterRequest) (*CharacterDetails, error) {
+func (UnimplementedCharacterServiceServer) CreateCharacter(context.Context, *CreateCharacterRequest) (*Character, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCharacter not implemented")
 }
 func (UnimplementedCharacterServiceServer) DeleteCharacter(context.Context, *pb.TargetId) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCharacter not implemented")
 }
-func (UnimplementedCharacterServiceServer) EditCharacter(context.Context, *EditCharacterRequest) (*CharacterDetails, error) {
+func (UnimplementedCharacterServiceServer) EditCharacter(context.Context, *EditCharacterRequest) (*Character, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditCharacter not implemented")
 }
-func (UnimplementedCharacterServiceServer) AddCharacterPlayTime(context.Context, *AddPlayTimeRequest) (*PlayTimeResponse, error) {
+func (UnimplementedCharacterServiceServer) AddCharacterPlayTime(context.Context, *AddPlayTimeRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCharacterPlayTime not implemented")
 }
 func (UnimplementedCharacterServiceServer) mustEmbedUnimplementedCharacterServiceServer() {}
@@ -189,7 +189,7 @@ func RegisterCharacterServiceServer(s grpc.ServiceRegistrar, srv CharacterServic
 }
 
 func _CharacterService_GetCharacter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.TargetId)
+	in := new(GetCharacterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -201,13 +201,13 @@ func _CharacterService_GetCharacter_Handler(srv interface{}, ctx context.Context
 		FullMethod: CharacterService_GetCharacter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CharacterServiceServer).GetCharacter(ctx, req.(*pb.TargetId))
+		return srv.(CharacterServiceServer).GetCharacter(ctx, req.(*GetCharacterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _CharacterService_GetCharacters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetCharactersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -219,13 +219,13 @@ func _CharacterService_GetCharacters_Handler(srv interface{}, ctx context.Contex
 		FullMethod: CharacterService_GetCharacters_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CharacterServiceServer).GetCharacters(ctx, req.(*emptypb.Empty))
+		return srv.(CharacterServiceServer).GetCharacters(ctx, req.(*GetCharactersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _CharacterService_GetCharactersForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.TargetId)
+	in := new(GetUserCharactersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -237,7 +237,7 @@ func _CharacterService_GetCharactersForUser_Handler(srv interface{}, ctx context
 		FullMethod: CharacterService_GetCharactersForUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CharacterServiceServer).GetCharactersForUser(ctx, req.(*pb.TargetId))
+		return srv.(CharacterServiceServer).GetCharactersForUser(ctx, req.(*GetUserCharactersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

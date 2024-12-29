@@ -27,7 +27,7 @@ type CharacterService interface {
 
 	EditCharacter(ctx context.Context, newCharacter *character.Character) (*character.Character, error)
 
-	AddCharacterPlaytime(ctx context.Context, char *character.Character, seconds uint64) (*character.Character, error)
+	AddCharacterPlaytime(ctx context.Context, char *character.Character, seconds int32) (*character.Character, error)
 }
 
 type characterService struct {
@@ -39,7 +39,7 @@ func NewCharacterService(repo repository.CharacterRepository) CharacterService {
 }
 
 // AddCharacterPlaytime implements CharacterService.
-func (c *characterService) AddCharacterPlaytime(ctx context.Context, character *character.Character, seconds uint64) (*character.Character, error) {
+func (c *characterService) AddCharacterPlaytime(ctx context.Context, character *character.Character, seconds int32) (*character.Character, error) {
 	character.PlayTime += seconds
 	return c.repo.UpdateCharacter(ctx, character)
 }

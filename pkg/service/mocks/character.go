@@ -43,7 +43,7 @@ func (m *MockCharacterService) EXPECT() *MockCharacterServiceMockRecorder {
 }
 
 // AddCharacterPlaytime mocks base method.
-func (m *MockCharacterService) AddCharacterPlaytime(ctx context.Context, char *character.Character, seconds uint64) (*character.Character, error) {
+func (m *MockCharacterService) AddCharacterPlaytime(ctx context.Context, char *character.Character, seconds int32) (*character.Character, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddCharacterPlaytime", ctx, char, seconds)
 	ret0, _ := ret[0].(*character.Character)

@@ -34,7 +34,7 @@ var _ = Describe("pkg/model/character.Character", func() {
 
 	Describe("proto conversions", func() {
 		var (
-			pbs        []*pb.CharacterDetails
+			pbs        []*pb.Character
 			characters character.Characters
 		)
 		It("should convert to a character to a pb ", func() {
@@ -57,7 +57,7 @@ var _ = Describe("pkg/model/character.Character", func() {
 				if pb == nil {
 					continue
 				}
-				Expect(pb.CharacterId).To(Equal(characters[idx].Id.String()))
+				Expect(pb.Id).To(Equal(characters[idx].Id.String()))
 				Expect(pb.OwnerId).To(Equal(characters[idx].OwnerId.String()))
 				Expect(pb.Name).To(Equal(characters[idx].Name))
 				Expect(pb.Gender).To(Equal(string(characters[idx].Gender)))

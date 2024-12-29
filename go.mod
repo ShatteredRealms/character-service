@@ -4,7 +4,7 @@ go 1.23.3
 
 require (
 	ariga.io/atlas-provider-gorm v0.5.0
-	github.com/ShatteredRealms/go-common-service v0.9.16
+	github.com/ShatteredRealms/go-common-service v0.9.18
 	github.com/WilSimpson/gocloak/v13 v13.11.3
 	github.com/go-faker/faker/v4 v4.5.0
 	github.com/golang-migrate/migrate/v4 v4.18.1
@@ -139,6 +139,7 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
+	github.com/mennanov/fieldmask-utils v1.1.2 // indirect
 	github.com/microsoft/go-mssqldb v1.6.0 // indirect
 	github.com/minio/asm2plan9s v0.0.0-20200509001527-cdd76441f9d8 // indirect
 	github.com/minio/c2goasm v0.0.0-20190812172519-36a3d3bbc4f3 // indirect

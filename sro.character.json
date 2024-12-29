@@ -4,23 +4,24 @@
     "schemas": {
       "sro.character.AddPlayTimeRequest": {
         "properties": {
-          "characterId": {
+          "id": {
             "type": "string"
           },
           "time": {
-            "format": "int64",
-            "type": "integer",
-            "x-kubernetes-int-or-string": true
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
       },
-      "sro.character.CharacterDetails": {
+      "sro.character.Character": {
         "properties": {
-          "characterId": {
-            "type": "string"
-          },
           "createdAt": {
+            "format": "int64",
+            "type": "integer",
+            "x-kubernetes-int-or-string": true
+          },
+          "deletedAt": {
             "format": "int64",
             "type": "integer",
             "x-kubernetes-int-or-string": true
@@ -29,6 +30,9 @@
             "type": "string"
           },
           "gender": {
+            "type": "string"
+          },
+          "id": {
             "type": "string"
           },
           "location": {
@@ -64,25 +68,31 @@
             "type": "string"
           },
           "playTime": {
-            "format": "int64",
-            "type": "integer",
-            "x-kubernetes-int-or-string": true
+            "format": "int32",
+            "type": "integer"
           },
           "realm": {
             "type": "string"
+          },
+          "updatedAt": {
+            "format": "int64",
+            "type": "integer",
+            "x-kubernetes-int-or-string": true
           }
         },
         "type": "object"
       },
-      "sro.character.CharactersDetails": {
+      "sro.character.Characters": {
         "properties": {
           "characters": {
             "items": {
               "properties": {
-                "characterId": {
-                  "type": "string"
-                },
                 "createdAt": {
+                  "format": "int64",
+                  "type": "integer",
+                  "x-kubernetes-int-or-string": true
+                },
+                "deletedAt": {
                   "format": "int64",
                   "type": "integer",
                   "x-kubernetes-int-or-string": true
@@ -91,6 +101,9 @@
                   "type": "string"
                 },
                 "gender": {
+                  "type": "string"
+                },
+                "id": {
                   "type": "string"
                 },
                 "location": {
@@ -126,17 +139,26 @@
                   "type": "string"
                 },
                 "playTime": {
-                  "format": "int64",
-                  "type": "integer",
-                  "x-kubernetes-int-or-string": true
+                  "format": "int32",
+                  "type": "integer"
                 },
                 "realm": {
                   "type": "string"
+                },
+                "updatedAt": {
+                  "format": "int64",
+                  "type": "integer",
+                  "x-kubernetes-int-or-string": true
                 }
               },
               "type": "object"
             },
             "type": "array"
+          },
+          "total": {
+            "format": "int64",
+            "type": "integer",
+            "x-kubernetes-int-or-string": true
           }
         },
         "type": "object"
@@ -163,64 +185,168 @@
       },
       "sro.character.EditCharacterRequest": {
         "properties": {
-          "characterId": {
-            "type": "string"
-          },
-          "dimensionId": {
-            "type": "string"
-          },
-          "gender": {
-            "type": "string"
-          },
-          "location": {
+          "character": {
             "properties": {
-              "pitch": {
-                "type": "number"
+              "createdAt": {
+                "format": "int64",
+                "type": "integer",
+                "x-kubernetes-int-or-string": true
               },
-              "roll": {
-                "type": "number"
+              "deletedAt": {
+                "format": "int64",
+                "type": "integer",
+                "x-kubernetes-int-or-string": true
               },
-              "world": {
+              "dimensionId": {
                 "type": "string"
               },
-              "x": {
-                "type": "number"
+              "gender": {
+                "type": "string"
               },
-              "y": {
-                "type": "number"
+              "id": {
+                "type": "string"
               },
-              "yaw": {
-                "type": "number"
+              "location": {
+                "properties": {
+                  "pitch": {
+                    "type": "number"
+                  },
+                  "roll": {
+                    "type": "number"
+                  },
+                  "world": {
+                    "type": "string"
+                  },
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "yaw": {
+                    "type": "number"
+                  },
+                  "z": {
+                    "type": "number"
+                  }
+                },
+                "type": "object"
               },
-              "z": {
-                "type": "number"
+              "name": {
+                "type": "string"
+              },
+              "ownerId": {
+                "type": "string"
+              },
+              "playTime": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "realm": {
+                "type": "string"
+              },
+              "updatedAt": {
+                "format": "int64",
+                "type": "integer",
+                "x-kubernetes-int-or-string": true
               }
             },
             "type": "object"
           },
-          "newName": {
-            "type": "string"
-          },
-          "ownerId": {
-            "type": "string"
-          },
-          "playTime": {
-            "format": "int64",
-            "type": "integer",
-            "x-kubernetes-int-or-string": true
-          },
-          "realm": {
-            "type": "string"
+          "mask": {
+            "properties": {
+              "paths": {
+                "description": "The set of field mask paths.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
           }
         },
         "type": "object"
       },
-      "sro.character.PlayTimeResponse": {
+      "sro.character.GetCharacterRequest": {
         "properties": {
-          "time": {
-            "format": "int64",
-            "type": "integer",
-            "x-kubernetes-int-or-string": true
+          "id": {
+            "type": "string"
+          },
+          "mask": {
+            "properties": {
+              "paths": {
+                "description": "The set of field mask paths.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "sro.character.GetCharactersRequest": {
+        "properties": {
+          "filters": {
+            "properties": {
+              "count": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "offset": {
+                "format": "int32",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "mask": {
+            "properties": {
+              "paths": {
+                "description": "The set of field mask paths.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "sro.character.GetUserCharactersRequest": {
+        "properties": {
+          "filters": {
+            "properties": {
+              "count": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "offset": {
+                "format": "int32",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "mask": {
+            "properties": {
+              "paths": {
+                "description": "The set of field mask paths.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          },
+          "ownerId": {
+            "type": "string"
           }
         },
         "type": "object"

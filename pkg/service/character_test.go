@@ -35,7 +35,7 @@ var _ = Describe("CharacterS", func() {
 			Gender:      game.GenderMale,
 			Realm:       game.RealmHuman,
 			DimensionId: dimensionId,
-			PlayTime:    rand.Uint64(),
+			PlayTime:    rand.Int32(),
 			Location: cgame.Location{
 				WorldId: uuid.New(),
 				X:       rand.Float32(),
@@ -51,12 +51,12 @@ var _ = Describe("CharacterS", func() {
 	Describe("AddCharacterPlaytime", func() {
 		It("should fail if updating the repo fails", func(ctx SpecContext) {
 			repo.EXPECT().UpdateCharacter(gomock.Any(), gomock.Any()).Return(nil, errors.New("repo"))
-			outC, err := svc.AddCharacterPlaytime(ctx, c, rand.Uint64())
+			outC, err := svc.AddCharacterPlaytime(ctx, c, rand.Int32())
 			Expect(err).To(HaveOccurred())
 			Expect(outC).To(BeNil())
 		})
 		It("should update the playtime if updating the player succeeds", func(ctx SpecContext) {
-			timeAdded := 300 + rand.Uint64()%700
+			timeAdded := 300 + rand.Int32()%700
 			originalTime := c.PlayTime
 			repo.EXPECT().UpdateCharacter(gomock.Any(), gomock.Any()).Return(c, nil)
 			outC, err := svc.AddCharacterPlaytime(ctx, c, timeAdded)

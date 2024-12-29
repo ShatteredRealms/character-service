@@ -52,7 +52,7 @@ type Character struct {
 	DimensionId uuid.UUID   `db:"dimension_id" json:"dimensionId" mapstructure:"dimension_id"`
 
 	// PlayTime Time in seconds the character has played
-	PlayTime uint64 `db:"play_time" json:"playTime" mapstructure:"play_time"`
+	PlayTime int32 `db:"play_time" json:"playTime" mapstructure:"play_time"`
 
 	// Location last location recorded for the character
 	commongame.Location `json:"location" mapstructure:",squash"`
@@ -116,9 +116,9 @@ func (c *Character) ValidateRealm() error {
 	return game.ErrorInvalidRealm
 }
 
-func (c *Character) ToPb() *pb.CharacterDetails {
-	return &pb.CharacterDetails{
-		CharacterId: c.Id.String(),
+func (c *Character) ToPb() *pb.Character {
+	char := &pb.Character{
+		Id:          c.Id.String(),
 		OwnerId:     c.OwnerId.String(),
 		Name:        c.Name,
 		Gender:      string(c.Gender),
@@ -126,12 +126,17 @@ func (c *Character) ToPb() *pb.CharacterDetails {
 		PlayTime:    c.PlayTime,
 		Location:    c.Location.ToPb(),
 		DimensionId: c.DimensionId.String(),
-		CreatedAt:   uint64(c.CreatedAt.Unix()),
+		CreatedAt:   c.CreatedAt.Unix(),
+		UpdatedAt:   c.UpdatedAt.Unix(),
 	}
+	if c.DeletedAt != nil {
+		char.DeletedAt = c.DeletedAt.Unix()
+	}
+	return char
 }
 
-func (c Characters) ToPb() *pb.CharactersDetails {
-	resp := &pb.CharactersDetails{Characters: make([]*pb.CharacterDetails, len(c))}
+func (c Characters) ToPb() *pb.Characters {
+	resp := &pb.Characters{Characters: make([]*pb.Character, len(c))}
 	for idx, character := range c {
 		if character != nil {
 			resp.Characters[idx] = character.ToPb()
