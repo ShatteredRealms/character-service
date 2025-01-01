@@ -6,14 +6,19 @@ import (
 
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
+	fieldmask_utils "github.com/mennanov/fieldmask-utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	"github.com/ShatteredRealms/character-service/pkg/common"
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
+	"github.com/ShatteredRealms/character-service/pkg/pb"
 	"github.com/ShatteredRealms/character-service/pkg/repository"
 	cgame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
+	cpb "github.com/ShatteredRealms/go-common-service/pkg/pb"
+	"github.com/ShatteredRealms/go-common-service/pkg/util"
 )
 
 var _ = Describe("Character Repository", func() {
@@ -80,27 +85,26 @@ var _ = Describe("Character Repository", func() {
 
 			c = outC
 
-			outChars, err := repo.GetCharacters(ctx)
+			outChars, _, err := repo.GetCharacters(ctx, map[string]interface{}{"id": c.Id}, nil, false)
 			Expect(err).To(BeNil())
 			Expect(outChars).To(ContainElement(c))
 		})
 
 		Describe("GetCharacterById", func() {
 			It("should return nothing if there are no matches", func(ctx SpecContext) {
-				outC, err := repo.GetCharacterById(ctx, nil)
+				outC, err := repo.GetCharacter(ctx, map[string]interface{}{"id": "a"})
 				Expect(err).NotTo(BeNil())
-				Expect(errors.Is(err, common.ErrRequestInvalid)).To(BeTrue())
 				Expect(outC).To(BeNil())
 
 				id, err := uuid.NewV7()
 				Expect(err).NotTo(HaveOccurred())
 
-				outC, err = repo.GetCharacterById(ctx, &id)
+				outC, err = repo.GetCharacter(ctx, map[string]interface{}{"id": id})
 				Expect(err).To(BeNil())
 				Expect(outC).To(BeNil())
 			})
 			It("should return a character if there is a match", func(ctx SpecContext) {
-				outC, err := repo.GetCharacterById(ctx, &c.Id)
+				outC, err := repo.GetCharacter(ctx, map[string]interface{}{"id": c.Id})
 				Expect(err).To(BeNil())
 				Expect(outC).NotTo(BeNil())
 				ExpectCharactersEquals(outC, c)
@@ -109,28 +113,76 @@ var _ = Describe("Character Repository", func() {
 
 		Describe("GetCharacters", func() {
 			It("should return characters", func(ctx SpecContext) {
-				outChars, err := repo.GetCharacters(ctx)
+				outChars, total, err := repo.GetCharacters(ctx, map[string]interface{}{}, &cpb.QueryFilters{}, false)
 				Expect(err).To(BeNil())
 				Expect(len(outChars) > 0).To(BeTrue())
+				Expect(outChars).To(HaveLen(total))
+			})
+
+			It("should work with proto filter limit", func(ctx SpecContext) {
+				c.Id = uuid.Nil
+				c.Name = faker.Username() + "a"
+				_, err := repo.CreateCharacter(ctx, c)
+				Expect(err).To(BeNil())
+
+				outChars, total, err := repo.GetCharacters(ctx, map[string]interface{}{}, &cpb.QueryFilters{Limit: 1}, false)
+				Expect(err).To(BeNil())
+				Expect(outChars).To(HaveLen(1))
+				Expect(total > 1).To(BeTrue())
+			})
+			It("should work with proto filter offset", func(ctx SpecContext) {
+				c.Id = uuid.Nil
+				c.Name = faker.Username() + "a"
+				_, err := repo.CreateCharacter(ctx, c)
+				Expect(err).To(BeNil())
+
+				outChars, total, err := repo.GetCharacters(ctx, map[string]interface{}{}, &cpb.QueryFilters{Limit: 1}, false)
+				Expect(err).To(BeNil())
+				Expect(outChars).To(HaveLen(1))
+				Expect(total > 1).To(BeTrue())
+
+				outChars2, total2, err := repo.GetCharacters(ctx, map[string]interface{}{}, &cpb.QueryFilters{Limit: 1, Offset: 1}, false)
+				Expect(err).To(BeNil())
+				Expect(outChars2).To(HaveLen(1))
+				Expect(total2 > 1).To(BeTrue())
+				Expect(outChars[0].Id).NotTo(Equal(outChars2[0].Id))
+			})
+
+			It("should work with proto match filters", func(ctx SpecContext) {
+				request := &pb.Character{Id: c.Id.String(), Name: "a"}
+				pbmask := &fieldmaskpb.FieldMask{Paths: []string{"id"}}
+				mask, err := fieldmask_utils.MaskFromProtoFieldMask(pbmask, util.PascalCase)
+				Expect(err).To(BeNil())
+
+				matchFilters := make(map[string]interface{})
+				Expect(fieldmask_utils.StructToMap(mask, request, matchFilters)).To(Succeed())
+
+				outChars, _, err := repo.GetCharacters(ctx, matchFilters, &cpb.QueryFilters{}, false)
+				Expect(err).To(BeNil())
+				Expect(outChars).To(HaveLen(1))
+				Expect(outChars[0].Id).To(Equal(c.Id))
 			})
 		})
 
 		Describe("GetCharactersByOwner", func() {
 			It("should return nothing if there are no matches", func(ctx SpecContext) {
-				outChars, err := repo.GetCharactersByOwner(ctx, nil)
+				outChars, total, err := repo.GetCharacters(ctx, map[string]interface{}{"owner_id": "a"}, &cpb.QueryFilters{}, false)
 				Expect(err).NotTo(BeNil())
-				Expect(errors.Is(err, common.ErrRequestInvalid)).To(BeTrue())
 				Expect(outChars).To(HaveLen(0))
+				// Expect(outChars).To(HaveLen(total))
 
 				id := uuid.New()
-				outChars, err = repo.GetCharactersByOwner(ctx, &id)
+				outChars, total, err = repo.GetCharacters(ctx, map[string]interface{}{"owner_id": id.String()}, &cpb.QueryFilters{}, false)
+				Expect(err).To(BeNil())
 				Expect(outChars).To(HaveLen(0))
+				Expect(outChars).To(HaveLen(total))
 			})
 
 			It("should return a character if there is a match", func(ctx SpecContext) {
-				outChars, err := repo.GetCharactersByOwner(ctx, &c.OwnerId)
+				outChars, total, err := repo.GetCharacters(ctx, map[string]interface{}{"owner_id": c.OwnerId}, &cpb.QueryFilters{}, false)
 				Expect(err).To(BeNil())
 				Expect(outChars).To(HaveLen(1))
+				Expect(outChars).To(HaveLen(total))
 
 				outC := outChars[0]
 				Expect(err).To(BeNil())
@@ -169,9 +221,11 @@ var _ = Describe("Character Repository", func() {
 				Expect(outC).NotTo(BeNil())
 				ExpectCharactersEquals(outC, c)
 
-				outChars, err := repo.GetCharacters(ctx)
+				outChars, total, err := repo.GetCharacters(ctx, map[string]interface{}{}, &cpb.QueryFilters{}, false)
 				Expect(err).To(BeNil())
 				Expect(outChars).NotTo(ContainElement(c))
+				Expect(len(outChars) > 0).To(BeTrue())
+				Expect(outChars).To(HaveLen(total))
 			})
 		})
 
@@ -192,9 +246,11 @@ var _ = Describe("Character Repository", func() {
 				Expect(outC).NotTo(BeNil())
 				ExpectCharactersEquals(outC, c)
 
-				outChars, err = repo.GetCharacters(ctx)
+				outChars, total, err := repo.GetCharacters(ctx, map[string]interface{}{}, &cpb.QueryFilters{}, false)
 				Expect(err).To(BeNil())
 				Expect(outChars).NotTo(ContainElement(c))
+				Expect(len(outChars) > 0).To(BeTrue())
+				Expect(outChars).To(HaveLen(total))
 			})
 		})
 	})

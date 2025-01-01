@@ -146,13 +146,13 @@ var _ = Describe("CharacterS", func() {
 	})
 	Describe("GetCharacterById", func() {
 		It("should fail if the repo fails", func(ctx SpecContext) {
-			repo.EXPECT().GetCharacterById(gomock.Eq(ctx), gomock.Eq(&c.Id)).Return(nil, errors.New("repo"))
+			repo.EXPECT().GetCharacter(gomock.Eq(ctx), gomock.Any()).Return(nil, errors.New("repo"))
 			outC, err := svc.GetCharacterById(ctx, &c.Id)
 			Expect(err).To(HaveOccurred())
 			Expect(outC).To(BeNil())
 		})
 		It("should return the results of the repo if it succeeds", func(ctx SpecContext) {
-			repo.EXPECT().GetCharacterById(gomock.Eq(ctx), gomock.Eq(&c.Id)).Return(c, nil)
+			repo.EXPECT().GetCharacter(gomock.Eq(ctx), gomock.Any()).Return(c, nil)
 			outC, err := svc.GetCharacterById(ctx, &c.Id)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outC).NotTo(BeNil())
@@ -161,14 +161,14 @@ var _ = Describe("CharacterS", func() {
 	})
 	Describe("GetCharacters", func() {
 		It("should fail if the character does not exist", func(ctx SpecContext) {
-			repo.EXPECT().GetCharacters(gomock.Eq(ctx)).Return(nil, errors.New("repo"))
-			outChars, err := svc.GetCharacters(ctx)
+			repo.EXPECT().GetCharacters(gomock.Eq(ctx), gomock.Any(), gomock.Any(), gomock.Eq(false)).Return(nil, -1, errors.New("repo"))
+			outChars, _, err := svc.GetCharacters(ctx)
 			Expect(err).To(HaveOccurred())
 			Expect(outChars).To(BeNil())
 		})
 		It("should return the results of the repo if it succeeds", func(ctx SpecContext) {
-			repo.EXPECT().GetCharacters(gomock.Eq(ctx)).Return(character.Characters{c}, nil)
-			outChars, err := svc.GetCharacters(ctx)
+			repo.EXPECT().GetCharacters(gomock.Eq(ctx), gomock.Any(), gomock.Any(), gomock.Eq(false)).Return(character.Characters{c}, 1, nil)
+			outChars, _, err := svc.GetCharacters(ctx)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outChars).NotTo(BeNil())
 			Expect(outChars).To(HaveLen(1))
@@ -177,14 +177,14 @@ var _ = Describe("CharacterS", func() {
 	})
 	Describe("GetCharactersByOwner", func() {
 		It("should fail if the character does not exist", func(ctx SpecContext) {
-			repo.EXPECT().GetCharactersByOwner(gomock.Eq(ctx), gomock.Eq(&c.OwnerId)).Return(nil, errors.New("repo"))
-			outChars, err := svc.GetCharactersByOwner(ctx, c.OwnerId.String())
+			repo.EXPECT().GetCharacters(gomock.Eq(ctx), gomock.Any(), gomock.Any(), false).Return(nil, -1, errors.New("repo"))
+			outChars, _, err := svc.GetCharactersByOwner(ctx, c.OwnerId.String())
 			Expect(err).To(HaveOccurred())
 			Expect(outChars).To(BeNil())
 		})
 		It("should return the results of the repo if it succeeds", func(ctx SpecContext) {
-			repo.EXPECT().GetCharactersByOwner(gomock.Eq(ctx), gomock.Eq(&c.OwnerId)).Return(character.Characters{c}, nil)
-			outChars, err := svc.GetCharactersByOwner(ctx, c.OwnerId.String())
+			repo.EXPECT().GetCharacters(gomock.Eq(ctx), gomock.Any(), gomock.Any(), false).Return(character.Characters{c}, 1, nil)
+			outChars, _, err := svc.GetCharactersByOwner(ctx, c.OwnerId.String())
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outChars).NotTo(BeNil())
 			Expect(outChars).To(HaveLen(1))

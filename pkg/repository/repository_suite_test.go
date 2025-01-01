@@ -25,6 +25,7 @@ type initializeData struct {
 }
 
 var (
+	_    = log.Logger
 	hook *test.Hook
 
 	pgCloseFunc  func() error
@@ -37,8 +38,12 @@ var (
 
 func TestRepository(t *testing.T) {
 	var err error
-	SynchronizedBeforeSuite(func(ctx SpecContext) []byte {
+
+	BeforeEach(func() {
 		log.Logger, hook = test.NewNullLogger()
+	})
+	SynchronizedBeforeSuite(func(ctx SpecContext) []byte {
+		// log.Logger, hook = test.NewNullLogger()
 
 		var pgPort string
 		pgCloseFunc, pgPort, err = testsro.SetupPostgresWithDocker()
@@ -79,7 +84,7 @@ func TestRepository(t *testing.T) {
 
 		return buf.Bytes()
 	}, func(ctx SpecContext, inBytes []byte) {
-		log.Logger, hook = test.NewNullLogger()
+		// log.Logger, hook = test.NewNullLogger()
 
 		dec := gob.NewDecoder(bytes.NewBuffer(inBytes))
 		Expect(dec.Decode(&data)).To(Succeed())
@@ -91,10 +96,6 @@ func TestRepository(t *testing.T) {
 		migrater, err = crepository.NewPgxMigrater(ctx, data.PostgresConfig.PostgresDSN(), "../../migrations")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(migrater).NotTo(BeNil())
-	})
-
-	BeforeEach(func() {
-		log.Logger, hook = test.NewNullLogger()
 	})
 
 	SynchronizedAfterSuite(func() {

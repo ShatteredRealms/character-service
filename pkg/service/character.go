@@ -15,9 +15,9 @@ var (
 )
 
 type CharacterService interface {
-	GetCharacters(ctx context.Context) (character.Characters, error)
-	GetDeletedCharacters(ctx context.Context) (character.Characters, error)
-	GetCharactersByOwner(ctx context.Context, ownerId string) (character.Characters, error)
+	GetCharacters(ctx context.Context) (character.Characters, int, error)
+	GetDeletedCharacters(ctx context.Context) (character.Characters, int, error)
+	GetCharactersByOwner(ctx context.Context, ownerId string) (character.Characters, int, error)
 
 	GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
@@ -90,24 +90,24 @@ func (c *characterService) EditCharacter(ctx context.Context, character *charact
 
 // GetCharacterById implements CharacterService.
 func (c *characterService) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
-	return c.repo.GetCharacterById(ctx, characterId)
+	return c.repo.GetCharacter(ctx, map[string]interface{}{"id": characterId})
 }
 
 // GetCharacters implements CharacterService.
-func (c *characterService) GetCharacters(ctx context.Context) (character.Characters, error) {
-	return c.repo.GetCharacters(ctx)
+func (c *characterService) GetCharacters(ctx context.Context) (character.Characters, int, error) {
+	return c.repo.GetCharacters(ctx, nil, nil, false)
 }
 
 // GetDeletedCharacters implements CharacterService.
-func (c *characterService) GetDeletedCharacters(ctx context.Context) (character.Characters, error) {
-	return c.repo.GetDeletedCharacters(ctx)
+func (c *characterService) GetDeletedCharacters(ctx context.Context) (character.Characters, int, error) {
+	return c.repo.GetCharacters(ctx, nil, nil, true)
 }
 
 // GetCharactersByOwner implements CharacterService.
-func (c *characterService) GetCharactersByOwner(ctx context.Context, ownerId string) (character.Characters, error) {
+func (c *characterService) GetCharactersByOwner(ctx context.Context, ownerId string) (character.Characters, int, error) {
 	id, err := uuid.Parse(ownerId)
 	if err != nil {
-		return nil, ErrInvalidOwnerId
+		return nil, -1, ErrInvalidOwnerId
 	}
-	return c.repo.GetCharactersByOwner(ctx, &id)
+	return c.repo.GetCharacters(ctx, map[string]interface{}{"owner_id": id}, nil, false)
 }

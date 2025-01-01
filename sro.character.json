@@ -292,7 +292,7 @@
         "properties": {
           "filters": {
             "properties": {
-              "count": {
+              "limit": {
                 "format": "int32",
                 "type": "integer"
               },
@@ -322,7 +322,7 @@
         "properties": {
           "filters": {
             "properties": {
-              "count": {
+              "limit": {
                 "format": "int32",
                 "type": "integer"
               },

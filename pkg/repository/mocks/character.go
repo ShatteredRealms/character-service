@@ -14,6 +14,7 @@ import (
 	reflect "reflect"
 
 	character "github.com/ShatteredRealms/character-service/pkg/model/character"
+	pb "github.com/ShatteredRealms/go-common-service/pkg/pb"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -87,64 +88,35 @@ func (mr *MockCharacterRepositoryMockRecorder) DeleteCharactersByOwner(ctx, owne
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCharactersByOwner", reflect.TypeOf((*MockCharacterRepository)(nil).DeleteCharactersByOwner), ctx, ownerId)
 }
 
-// GetCharacterById mocks base method.
-func (m *MockCharacterRepository) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
+// GetCharacter mocks base method.
+func (m *MockCharacterRepository) GetCharacter(ctx context.Context, matchFilters map[string]any) (*character.Character, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCharacterById", ctx, characterId)
+	ret := m.ctrl.Call(m, "GetCharacter", ctx, matchFilters)
 	ret0, _ := ret[0].(*character.Character)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetCharacterById indicates an expected call of GetCharacterById.
-func (mr *MockCharacterRepositoryMockRecorder) GetCharacterById(ctx, characterId any) *gomock.Call {
+// GetCharacter indicates an expected call of GetCharacter.
+func (mr *MockCharacterRepositoryMockRecorder) GetCharacter(ctx, matchFilters any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCharacterById", reflect.TypeOf((*MockCharacterRepository)(nil).GetCharacterById), ctx, characterId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCharacter", reflect.TypeOf((*MockCharacterRepository)(nil).GetCharacter), ctx, matchFilters)
 }
 
 // GetCharacters mocks base method.
-func (m *MockCharacterRepository) GetCharacters(ctx context.Context) (character.Characters, error) {
+func (m *MockCharacterRepository) GetCharacters(ctx context.Context, matchFilters map[string]any, queryFilter *pb.QueryFilters, deleted bool) (character.Characters, int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCharacters", ctx)
+	ret := m.ctrl.Call(m, "GetCharacters", ctx, matchFilters, queryFilter, deleted)
 	ret0, _ := ret[0].(character.Characters)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetCharacters indicates an expected call of GetCharacters.
-func (mr *MockCharacterRepositoryMockRecorder) GetCharacters(ctx any) *gomock.Call {
+func (mr *MockCharacterRepositoryMockRecorder) GetCharacters(ctx, matchFilters, queryFilter, deleted any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCharacters", reflect.TypeOf((*MockCharacterRepository)(nil).GetCharacters), ctx)
-}
-
-// GetCharactersByOwner mocks base method.
-func (m *MockCharacterRepository) GetCharactersByOwner(ctx context.Context, ownerId *uuid.UUID) (character.Characters, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCharactersByOwner", ctx, ownerId)
-	ret0, _ := ret[0].(character.Characters)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetCharactersByOwner indicates an expected call of GetCharactersByOwner.
-func (mr *MockCharacterRepositoryMockRecorder) GetCharactersByOwner(ctx, ownerId any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCharactersByOwner", reflect.TypeOf((*MockCharacterRepository)(nil).GetCharactersByOwner), ctx, ownerId)
-}
-
-// GetDeletedCharacters mocks base method.
-func (m *MockCharacterRepository) GetDeletedCharacters(ctx context.Context) (character.Characters, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDeletedCharacters", ctx)
-	ret0, _ := ret[0].(character.Characters)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetDeletedCharacters indicates an expected call of GetDeletedCharacters.
-func (mr *MockCharacterRepositoryMockRecorder) GetDeletedCharacters(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeletedCharacters", reflect.TypeOf((*MockCharacterRepository)(nil).GetDeletedCharacters), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCharacters", reflect.TypeOf((*MockCharacterRepository)(nil).GetCharacters), ctx, matchFilters, queryFilter, deleted)
 }
 
 // UpdateCharacter mocks base method.

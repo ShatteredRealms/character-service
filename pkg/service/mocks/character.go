@@ -118,12 +118,13 @@ func (mr *MockCharacterServiceMockRecorder) GetCharacterById(ctx, characterId an
 }
 
 // GetCharacters mocks base method.
-func (m *MockCharacterService) GetCharacters(ctx context.Context) (character.Characters, error) {
+func (m *MockCharacterService) GetCharacters(ctx context.Context) (character.Characters, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharacters", ctx)
 	ret0, _ := ret[0].(character.Characters)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetCharacters indicates an expected call of GetCharacters.
@@ -133,12 +134,13 @@ func (mr *MockCharacterServiceMockRecorder) GetCharacters(ctx any) *gomock.Call 
 }
 
 // GetCharactersByOwner mocks base method.
-func (m *MockCharacterService) GetCharactersByOwner(ctx context.Context, ownerId string) (character.Characters, error) {
+func (m *MockCharacterService) GetCharactersByOwner(ctx context.Context, ownerId string) (character.Characters, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCharactersByOwner", ctx, ownerId)
 	ret0, _ := ret[0].(character.Characters)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetCharactersByOwner indicates an expected call of GetCharactersByOwner.
@@ -148,12 +150,13 @@ func (mr *MockCharacterServiceMockRecorder) GetCharactersByOwner(ctx, ownerId an
 }
 
 // GetDeletedCharacters mocks base method.
-func (m *MockCharacterService) GetDeletedCharacters(ctx context.Context) (character.Characters, error) {
+func (m *MockCharacterService) GetDeletedCharacters(ctx context.Context) (character.Characters, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDeletedCharacters", ctx)
 	ret0, _ := ret[0].(character.Characters)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetDeletedCharacters indicates an expected call of GetDeletedCharacters.

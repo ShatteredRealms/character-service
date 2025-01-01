@@ -39,21 +39,21 @@ var _ = Describe("CharacterContext", func() {
 			expectedErr := errors.New(faker.Username())
 
 			It("should return an error if getting characters fails", func(ctx SpecContext) {
-				mockCharService.EXPECT().GetCharacters(gomock.Any()).Return(nil, expectedErr)
+				mockCharService.EXPECT().GetCharacters(gomock.Any()).Return(nil, -1, expectedErr)
 				outErr = fn(ctx)
 			})
 
 			When("getting characters succeeded", func() {
 				BeforeEach(func() {
-					mockCharService.EXPECT().GetCharacters(gomock.Any()).Return([]*character.Character{NewCharacter()}, nil)
+					mockCharService.EXPECT().GetCharacters(gomock.Any()).Return([]*character.Character{NewCharacter()}, 1, nil)
 				})
 				It("should error if getting deleted characters fails", func(ctx SpecContext) {
-					mockCharService.EXPECT().GetDeletedCharacters(gomock.Any()).Return(nil, expectedErr)
+					mockCharService.EXPECT().GetDeletedCharacters(gomock.Any()).Return(nil, -1, expectedErr)
 					outErr = fn(ctx)
 				})
 				When("getting deleted characters succeeds", func() {
 					BeforeEach(func() {
-						mockCharService.EXPECT().GetDeletedCharacters(gomock.Any()).Return([]*character.Character{NewCharacter()}, nil)
+						mockCharService.EXPECT().GetDeletedCharacters(gomock.Any()).Return([]*character.Character{NewCharacter()}, 1, nil)
 					})
 					It("should return error when writing to the bus fails", func(ctx SpecContext) {
 						characterBusWriterMock.EXPECT().PublishMany(gomock.Any(), gomock.Any()).Return(expectedErr)
@@ -78,8 +78,8 @@ var _ = Describe("CharacterContext", func() {
 				GinkgoWriter.Printf("Deleted character: %v\n", deletedChars[idx].Id)
 			}
 
-			mockCharService.EXPECT().GetCharacters(gomock.Any()).Return(existingChars, nil)
-			mockCharService.EXPECT().GetDeletedCharacters(gomock.Any()).Return(deletedChars, nil)
+			mockCharService.EXPECT().GetCharacters(gomock.Any()).Return(existingChars, len(existingChars), nil)
+			mockCharService.EXPECT().GetDeletedCharacters(gomock.Any()).Return(deletedChars, len(existingChars), nil)
 			characterBusWriterMock.EXPECT().
 				PublishMany(gomock.Any(), gomock.Any()).
 				Return(nil).

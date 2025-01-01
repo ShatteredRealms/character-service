@@ -67,11 +67,11 @@ func (c *CharacterContext) ResetCharacterBus() commonsrv.WriterResetCallback {
 	return func(ctx context.Context) error {
 		ctx, span := c.Context.Tracer.Start(ctx, "character.reset_character_bus")
 		defer span.End()
-		chars, err := c.CharacterService.GetCharacters(ctx)
+		chars, _, err := c.CharacterService.GetCharacters(ctx)
 		if err != nil {
 			return fmt.Errorf("get characters: %w", err)
 		}
-		deletedChars, err := c.CharacterService.GetDeletedCharacters(ctx)
+		deletedChars, _, err := c.CharacterService.GetDeletedCharacters(ctx)
 		if err != nil {
 			return fmt.Errorf("get deleted characters: %w", err)
 		}

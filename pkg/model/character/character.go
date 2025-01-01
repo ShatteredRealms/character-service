@@ -9,8 +9,10 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
 	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
+	"github.com/ShatteredRealms/go-common-service/pkg/util"
 	goaway "github.com/TwiN/go-away"
 	"github.com/google/uuid"
+	fieldmask_utils "github.com/mennanov/fieldmask-utils"
 )
 
 const (
@@ -135,6 +137,17 @@ func (c *Character) ToPb() *pb.Character {
 	return char
 }
 
+func (c *Character) ToPbWithMask(paths []string) (*pb.Character, error) {
+	mask, err := fieldmask_utils.MaskFromPaths(paths, util.PascalCase)
+	if err != nil {
+		return nil, err
+	}
+
+	outPb := &pb.Character{}
+	err = fieldmask_utils.StructToStruct(mask, c.ToPb(), outPb)
+	return outPb, err
+}
+
 func (c Characters) ToPb() *pb.Characters {
 	resp := &pb.Characters{Characters: make([]*pb.Character, len(c))}
 	for idx, character := range c {
@@ -144,4 +157,19 @@ func (c Characters) ToPb() *pb.Characters {
 	}
 
 	return resp
+}
+
+func (c Characters) ToPbWithMask(paths []string) (*pb.Characters, error) {
+	var err error
+	resp := &pb.Characters{Characters: make([]*pb.Character, len(c))}
+	for idx, character := range c {
+		if character != nil {
+			resp.Characters[idx], err = character.ToPbWithMask(paths)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return resp, nil
 }

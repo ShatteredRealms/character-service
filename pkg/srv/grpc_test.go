@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/model/game"
@@ -259,7 +260,8 @@ var _ = Describe("Grpc Server", func() {
 					function: "GetCharacter (owner)",
 					fn: func(ctx context.Context) (any, error) {
 						return server.GetCharacter(ctx, &pb.GetCharacterRequest{
-							Id: userChar.Id.String(),
+							Id:   userChar.Id.String(),
+							Mask: &fieldmaskpb.FieldMask{},
 						})
 					},
 					roles: []*gocloak.Role{
@@ -272,7 +274,8 @@ var _ = Describe("Grpc Server", func() {
 					fn: func(ctx context.Context) (any, error) {
 						mockCharService.EXPECT().GetCharacterById(ctx, &adminChar.Id).Return(adminChar, nil).AnyTimes()
 						return server.GetCharacter(ctx, &pb.GetCharacterRequest{
-							Id: adminChar.Id.String(),
+							Id:   adminChar.Id.String(),
+							Mask: &fieldmaskpb.FieldMask{},
 						})
 					},
 					roles: []*gocloak.Role{
@@ -283,7 +286,9 @@ var _ = Describe("Grpc Server", func() {
 				{
 					function: "GetCharacters",
 					fn: func(ctx context.Context) (any, error) {
-						return server.GetCharacters(ctx, &pb.GetCharactersRequest{})
+						return server.GetCharacters(ctx, &pb.GetCharactersRequest{
+							Mask: &fieldmaskpb.FieldMask{},
+						})
 					},
 					roles: []*gocloak.Role{
 						srv.RoleGetCharactersAll,
@@ -295,6 +300,7 @@ var _ = Describe("Grpc Server", func() {
 					fn: func(ctx context.Context) (any, error) {
 						return server.GetCharactersForUser(ctx, &pb.GetUserCharactersRequest{
 							OwnerId: userChar.OwnerId.String(),
+							Mask:    &fieldmaskpb.FieldMask{},
 						})
 					},
 					roles: []*gocloak.Role{
@@ -307,6 +313,7 @@ var _ = Describe("Grpc Server", func() {
 					fn: func(ctx context.Context) (any, error) {
 						return server.GetCharactersForUser(ctx, &pb.GetUserCharactersRequest{
 							OwnerId: adminChar.Id.String(),
+							Mask:    &fieldmaskpb.FieldMask{},
 						})
 					},
 					roles: []*gocloak.Role{

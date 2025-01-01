@@ -4,9 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/ShatteredRealms/character-service/pkg/common"
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
+	"github.com/ShatteredRealms/go-common-service/pkg/log"
+	"github.com/ShatteredRealms/go-common-service/pkg/pb"
 	"github.com/ShatteredRealms/go-common-service/pkg/repository"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -128,22 +131,61 @@ func (p *pgxCharacterRepository) DeleteCharactersByOwner(ctx context.Context, ow
 	return outCharacters, tx.Commit(ctx)
 }
 
-// GetCharacterById implements CharacterRepository.
-func (p *pgxCharacterRepository) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
-	if characterId == nil {
-		return nil, ErrNilId
+func QueryCharacters(ctx context.Context, tx pgx.Tx, matchFilters map[string]interface{}, queryFilter *pb.QueryFilters, deleted bool) (pgx.Rows, int, error) {
+	total := -1
+	builder := strings.Builder{}
+	params := make([]interface{}, 0, len(matchFilters))
+	builder.WriteString("FROM characters WHERE (deleted_at IS ")
+	if deleted {
+		builder.WriteString("NOT NULL")
+	} else {
+		builder.WriteString("NULL")
 	}
+	for key, value := range matchFilters {
+		builder.WriteString(" AND ")
+		builder.WriteString(key)
+		builder.WriteString("=")
+		builder.WriteString(fmt.Sprintf("$%d", len(params)+1))
+		params = append(params, value)
+	}
+	builder.WriteString(")")
 
+	if queryFilter != nil {
+		rows, err := tx.Query(ctx, "SELECT COUNT(*) "+builder.String(), params...)
+		if err != nil {
+			return nil, -1, err
+		}
+		if rows.Next() {
+			err = rows.Scan(&total)
+			rows.Close()
+		}
+
+		log.Logger.Infof("total: %d", total)
+
+		if queryFilter.Limit > 0 {
+			builder.WriteString(fmt.Sprintf(" LIMIT %d", queryFilter.Limit))
+		}
+		if queryFilter.Offset > 0 {
+			builder.WriteString(fmt.Sprintf(" OFFSET %d", queryFilter.Offset))
+		}
+	}
+	rows, err := tx.Query(ctx, "SELECT * "+builder.String()+";", params...)
+	return rows, total, err
+}
+
+// GetCharacter implements CharacterRepository.
+func (p *pgxCharacterRepository) GetCharacter(ctx context.Context, matchFilters map[string]interface{}) (*character.Character, error) {
 	tx, err := p.conn.Begin(ctx)
 	defer tx.Rollback(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	rows, _ := tx.Query(ctx,
-		"SELECT * FROM characters WHERE id = $1",
-		characterId)
-	outCharacter, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[character.Character])
+	rows, _, err := QueryCharacters(ctx, tx, matchFilters, nil, false)
+	if err != nil {
+		return nil, err
+	}
+	outCharacter, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByNameLax[character.Character])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
@@ -155,69 +197,26 @@ func (p *pgxCharacterRepository) GetCharacterById(ctx context.Context, character
 }
 
 // GetCharacters implements CharacterRepository.
-func (p *pgxCharacterRepository) GetCharacters(ctx context.Context) (character.Characters, error) {
+func (p *pgxCharacterRepository) GetCharacters(ctx context.Context, matchFilters map[string]interface{}, queryFilter *pb.QueryFilters, deleted bool) (character.Characters, int, error) {
 	tx, err := p.conn.Begin(ctx)
 	defer tx.Rollback(ctx)
 	if err != nil {
-		return nil, err
+		return nil, -1, err
 	}
 
-	rows, _ := tx.Query(ctx, "SELECT * FROM characters WHERE deleted_at IS NULL")
+	rows, total, err := QueryCharacters(ctx, tx, matchFilters, queryFilter, deleted)
+	if err != nil {
+		return nil, -1, err
+	}
 	outCharacters, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[character.Character])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
+			return nil, 0, nil
 		}
-		return nil, err
+		return nil, -1, err
 	}
 
-	return outCharacters, tx.Commit(ctx)
-}
-
-// GetCharactersByOwner implements CharacterRepository.
-func (p *pgxCharacterRepository) GetCharactersByOwner(ctx context.Context, ownerId *uuid.UUID) (character.Characters, error) {
-	if ownerId == nil {
-		return nil, ErrNilId
-	}
-
-	tx, err := p.conn.Begin(ctx)
-	defer tx.Rollback(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	rows, _ := tx.Query(ctx,
-		"SELECT * FROM characters WHERE (owner_id = $1 AND deleted_at IS NULL)",
-		ownerId)
-	outCharacters, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[character.Character])
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	return outCharacters, tx.Commit(ctx)
-}
-
-// GetDeletedCharacters implements CharacterRepository.
-func (p *pgxCharacterRepository) GetDeletedCharacters(ctx context.Context) (character.Characters, error) {
-	tx, err := p.conn.Begin(ctx)
-	defer tx.Rollback(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	rows, _ := tx.Query(ctx, "SELECT * FROM characters WHERE deleted_at IS NOT NULL")
-	outCharacters, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[character.Character])
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	return outCharacters, tx.Commit(ctx)
+	return outCharacters, total, tx.Commit(ctx)
 }
 
 // UpdateCharacter implements CharacterRepository.
@@ -233,9 +232,9 @@ func (p *pgxCharacterRepository) UpdateCharacter(ctx context.Context, c *charact
 	}
 
 	rows, _ := tx.Query(ctx,
-		`UPDATE 
-			characters 
-		SET 
+		`UPDATE
+			characters
+		SET
 			owner_id = $2,
 			name = $3,
 			gender = $4,

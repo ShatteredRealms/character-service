@@ -295,42 +295,77 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 
 // GetCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) GetCharacter(ctx context.Context, request *pb.GetCharacterRequest) (*pb.Character, error) {
+	err := s.validateMaskRequest(ctx, request.Mask.Paths)
+	if err != nil {
+		return nil, err
+	}
+
 	character, err := s.validateCharacterPermissions(ctx, request.Id, RoleGetCharactersSelf, RoleGetCharactersAll)
 	if err != nil {
 		return nil, err
 	}
 
-	return character.ToPb(), nil
+	return character.ToPbWithMask(request.Mask.Paths)
 }
 
 // GetCharacters implements pb.CharacterServiceServer.
 func (s *characterServiceServer) GetCharacters(ctx context.Context, request *pb.GetCharactersRequest) (*pb.Characters, error) {
-	err := s.validateRole(ctx, RoleGetCharactersAll)
+	err := s.validateMaskRequest(ctx, request.Mask.Paths)
 	if err != nil {
 		return nil, err
 	}
 
-	characters, err := s.Context.CharacterService.GetCharacters(ctx)
+	err = s.validateRole(ctx, RoleGetCharactersAll)
+	if err != nil {
+		return nil, err
+	}
+
+	characters, _, err := s.Context.CharacterService.GetCharacters(ctx)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %e", ErrCharacterGet, err)
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
 	}
 
-	return characters.ToPb(), nil
+	return characters.ToPbWithMask(request.Mask.Paths)
 }
 
 // GetCharactersForUser implements pb.CharacterServiceServer.
 func (s *characterServiceServer) GetCharactersForUser(ctx context.Context, request *pb.GetUserCharactersRequest) (*pb.Characters, error) {
-	err := s.validateUserPermissions(ctx, request.OwnerId, RoleGetCharactersSelf, RoleGetCharactersAll)
+	err := s.validateMaskRequest(ctx, request.Mask.Paths)
 	if err != nil {
 		return nil, err
 	}
 
-	characters, err := s.Context.CharacterService.GetCharactersByOwner(ctx, request.OwnerId)
+	err = s.validateUserPermissions(ctx, request.OwnerId, RoleGetCharactersSelf, RoleGetCharactersAll)
+	if err != nil {
+		return nil, err
+	}
+
+	characters, _, err := s.Context.CharacterService.GetCharactersByOwner(ctx, request.OwnerId)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
 	}
 
 	return characters.ToPb(), nil
+}
+
+func (s *characterServiceServer) validateMaskRequest(ctx context.Context, paths []string) error {
+	if len(paths) == 0 {
+		err := s.validateRole(ctx, RoleEditCharacter)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, path := range paths {
+		if path == "play_time" || path == "updated_at" || path == "location" {
+			err := s.validateRole(ctx, RoleEditCharacter)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

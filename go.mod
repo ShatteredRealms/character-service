@@ -4,21 +4,21 @@ go 1.23.3
 
 require (
 	ariga.io/atlas-provider-gorm v0.5.0
-	github.com/ShatteredRealms/go-common-service v0.9.18
+	github.com/ShatteredRealms/go-common-service v0.9.20
 	github.com/WilSimpson/gocloak/v13 v13.11.3
 	github.com/go-faker/faker/v4 v4.5.0
 	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/mitranim/gow v0.0.0-20231026105220-af11a6e1e9eb
-	github.com/onsi/ginkgo/v2 v2.22.1
-	github.com/onsi/gomega v1.36.1
+	github.com/onsi/ginkgo/v2 v2.22.2
+	github.com/onsi/gomega v1.36.2
 	github.com/solo-io/protoc-gen-openapi v0.2.5
 	github.com/spf13/cobra-cli v1.3.0
 	go.mongodb.org/mongo-driver v1.17.1
 	go.opentelemetry.io/otel v1.33.0
 	go.uber.org/mock v0.5.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20241223144023-3abc09e42ca8
+	google.golang.org/genproto/googleapis/api v0.0.0-20241230172942-26aa7a208def
 	google.golang.org/grpc v1.69.2
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.36.1
@@ -287,7 +287,7 @@ require (
 	golang.org/x/term v0.27.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/tools v0.28.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241223144023-3abc09e42ca8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241230172942-26aa7a208def // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
