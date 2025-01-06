@@ -235,21 +235,20 @@ func (p *pgxCharacterRepository) UpdateCharacter(ctx context.Context, c *charact
 		`UPDATE
 			characters
 		SET
-			owner_id = $2,
-			name = $3,
-			gender = $4,
-			realm = $5,
-			dimension_id = $6,
-			play_time = $7,
-			world_id = $8,
-			x = $9,
-			y = $10,
-			z = $11,
-			roll = $12,
-			pitch = $13,
-			yaw = $14
-		WHERE id = $1 RETURNING *`,
-		c.Id,
+			owner_id = $1,
+			name = $2,
+			gender = $3,
+			realm = $4,
+			dimension_id = $5,
+			play_time = $6,
+			world_id = $7,
+			x = $8,
+			y = $9,
+			z = $10,
+			roll = $11,
+			pitch = $12,
+			yaw = $13
+		WHERE id = $14 RETURNING *`,
 		c.OwnerId,
 		c.Name,
 		c.Gender,
@@ -263,6 +262,7 @@ func (p *pgxCharacterRepository) UpdateCharacter(ctx context.Context, c *charact
 		c.Location.Roll,
 		c.Location.Pitch,
 		c.Location.Yaw,
+		c.Id,
 	)
 	outCharacter, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[character.Character])
 	if err != nil {
