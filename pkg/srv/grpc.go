@@ -295,7 +295,11 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 
 // GetCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) GetCharacter(ctx context.Context, request *pb.GetCharacterRequest) (*pb.Character, error) {
-	err := s.validateMaskRequest(ctx, request.Mask.Paths)
+	paths := []string{}
+	if request.Mask != nil {
+		paths = request.Mask.Paths
+	}
+	err := s.validateMaskRequest(ctx, paths)
 	if err != nil {
 		return nil, err
 	}
@@ -305,12 +309,16 @@ func (s *characterServiceServer) GetCharacter(ctx context.Context, request *pb.G
 		return nil, err
 	}
 
-	return character.ToPbWithMask(request.Mask.Paths)
+	return character.ToPbWithMask(paths)
 }
 
 // GetCharacters implements pb.CharacterServiceServer.
 func (s *characterServiceServer) GetCharacters(ctx context.Context, request *pb.GetCharactersRequest) (*pb.Characters, error) {
-	err := s.validateMaskRequest(ctx, request.Mask.Paths)
+	paths := []string{}
+	if request.Mask != nil {
+		paths = request.Mask.Paths
+	}
+	err := s.validateMaskRequest(ctx, paths)
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +334,7 @@ func (s *characterServiceServer) GetCharacters(ctx context.Context, request *pb.
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
 	}
 
-	return characters.ToPbWithMask(request.Mask.Paths)
+	return characters.ToPbWithMask(paths)
 }
 
 // GetCharactersForUser implements pb.CharacterServiceServer.
@@ -352,18 +360,12 @@ func (s *characterServiceServer) GetCharactersForUser(ctx context.Context, reque
 
 func (s *characterServiceServer) validateMaskRequest(ctx context.Context, paths []string) error {
 	if len(paths) == 0 {
-		err := s.validateRole(ctx, RoleEditCharacter)
-		if err != nil {
-			return err
-		}
+		return s.validateRole(ctx, RoleEditCharacter)
 	}
 
 	for _, path := range paths {
 		if path == "play_time" || path == "updated_at" || path == "location" {
-			err := s.validateRole(ctx, RoleEditCharacter)
-			if err != nil {
-				return err
-			}
+			return s.validateRole(ctx, RoleEditCharacter)
 		}
 	}
 
