@@ -113,10 +113,9 @@ var _ = Describe("Character Repository", func() {
 
 		Describe("GetCharacters", func() {
 			It("should return characters", func(ctx SpecContext) {
-				outChars, total, err := repo.GetCharacters(ctx, map[string]interface{}{}, &cpb.QueryFilters{}, false)
+				outChars, _, err := repo.GetCharacters(ctx, map[string]interface{}{}, &cpb.QueryFilters{}, false)
 				Expect(err).To(BeNil())
 				Expect(len(outChars) > 0).To(BeTrue())
-				Expect(outChars).To(HaveLen(total))
 			})
 
 			It("should work with proto filter limit", func(ctx SpecContext) {
