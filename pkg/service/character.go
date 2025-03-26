@@ -5,8 +5,9 @@ import (
 	"errors"
 
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
-	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/repository"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
 	"github.com/google/uuid"
 )
 
@@ -49,8 +50,8 @@ func (c *characterService) CreateCharacter(
 	ctx context.Context,
 	ownerId string,
 	name string,
-	gender string,
-	realm string,
+	genderStr string,
+	realmStr string,
 	dimensionId *uuid.UUID,
 ) (*character.Character, error) {
 	ownerIdUUID, err := uuid.Parse(ownerId)
@@ -60,8 +61,8 @@ func (c *characterService) CreateCharacter(
 	character := &character.Character{
 		Name:        name,
 		OwnerId:     ownerIdUUID,
-		Gender:      game.Gender(gender),
-		Realm:       game.Realm(realm),
+		Gender:      gender.Gender(genderStr),
+		Realm:       realm.Realm(realmStr),
 		DimensionId: *dimensionId,
 	}
 

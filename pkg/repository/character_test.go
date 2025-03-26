@@ -13,9 +13,10 @@ import (
 
 	"github.com/ShatteredRealms/character-service/pkg/common"
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
-	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
 	"github.com/ShatteredRealms/character-service/pkg/repository"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
 	cgame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 	cpb "github.com/ShatteredRealms/go-common-service/pkg/pb"
 	"github.com/ShatteredRealms/go-common-service/pkg/util"
@@ -271,8 +272,8 @@ func RandomCharacter() *character.Character {
 	return &character.Character{
 		OwnerId:     uuid.New(),
 		Name:        faker.Username(),
-		Gender:      game.GenderMale,
-		Realm:       game.RealmHuman,
+		Gender:      gender.Male,
+		Realm:       realm.Human,
 		DimensionId: uuid.New(),
 		Location: cgame.Location{
 			WorldId: uuid.New(),

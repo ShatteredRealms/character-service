@@ -20,9 +20,10 @@ import (
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
-	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
 	"github.com/ShatteredRealms/character-service/pkg/srv"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
 	"github.com/ShatteredRealms/go-common-service/pkg/auth"
 	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 	commonpb "github.com/ShatteredRealms/go-common-service/pkg/pb"
@@ -390,8 +391,8 @@ func NewCharacter() *character.Character {
 		UpdatedAt:   time.Now(),
 		OwnerId:     uuid.New(),
 		Name:        faker.Username(),
-		Gender:      game.GenderMale,
-		Realm:       game.RealmHuman,
+		Gender:      gender.Male,
+		Realm:       realm.Human,
 		DimensionId: uuid.New(),
 		PlayTime:    rand.Int32N(1000),
 		Location: commongame.Location{

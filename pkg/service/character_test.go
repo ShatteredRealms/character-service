@@ -11,9 +11,10 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
-	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	mock_repository "github.com/ShatteredRealms/character-service/pkg/repository/mocks"
 	"github.com/ShatteredRealms/character-service/pkg/service"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
 	cgame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 )
 
@@ -32,8 +33,8 @@ var _ = Describe("CharacterS", func() {
 		c = &character.Character{
 			OwnerId:     uuid.New(),
 			Name:        faker.Username(),
-			Gender:      game.GenderMale,
-			Realm:       game.RealmHuman,
+			Gender:      gender.Male,
+			Realm:       realm.Human,
 			DimensionId: dimensionId,
 			PlayTime:    rand.Int32(),
 			Location: cgame.Location{

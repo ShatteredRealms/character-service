@@ -9,8 +9,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
-	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
 )
 
 var _ = Describe("pkg/model/character.Character", func() {
@@ -21,8 +22,8 @@ var _ = Describe("pkg/model/character.Character", func() {
 	BeforeEach(func() {
 		c = &character.Character{
 			Name:   faker.Username(),
-			Gender: game.GenderMale,
-			Realm:  game.RealmHuman,
+			Gender: gender.Male,
+			Realm:  realm.Human,
 		}
 		id, err := uuid.NewV7()
 		Expect(err).NotTo(HaveOccurred())
@@ -104,13 +105,13 @@ var _ = Describe("pkg/model/character.Character", func() {
 			})
 			When("given an invalid realm", func() {
 				It("should error if it is unknown", func() {
-					c.Realm = game.Realm(faker.Username())
+					c.Realm = realm.Realm(faker.Username())
 					Expect(c.ValidateRealm()).NotTo(Succeed())
 				})
 			})
 			When("given an invalid gender", func() {
 				It("should error if it is unknown", func() {
-					c.Gender = game.Gender(faker.Username())
+					c.Gender = gender.Gender(faker.Username())
 					Expect(c.ValidateGender()).NotTo(Succeed())
 				})
 			})

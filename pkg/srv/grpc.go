@@ -6,8 +6,9 @@ import (
 
 	"github.com/ShatteredRealms/character-service/pkg/config"
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
-	"github.com/ShatteredRealms/character-service/pkg/model/game"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/character/characterbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
@@ -225,10 +226,10 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		char.Name = request.Character.Name
 	}
 	if val, ok := changeMap["Gender"]; ok {
-		char.Gender = val.(game.Gender)
+		char.Gender = val.(gender.Gender)
 	}
 	if val, ok := changeMap["Realm"]; ok {
-		char.Realm = val.(game.Realm)
+		char.Realm = val.(realm.Realm)
 	}
 	if val, ok := changeMap["PlayTime"]; ok {
 		err := s.validateRole(ctx, RolePlaytime)

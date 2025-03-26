@@ -4,3 +4,5 @@ coverage.txt
 *.out
 
 bin/
+
+xp_data.csv
