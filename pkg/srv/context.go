@@ -21,6 +21,7 @@ type CharacterContext struct {
 	CharacterBusWriter characterbus.BusWriter
 
 	CharacterService service.CharacterService
+	InventoryService service.InventoryService
 
 	DimensionService dimensionbus.Service
 }
@@ -43,16 +44,18 @@ func NewCharacterContext(ctx context.Context) (*CharacterContext, error) {
 		return nil, fmt.Errorf("postgres migrater: %w", err)
 	}
 
-	repo := repository.NewPgxCharacterRepository(migrater)
-
 	characterCtx.CharacterService = service.NewCharacterService(
-		repo,
+		repository.NewPgxCharacterRepository(migrater),
 	)
 	characterCtx.DimensionService = dimensionbus.NewService(
 		dimensionbus.NewPostgresRepository(pg),
 		bus.NewKafkaMessageBusReader(config.GlobalConfig.Kafka, config.ServiceName, dimensionbus.Message{}),
 	)
 	characterCtx.DimensionService.StartProcessing(ctx)
+
+	characterCtx.InventoryService = service.NewInventoryService(
+		repository.NewPgxInventoryRepository(migrater),
+	)
 
 	return characterCtx, nil
 }

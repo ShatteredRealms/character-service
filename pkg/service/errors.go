@@ -7,5 +7,6 @@ import (
 )
 
 var (
-	ErrInvalidOwnerId = fmt.Errorf("%w: invalid owner id", common.ErrRequestInvalid)
+	ErrInvalidOwnerId     = fmt.Errorf("%w: invalid owner id", common.ErrRequestInvalid)
+	ErrInvalidCharacterId = fmt.Errorf("%w: invalid character id", common.ErrRequestInvalid)
 )

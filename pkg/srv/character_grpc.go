@@ -130,7 +130,7 @@ func NewCharacterServiceServer(ctx context.Context, srvCtx *CharacterContext) (p
 
 // AddCharacterPlayTime implements pb.CharacterServiceServer.
 func (s *characterServiceServer) AddCharacterPlayTime(ctx context.Context, request *pb.AddPlayTimeRequest) (*emptypb.Empty, error) {
-	character, err := s.validateCharacterPermissions(ctx, request.Id, RolePlaytime, RolePlaytime)
+	character, err := s.Context.validateCharacterPermissions(ctx, request.Id, RolePlaytime, RolePlaytime)
 	if err != nil {
 		return nil, err
 	}
@@ -146,13 +146,13 @@ func (s *characterServiceServer) AddCharacterPlayTime(ctx context.Context, reque
 
 // CreateCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *pb.CreateCharacterRequest) (*pb.Character, error) {
-	err := s.validateUserPermissions(ctx, request.OwnerId, RoleCreateCharactersSelf, RoleCreateCharactersAll)
+	err := s.Context.validateUserPermissions(ctx, request.OwnerId, RoleCreateCharactersSelf, RoleCreateCharactersAll)
 	if err != nil {
 		return nil, err
 	}
 
 	// Validate dimension exists
-	dimension, err := s.getDimension(ctx, request.GetDimensionId())
+	dimension, err := s.Context.getDimension(ctx, request.GetDimensionId())
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 
 // DeleteCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) DeleteCharacter(ctx context.Context, request *commonpb.TargetId) (*emptypb.Empty, error) {
-	character, err := s.validateCharacterPermissions(ctx, request.Id, RoleDeleteCharactersSelf, RoleDeleteCharactersAll)
+	character, err := s.Context.validateCharacterPermissions(ctx, request.Id, RoleDeleteCharactersSelf, RoleDeleteCharactersAll)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +198,7 @@ func (s *characterServiceServer) DeleteCharacter(ctx context.Context, request *c
 
 // EditCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.EditCharacterRequest) (*pb.Character, error) {
-	char, err := s.validateCharacterPermissions(ctx, request.Character.Id, RoleEditCharacter, RoleEditCharacter)
+	char, err := s.Context.validateCharacterPermissions(ctx, request.Character.Id, RoleEditCharacter, RoleEditCharacter)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +232,7 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		char.Realm = val.(realm.Realm)
 	}
 	if val, ok := changeMap["PlayTime"]; ok {
-		err := s.validateRole(ctx, RolePlaytime)
+		err := s.Context.validateRole(ctx, RolePlaytime)
 		if err != nil {
 			return nil, err
 		}
@@ -247,7 +247,7 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		publishChanges = true
 	}
 	if val, ok := changeMap["DimensionId"]; ok {
-		dimension, err := s.getDimension(ctx, val.(string))
+		dimension, err := s.Context.getDimension(ctx, val.(string))
 		if err != nil {
 			return nil, err
 		}
@@ -305,7 +305,7 @@ func (s *characterServiceServer) GetCharacter(ctx context.Context, request *pb.G
 		return nil, err
 	}
 
-	character, err := s.validateCharacterPermissions(ctx, request.Id, RoleGetCharactersSelf, RoleGetCharactersAll)
+	character, err := s.Context.validateCharacterPermissions(ctx, request.Id, RoleGetCharactersSelf, RoleGetCharactersAll)
 	if err != nil {
 		return nil, err
 	}
@@ -324,7 +324,7 @@ func (s *characterServiceServer) GetCharacters(ctx context.Context, request *pb.
 		return nil, err
 	}
 
-	err = s.validateRole(ctx, RoleGetCharactersAll)
+	err = s.Context.validateRole(ctx, RoleGetCharactersAll)
 	if err != nil {
 		return nil, err
 	}
@@ -345,7 +345,7 @@ func (s *characterServiceServer) GetCharactersForUser(ctx context.Context, reque
 		return nil, err
 	}
 
-	err = s.validateUserPermissions(ctx, request.OwnerId, RoleGetCharactersSelf, RoleGetCharactersAll)
+	err = s.Context.validateUserPermissions(ctx, request.OwnerId, RoleGetCharactersSelf, RoleGetCharactersAll)
 	if err != nil {
 		return nil, err
 	}
@@ -361,12 +361,12 @@ func (s *characterServiceServer) GetCharactersForUser(ctx context.Context, reque
 
 func (s *characterServiceServer) validateMaskRequest(ctx context.Context, paths []string) error {
 	if len(paths) == 0 {
-		return s.validateRole(ctx, RoleEditCharacter)
+		return s.Context.validateRole(ctx, RoleEditCharacter)
 	}
 
 	for _, path := range paths {
 		if path == "play_time" || path == "updated_at" || path == "location" {
-			return s.validateRole(ctx, RoleEditCharacter)
+			return s.Context.validateRole(ctx, RoleEditCharacter)
 		}
 	}
 

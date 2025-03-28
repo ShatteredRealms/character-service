@@ -2,351 +2,70 @@
   "openapi": "3.0.1",
   "components": {
     "schemas": {
-      "sro.character.AddPlayTimeRequest": {
+      "sro.character.GetInventoryRequest": {
         "properties": {
-          "id": {
+          "characterId": {
             "type": "string"
           },
-          "time": {
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "sro.character.Character": {
-        "properties": {
-          "createdAt": {
-            "format": "int64",
-            "type": "integer",
-            "x-kubernetes-int-or-string": true
-          },
-          "deletedAt": {
-            "format": "int64",
-            "type": "integer",
-            "x-kubernetes-int-or-string": true
-          },
-          "dimensionId": {
-            "type": "string"
-          },
-          "gender": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "location": {
+          "mask": {
             "properties": {
-              "pitch": {
-                "type": "number"
-              },
-              "roll": {
-                "type": "number"
-              },
-              "world": {
-                "type": "string"
-              },
-              "x": {
-                "type": "number"
-              },
-              "y": {
-                "type": "number"
-              },
-              "yaw": {
-                "type": "number"
-              },
-              "z": {
-                "type": "number"
+              "paths": {
+                "description": "The set of field mask paths.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
               }
             },
             "type": "object"
-          },
-          "name": {
-            "type": "string"
-          },
-          "ownerId": {
-            "type": "string"
-          },
-          "playTime": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "realm": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "int64",
-            "type": "integer",
-            "x-kubernetes-int-or-string": true
           }
         },
         "type": "object"
       },
-      "sro.character.Characters": {
+      "sro.character.GetInventoryResponse": {
         "properties": {
-          "characters": {
+          "items": {
             "items": {
               "properties": {
-                "createdAt": {
-                  "format": "int64",
-                  "type": "integer",
-                  "x-kubernetes-int-or-string": true
-                },
-                "deletedAt": {
-                  "format": "int64",
-                  "type": "integer",
-                  "x-kubernetes-int-or-string": true
-                },
-                "dimensionId": {
-                  "type": "string"
-                },
-                "gender": {
-                  "type": "string"
-                },
                 "id": {
-                  "type": "string"
-                },
-                "location": {
-                  "properties": {
-                    "pitch": {
-                      "type": "number"
-                    },
-                    "roll": {
-                      "type": "number"
-                    },
-                    "world": {
-                      "type": "string"
-                    },
-                    "x": {
-                      "type": "number"
-                    },
-                    "y": {
-                      "type": "number"
-                    },
-                    "yaw": {
-                      "type": "number"
-                    },
-                    "z": {
-                      "type": "number"
-                    }
-                  },
-                  "type": "object"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "ownerId": {
-                  "type": "string"
-                },
-                "playTime": {
-                  "format": "int32",
+                  "maximum": 4294967295,
+                  "minimum": 0,
                   "type": "integer"
                 },
-                "realm": {
-                  "type": "string"
+                "quantity": {
+                  "maximum": 4294967295,
+                  "minimum": 0,
+                  "type": "integer"
                 },
-                "updatedAt": {
-                  "format": "int64",
-                  "type": "integer",
-                  "x-kubernetes-int-or-string": true
+                "slot": {
+                  "maximum": 4294967295,
+                  "minimum": 0,
+                  "type": "integer"
                 }
               },
               "type": "object"
             },
             "type": "array"
-          },
-          "total": {
-            "format": "int64",
-            "type": "integer",
-            "x-kubernetes-int-or-string": true
           }
         },
         "type": "object"
       },
-      "sro.character.CreateCharacterRequest": {
-        "properties": {
-          "dimensionId": {
-            "type": "string"
-          },
-          "gender": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "ownerId": {
-            "type": "string"
-          },
-          "realm": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "sro.character.EditCharacterRequest": {
-        "properties": {
-          "character": {
-            "properties": {
-              "createdAt": {
-                "format": "int64",
-                "type": "integer",
-                "x-kubernetes-int-or-string": true
-              },
-              "deletedAt": {
-                "format": "int64",
-                "type": "integer",
-                "x-kubernetes-int-or-string": true
-              },
-              "dimensionId": {
-                "type": "string"
-              },
-              "gender": {
-                "type": "string"
-              },
-              "id": {
-                "type": "string"
-              },
-              "location": {
-                "properties": {
-                  "pitch": {
-                    "type": "number"
-                  },
-                  "roll": {
-                    "type": "number"
-                  },
-                  "world": {
-                    "type": "string"
-                  },
-                  "x": {
-                    "type": "number"
-                  },
-                  "y": {
-                    "type": "number"
-                  },
-                  "yaw": {
-                    "type": "number"
-                  },
-                  "z": {
-                    "type": "number"
-                  }
-                },
-                "type": "object"
-              },
-              "name": {
-                "type": "string"
-              },
-              "ownerId": {
-                "type": "string"
-              },
-              "playTime": {
-                "format": "int32",
-                "type": "integer"
-              },
-              "realm": {
-                "type": "string"
-              },
-              "updatedAt": {
-                "format": "int64",
-                "type": "integer",
-                "x-kubernetes-int-or-string": true
-              }
-            },
-            "type": "object"
-          },
-          "mask": {
-            "properties": {
-              "paths": {
-                "description": "The set of field mask paths.",
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              }
-            },
-            "type": "object"
-          }
-        },
-        "type": "object"
-      },
-      "sro.character.GetCharacterRequest": {
+      "sro.character.Item": {
         "properties": {
           "id": {
-            "type": "string"
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
           },
-          "mask": {
-            "properties": {
-              "paths": {
-                "description": "The set of field mask paths.",
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              }
-            },
-            "type": "object"
-          }
-        },
-        "type": "object"
-      },
-      "sro.character.GetCharactersRequest": {
-        "properties": {
-          "filters": {
-            "properties": {
-              "limit": {
-                "format": "int32",
-                "type": "integer"
-              },
-              "offset": {
-                "format": "int32",
-                "type": "integer"
-              }
-            },
-            "type": "object"
+          "quantity": {
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
           },
-          "mask": {
-            "properties": {
-              "paths": {
-                "description": "The set of field mask paths.",
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              }
-            },
-            "type": "object"
-          }
-        },
-        "type": "object"
-      },
-      "sro.character.GetUserCharactersRequest": {
-        "properties": {
-          "filters": {
-            "properties": {
-              "limit": {
-                "format": "int32",
-                "type": "integer"
-              },
-              "offset": {
-                "format": "int32",
-                "type": "integer"
-              }
-            },
-            "type": "object"
-          },
-          "mask": {
-            "properties": {
-              "paths": {
-                "description": "The set of field mask paths.",
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              }
-            },
-            "type": "object"
-          },
-          "ownerId": {
-            "type": "string"
+          "slot": {
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
           }
         },
         "type": "object"

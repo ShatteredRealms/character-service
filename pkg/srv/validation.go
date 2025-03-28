@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (c *characterServiceServer) validateUserPermissions(ctx context.Context, ownerId string, selfRole, otherRole *gocloak.Role) error {
+func (c *CharacterContext) validateUserPermissions(ctx context.Context, ownerId string, selfRole, otherRole *gocloak.Role) error {
 	claims, ok := auth.RetrieveClaims(ctx)
 	if !ok {
 		return commonsrv.ErrPermissionDenied
@@ -28,7 +28,7 @@ func (c *characterServiceServer) validateUserPermissions(ctx context.Context, ow
 	return nil
 }
 
-func (c *characterServiceServer) validateCharacterPermissions(ctx context.Context, characterId string, selfRole, otherRole *gocloak.Role) (*character.Character, error) {
+func (c *CharacterContext) validateCharacterPermissions(ctx context.Context, characterId string, selfRole, otherRole *gocloak.Role) (*character.Character, error) {
 	claims, ok := auth.RetrieveClaims(ctx)
 	if !ok {
 		return nil, commonsrv.ErrPermissionDenied
@@ -43,7 +43,7 @@ func (c *characterServiceServer) validateCharacterPermissions(ctx context.Contex
 		return nil, status.Error(codes.InvalidArgument, ErrCharacterIdInvalid.Error())
 	}
 
-	character, err := c.Context.CharacterService.GetCharacterById(ctx, &id)
+	character, err := c.CharacterService.GetCharacterById(ctx, &id)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
@@ -60,7 +60,7 @@ func (c *characterServiceServer) validateCharacterPermissions(ctx context.Contex
 	return character, nil
 }
 
-func (c *characterServiceServer) validateRole(ctx context.Context, role *gocloak.Role) error {
+func (c *CharacterContext) validateRole(ctx context.Context, role *gocloak.Role) error {
 	claims, ok := auth.RetrieveClaims(ctx)
 	if !ok {
 		return commonsrv.ErrPermissionDenied
@@ -71,8 +71,8 @@ func (c *characterServiceServer) validateRole(ctx context.Context, role *gocloak
 	return nil
 }
 
-func (c *characterServiceServer) getDimension(ctx context.Context, dimensionId string) (*dimensionbus.Dimension, error) {
-	dimension, err := c.Context.DimensionService.GetDimensionById(ctx, dimensionId)
+func (c *CharacterContext) getDimension(ctx context.Context, dimensionId string) (*dimensionbus.Dimension, error) {
+	dimension, err := c.DimensionService.GetDimensionById(ctx, dimensionId)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrDimensionLookup, err)
 		return nil, status.Error(codes.Internal, ErrDimensionLookup.Error())

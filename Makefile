@@ -38,7 +38,7 @@ time=$(shell date +%s)
 
 PROTO_DIR=$(ROOT_DIR)/api
 
-PROTO_FILES = "$(PROTO_DIR)/sro/character/character.proto"
+PROTO_FILES = "$(PROTO_DIR)/sro/character/character.proto" "$(PROTO_DIR)/sro/character/inventory.proto"
 
 MOCK_INTERFACES = $(shell egrep -rl --include="*.go" "type (\w*) interface {" $(ROOT_DIR)/pkg | sed "s/.go$$//")
 
