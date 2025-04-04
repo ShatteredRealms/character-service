@@ -26,9 +26,9 @@ type CharacterContext struct {
 	DimensionService dimensionbus.Service
 }
 
-func NewCharacterContext(ctx context.Context) (*CharacterContext, error) {
+func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig) (*CharacterContext, error) {
 	characterCtx := &CharacterContext{
-		Context:            commonsrv.NewContext(&config.GlobalConfig.BaseConfig, config.ServiceName),
+		Context:            commonsrv.NewContext(&cfg.BaseConfig, config.ServiceName),
 		CharacterBusWriter: bus.NewKafkaMessageBusWriter(config.GlobalConfig.BaseConfig.Kafka, characterbus.Message{}),
 	}
 	ctx, span := characterCtx.Tracer.Start(ctx, "context.character.new")
@@ -39,7 +39,13 @@ func NewCharacterContext(ctx context.Context) (*CharacterContext, error) {
 		return nil, fmt.Errorf("connect db: %w", err)
 	}
 
-	migrater, err := commonrepo.NewPgxMigrater(ctx, config.GlobalConfig.Postgres.PostgresDSN(), config.GlobalConfig.MigrationPath)
+	shouldMigrate := cfg.Mode != cconfig.ModeProduction
+	migrater, err := commonrepo.NewPgxMigrater(
+		ctx,
+		config.GlobalConfig.Postgres.PostgresDSN(),
+		config.GlobalConfig.MigrationPath,
+		shouldMigrate,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("postgres migrater: %w", err)
 	}
