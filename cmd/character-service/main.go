@@ -36,9 +36,9 @@ func main() {
 		log.Logger.WithContext(ctx).Errorf("loading config: %v", config.GlobalConfigErr)
 		return
 	}
-	cfg := config.GlobalConfig
 
-	srvCtx, err := srv.NewCharacterContext(ctx)
+	cfg := config.GlobalConfig
+	srvCtx, err := srv.NewCharacterContext(ctx, cfg)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("creating character context: %v", err)
 		return
