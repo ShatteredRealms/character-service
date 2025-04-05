@@ -51,7 +51,7 @@ func main() {
 	log.Logger.WithContext(ctx).Infof("Starting %s service", config.ServiceName)
 
 	// OpenTelemetry setup
-	otelShutdown, err := telemetry.SetupOTelSDK(ctx, "character", config.Version, cfg.OpenTelemtryAddress)
+	otelShutdown, err := telemetry.SetupOTelSDK(ctx, "character", config.Version, cfg.OpenTelemetryAddress)
 	defer otelShutdown(ctx)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("connecting to otel: %v", err)

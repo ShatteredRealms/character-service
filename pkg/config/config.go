@@ -38,9 +38,9 @@ func NewCharacterConfig(ctx context.Context) (*CharacterConfig, error) {
 				ClientId:     "sro-character-service",
 				ClientSecret: "**********",
 			},
-			Mode:                "local",
-			LogLevel:            logrus.InfoLevel,
-			OpenTelemtryAddress: "localhost:4317",
+			Mode:                 "local",
+			LogLevel:             logrus.InfoLevel,
+			OpenTelemetryAddress: "localhost:4317",
 			Kafka: cconfig.ServerAddresses{
 				{
 					Host: "localhost",

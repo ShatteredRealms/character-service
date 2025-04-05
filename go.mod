@@ -7,7 +7,7 @@ toolchain go1.24.1
 require (
 	ariga.io/atlas-provider-gorm v0.5.1
 	github.com/ShatteredRealms/gamedata-service v0.1.0
-	github.com/ShatteredRealms/go-common-service v0.10.0
+	github.com/ShatteredRealms/go-common-service v0.10.1
 	github.com/WilSimpson/gocloak/v13 v13.11.3
 	github.com/go-faker/faker/v4 v4.6.0
 	github.com/golang-migrate/migrate/v4 v4.18.2
