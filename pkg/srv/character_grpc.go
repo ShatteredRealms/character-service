@@ -205,12 +205,8 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 
 	changeMap := make(map[string]interface{})
 	mask, err := fieldmask_util.MaskFromProtoFieldMask(request.Mask, util.PascalCase)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-	err = fieldmask_util.StructToMap(mask, request.Character, changeMap)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+	for path := range mask {
+		changeMap[path] = struct{}{}
 	}
 
 	publishChanges := false
