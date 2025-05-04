@@ -8,8 +8,9 @@ import (
 
 	"github.com/ShatteredRealms/character-service/pkg/pb"
 	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/profession"
 	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
-	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
+	"github.com/ShatteredRealms/go-common-service/pkg/model/game"
 	"github.com/ShatteredRealms/go-common-service/pkg/util"
 	goaway "github.com/TwiN/go-away"
 	"github.com/google/uuid"
@@ -48,11 +49,12 @@ type Character struct {
 	DeletedAt *time.Time `db:"deleted_at" json:"deletedAt" mapstructure:"deleted_at"`
 
 	// Owner The account that owns the character
-	OwnerId     uuid.UUID     `db:"owner_id" json:"ownerId" mapstructure:"owner_id"`
-	Name        string        `db:"name" json:"name" mapstructure:"name"`
-	Gender      gender.Gender `db:"gender" json:"gender" mapstructure:"gender"`
-	Realm       realm.Realm   `db:"realm" json:"realm" mapstructure:"realm"`
-	DimensionId uuid.UUID     `db:"dimension_id" json:"dimensionId" mapstructure:"dimension_id"`
+	OwnerId     uuid.UUID             `db:"owner_id" json:"ownerId" mapstructure:"owner_id"`
+	Name        string                `db:"name" json:"name" mapstructure:"name"`
+	Gender      gender.Gender         `db:"gender" json:"gender" mapstructure:"gender"`
+	Realm       realm.Realm           `db:"realm" json:"realm" mapstructure:"realm"`
+	Profession  profession.Profession `db:"profession" json:"profession" mapstructure:"profession"`
+	DimensionId uuid.UUID             `db:"dimension_id" json:"dimensionId" mapstructure:"dimension_id"`
 
 	// PlayTime Time in seconds the character has played
 	PlayTime int32 `db:"play_time" json:"playTime" mapstructure:"play_time"`
@@ -60,7 +62,7 @@ type Character struct {
 	// SkillStats map[skills.SkillName]int
 
 	// Location last location recorded for the character
-	commongame.Location `json:"location" mapstructure:",squash"`
+	game.Location `json:"location" mapstructure:",squash"`
 }
 type Characters []*Character
 
@@ -82,7 +84,16 @@ func (c *Character) Validate() error {
 		return err
 	}
 
+	if err := c.ValidateProfession(); err != nil {
+		return err
+	}
+
 	return c.ValidateName()
+}
+
+func (c *Character) ValidateProfession() error {
+	_, err := profession.FromString(string(c.Profession))
+	return err
 }
 
 func (c *Character) ValidateName() error {

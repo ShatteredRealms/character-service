@@ -56,7 +56,8 @@ func (p *pgxCharacterRepository) CreateCharacter(ctx context.Context, newCharact
 			z,
 			roll,
 			pitch,
-			yaw
+			yaw,
+			profession
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
 		newCharacter.OwnerId,
 		newCharacter.DimensionId,
@@ -70,6 +71,7 @@ func (p *pgxCharacterRepository) CreateCharacter(ctx context.Context, newCharact
 		newCharacter.Location.Roll,
 		newCharacter.Location.Pitch,
 		newCharacter.Location.Yaw,
+		newCharacter.Profession,
 	)
 	outCharacter, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[character.Character])
 	if err != nil {
