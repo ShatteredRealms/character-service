@@ -60,6 +60,15 @@ func (c *characterService) CreateCharacter(
 	if err != nil {
 		return nil, err
 	}
+
+	_, count, err := c.GetCharactersByOwner(ctx, ownerId)
+	if err != nil {
+		return nil, err
+	}
+	if count >= 10 {
+		return nil, errors.New("too many characters")
+	}
+
 	character := &character.Character{
 		Name:        name,
 		OwnerId:     ownerIdUUID,
