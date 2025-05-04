@@ -58,7 +58,7 @@ func (p *pgxCharacterRepository) CreateCharacter(ctx context.Context, newCharact
 			pitch,
 			yaw,
 			profession
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
 		newCharacter.OwnerId,
 		newCharacter.DimensionId,
 		newCharacter.Name,
