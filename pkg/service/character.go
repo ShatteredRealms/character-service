@@ -7,6 +7,7 @@ import (
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/repository"
 	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/profession"
 	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
 	"github.com/google/uuid"
 )
@@ -22,7 +23,7 @@ type CharacterService interface {
 
 	GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
-	CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, dimensionId *uuid.UUID) (*character.Character, error)
+	CreateCharacter(ctx context.Context, ownerId, name, gender, realm string, profession string, dimensionId *uuid.UUID) (*character.Character, error)
 
 	DeleteCharacter(ctx context.Context, characterId *uuid.UUID) (*character.Character, error)
 
@@ -52,6 +53,7 @@ func (c *characterService) CreateCharacter(
 	name string,
 	genderStr string,
 	realmStr string,
+	professionStr string,
 	dimensionId *uuid.UUID,
 ) (*character.Character, error) {
 	ownerIdUUID, err := uuid.Parse(ownerId)
@@ -63,6 +65,7 @@ func (c *characterService) CreateCharacter(
 		OwnerId:     ownerIdUUID,
 		Gender:      gender.Gender(genderStr),
 		Realm:       realm.Realm(realmStr),
+		Profession:  profession.Profession(professionStr),
 		DimensionId: *dimensionId,
 	}
 

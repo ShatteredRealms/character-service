@@ -157,7 +157,7 @@ func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 		return nil, err
 	}
 
-	character, err := s.Context.CharacterService.CreateCharacter(ctx, request.OwnerId, request.Name, request.Gender, request.Realm, &dimension.Id)
+	character, err := s.Context.CharacterService.CreateCharacter(ctx, request.OwnerId, request.Name, request.Gender, request.Realm, request.Profession, &dimension.Id)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterCreate, err)
 		return nil, status.Error(codes.Internal, ErrCharacterCreate.Error())
