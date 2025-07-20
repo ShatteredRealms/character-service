@@ -139,6 +139,7 @@ func (c *Character) ToPb() *pb.Character {
 		Name:        c.Name,
 		Gender:      string(c.Gender),
 		Realm:       string(c.Realm),
+		Profession:  string(c.Profession),
 		PlayTime:    c.PlayTime,
 		Location:    c.Location.ToPb(),
 		DimensionId: c.DimensionId.String(),

@@ -107,7 +107,7 @@ func main() {
 	}
 
 	// Setup Complete
-	log.Logger.WithContext(ctx).Info("Initializtion complete")
+	log.Logger.WithContext(ctx).Info("Initialization complete")
 	span.End()
 	srv, srvErr := util.StartServer(ctx, grpcServer, gwmux, cfg.Server.Address())
 	defer srv.Shutdown(ctx)
