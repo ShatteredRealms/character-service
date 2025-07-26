@@ -38,19 +38,10 @@ func (c *CharacterContext) validateCharacterPermissions(ctx context.Context, cha
 		return nil, commonsrv.ErrPermissionDenied
 	}
 
-	id, err := uuid.Parse(characterId)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, ErrCharacterIdInvalid.Error())
-	}
-
-	character, err := c.CharacterService.GetCharacterById(ctx, &id)
+	character, err := c.getCharacterById(ctx, characterId)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
 		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
-	}
-
-	if character == nil {
-		return nil, status.Error(codes.NotFound, ErrCharacterDoesNotExist.Error())
 	}
 
 	if claims.Subject != character.OwnerId.String() && !claims.HasResourceRole(otherRole, c.Context.Config.Keycloak.ClientId) {
@@ -81,4 +72,22 @@ func (c *CharacterContext) getDimension(ctx context.Context, dimensionId string)
 		return nil, status.Error(codes.InvalidArgument, ErrDimensionNotExist.Error())
 	}
 	return dimension, nil
+}
+
+func (c *CharacterContext) getCharacterById(ctx context.Context, characterId string) (*character.Character, error) {
+	id, err := uuid.Parse(characterId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, ErrCharacterIdInvalid.Error())
+	}
+
+	character, err := c.CharacterService.GetCharacterById(ctx, &id)
+	if err != nil {
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
+		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
+	}
+
+	if character == nil {
+		return nil, status.Error(codes.NotFound, ErrCharacterDoesNotExist.Error())
+	}
+	return character, nil
 }
