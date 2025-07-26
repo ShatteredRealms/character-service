@@ -41,11 +41,10 @@ type characterServiceServer struct {
 	Context *CharacterContext
 }
 
-func NewCharacterServiceServer(ctx context.Context, srvCtx *CharacterContext) (pb.CharacterServiceServer, error) {
-	s := &characterServiceServer{
+func NewCharacterServiceServer(ctx context.Context, srvCtx *CharacterContext) pb.CharacterServiceServer {
+	return &characterServiceServer{
 		Context: srvCtx,
 	}
-	return s, nil
 }
 
 // AddCharacterPlayTime implements pb.CharacterServiceServer.

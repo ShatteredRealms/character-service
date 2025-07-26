@@ -14,8 +14,10 @@ import (
 	mock_repository "github.com/ShatteredRealms/character-service/pkg/repository/mocks"
 	"github.com/ShatteredRealms/character-service/pkg/service"
 	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/profession"
 	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
 	cgame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
+	"github.com/ShatteredRealms/go-common-service/pkg/pb"
 )
 
 var _ = Describe("CharacterS", func() {
@@ -35,6 +37,7 @@ var _ = Describe("CharacterS", func() {
 			Name:        faker.Username(),
 			Gender:      gender.Male,
 			Realm:       realm.Human,
+			Profession:  profession.Necromancer,
 			DimensionId: dimensionId,
 			PlayTime:    rand.Int32(),
 			Location: cgame.Location{
@@ -70,10 +73,10 @@ var _ = Describe("CharacterS", func() {
 
 	Describe("CreateCharacter", func() {
 		Context("failure", func() {
-			It("should fail if the character name is to short", func() {
+			It("should fail if the character name is one character", func() {
 				c.Name = faker.Username()[:0]
 			})
-			It("should fail if the character name is to short", func() {
+			It("should fail if the character name is two characters", func() {
 				c.Name = faker.Username()[:1]
 			})
 			It("should fail if the character name is to long", func() {
@@ -86,14 +89,18 @@ var _ = Describe("CharacterS", func() {
 				repo.EXPECT().CreateCharacter(gomock.Any(), gomock.Any()).Return(nil, errors.New("repo"))
 			})
 			AfterEach(func(ctx SpecContext) {
-				outC, err := svc.CreateCharacter(ctx, c.OwnerId.String(), c.Name, string(c.Gender), string(c.Realm), &c.DimensionId)
+				var filters *pb.QueryFilters
+				repo.EXPECT().GetCharacters(gomock.Eq(ctx), gomock.Eq(map[string]any{"owner_id": c.OwnerId}), gomock.Eq(filters), gomock.Eq(false)).Times(1).Return(character.Characters{c}, 1, nil)
+				outC, err := svc.CreateCharacter(ctx, c.OwnerId.String(), c.Name, string(c.Gender), string(c.Realm), string(c.Profession), &c.DimensionId)
 				Expect(err).To(HaveOccurred())
 				Expect(outC).To(BeNil())
 			})
 		})
 		It("should create a character if it is valid", func(ctx SpecContext) {
+			var filters *pb.QueryFilters
 			repo.EXPECT().CreateCharacter(gomock.Eq(ctx), gomock.Any()).Return(c, nil)
-			outC, err := svc.CreateCharacter(ctx, c.OwnerId.String(), c.Name, string(c.Gender), string(c.Realm), &c.DimensionId)
+			repo.EXPECT().GetCharacters(gomock.Eq(ctx), gomock.Eq(map[string]any{"owner_id": c.OwnerId}), gomock.Eq(filters), gomock.Eq(false)).Times(1).Return(character.Characters{c}, 1, nil)
+			outC, err := svc.CreateCharacter(ctx, c.OwnerId.String(), c.Name, string(c.Gender), string(c.Realm), string(c.Profession), &c.DimensionId)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outC).NotTo(BeNil())
 			Expect(outC).To(Equal(c))
@@ -123,8 +130,10 @@ var _ = Describe("CharacterS", func() {
 			})
 		})
 		It("should create a character if it is valid", func(ctx SpecContext) {
+			var filters *pb.QueryFilters
 			repo.EXPECT().CreateCharacter(gomock.Eq(ctx), gomock.Any()).Return(c, nil)
-			outC, err := svc.CreateCharacter(ctx, c.OwnerId.String(), c.Name, string(c.Gender), string(c.Realm), &c.DimensionId)
+			repo.EXPECT().GetCharacters(gomock.Eq(ctx), gomock.Eq(map[string]any{"owner_id": c.OwnerId}), gomock.Eq(filters), gomock.Eq(false)).Times(1).Return(character.Characters{c}, 1, nil)
+			outC, err := svc.CreateCharacter(ctx, c.OwnerId.String(), c.Name, string(c.Gender), string(c.Realm), string(c.Profession), &c.DimensionId)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(outC).NotTo(BeNil())
 			Expect(outC).To(Equal(c))

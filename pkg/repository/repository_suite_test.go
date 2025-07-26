@@ -93,7 +93,7 @@ func TestRepository(t *testing.T) {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(mdb).NotTo(BeNil())
 
-		migrater, err = crepository.NewPgxMigrater(ctx, data.PostgresConfig.PostgresDSN(), "../../migrations")
+		migrater, err = crepository.NewPgxMigrater(ctx, data.PostgresConfig.PostgresDSN(), "../../migrations", true)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(migrater).NotTo(BeNil())
 	})

@@ -103,7 +103,7 @@ func (c *characterService) EditCharacter(ctx context.Context, character *charact
 
 // GetCharacterById implements CharacterService.
 func (c *characterService) GetCharacterById(ctx context.Context, characterId *uuid.UUID) (*character.Character, error) {
-	return c.repo.GetCharacter(ctx, map[string]interface{}{"id": characterId})
+	return c.repo.GetCharacter(ctx, map[string]any{"id": characterId})
 }
 
 // GetCharacters implements CharacterService.
@@ -122,5 +122,5 @@ func (c *characterService) GetCharactersByOwner(ctx context.Context, ownerId str
 	if err != nil {
 		return nil, -1, ErrInvalidOwnerId
 	}
-	return c.repo.GetCharacters(ctx, map[string]interface{}{"owner_id": id}, nil, false)
+	return c.repo.GetCharacters(ctx, map[string]any{"owner_id": id}, nil, false)
 }

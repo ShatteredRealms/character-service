@@ -34,7 +34,7 @@ var _ = Describe("NewCharacterConfig", func() {
 		Expect(cfg.Keycloak.ClientId).NotTo(BeEmpty())
 		Expect(cfg.Keycloak.ClientSecret).NotTo(BeEmpty())
 		Expect(cfg.Mode).NotTo(BeEmpty())
-		Expect(cfg.OpenTelemtryAddress).NotTo(BeEmpty())
+		Expect(cfg.OpenTelemetryAddress).NotTo(BeEmpty())
 		Expect(cfg.Kafka).NotTo(BeEmpty())
 		Expect(cfg.Postgres.Name).NotTo(ContainSubstring("-"))
 		Expect(cfg.Postgres.Host).NotTo(BeEmpty())
@@ -53,7 +53,7 @@ var _ = Describe("NewCharacterConfig", func() {
 
 	It("should read from a config file", func() {
 		randStr := faker.Username() + "a"
-		cfgData := []byte(fmt.Sprintf("keycloak:\n  realm: %s\nserver:\n  host: %s", randStr, randStr))
+		cfgData := fmt.Appendf(nil, "keycloak:\n  realm: %s\nserver:\n  host: %s", randStr, randStr)
 		Expect(os.WriteFile("sro-character.yaml", cfgData, 0644)).To(Succeed())
 		defer os.Remove("sro-character.yaml")
 		cfg2, err := config.NewCharacterConfig(nil)

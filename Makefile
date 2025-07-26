@@ -81,10 +81,17 @@ report-watch:
 
 dev-watch: test-watch report-watch
 
-mocks: $(MOCK_INTERFACES)
+clean-mocks:
+	@dirs=$$(for f in $(MOCK_INTERFACES); do dirname "$$f"; done | sort -u); \
+	for d in $$dirs; do \
+		echo "Removing $$d/mocks"; \
+		rm -rf "$$d/mocks"; \
+	done
+
+mocks: clean-mocks $(MOCK_INTERFACES)
 $(MOCK_INTERFACES):
-	rm -rf "$(@D)/mocks"
-	mockgen \
+	@echo "Generating mocks for $@"
+	@mockgen \
 		-source="$@.go" \
 		-destination="$(@D)/mocks/$(@F).go"
 
