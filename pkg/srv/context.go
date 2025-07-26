@@ -5,14 +5,19 @@ import (
 	"fmt"
 
 	"github.com/ShatteredRealms/character-service/pkg/config"
+	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/repository"
 	"github.com/ShatteredRealms/character-service/pkg/service"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/character/characterbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/gameserver/dimensionbus"
 	cconfig "github.com/ShatteredRealms/go-common-service/pkg/config"
+	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	commonrepo "github.com/ShatteredRealms/go-common-service/pkg/repository"
 	commonsrv "github.com/ShatteredRealms/go-common-service/pkg/srv"
+	"github.com/google/uuid"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type CharacterContext struct {
@@ -64,6 +69,36 @@ func NewCharacterContext(ctx context.Context, cfg *config.CharacterConfig) (*Cha
 	)
 
 	return characterCtx, nil
+}
+
+func (c *CharacterContext) getDimension(ctx context.Context, dimensionId string) (*dimensionbus.Dimension, error) {
+	dimension, err := c.DimensionService.GetDimensionById(ctx, dimensionId)
+	if err != nil {
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrDimensionLookup, err)
+		return nil, status.Error(codes.Internal, ErrDimensionLookup.Error())
+	}
+	if dimension == nil {
+		return nil, status.Error(codes.InvalidArgument, ErrDimensionNotExist.Error())
+	}
+	return dimension, nil
+}
+
+func (c *CharacterContext) getCharacterById(ctx context.Context, characterId string) (*character.Character, error) {
+	id, err := uuid.Parse(characterId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, ErrCharacterIdInvalid.Error())
+	}
+
+	character, err := c.CharacterService.GetCharacterById(ctx, &id)
+	if err != nil {
+		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
+		return nil, status.Error(codes.Internal, ErrCharacterGet.Error())
+	}
+
+	if character == nil {
+		return nil, status.Error(codes.NotFound, ErrCharacterDoesNotExist.Error())
+	}
+	return character, nil
 }
 
 func (c *CharacterContext) Close() {
