@@ -4,92 +4,21 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ShatteredRealms/character-service/pkg/config"
 	"github.com/ShatteredRealms/character-service/pkg/model/character"
 	"github.com/ShatteredRealms/character-service/pkg/pb"
 	"github.com/ShatteredRealms/gamedata-service/pkg/model/gender"
+	"github.com/ShatteredRealms/gamedata-service/pkg/model/profession"
 	"github.com/ShatteredRealms/gamedata-service/pkg/model/realm"
 	"github.com/ShatteredRealms/go-common-service/pkg/bus/character/characterbus"
 	"github.com/ShatteredRealms/go-common-service/pkg/log"
 	commongame "github.com/ShatteredRealms/go-common-service/pkg/model/game"
 	commonpb "github.com/ShatteredRealms/go-common-service/pkg/pb"
 	"github.com/ShatteredRealms/go-common-service/pkg/util"
-	"github.com/WilSimpson/gocloak/v13"
 	"github.com/google/uuid"
 	fieldmask_util "github.com/mennanov/fieldmask-utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-)
-
-var (
-	CharacterRoles = make([]*gocloak.Role, 0)
-
-	RolePlaytime = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("character.playtime"),
-		Description: gocloak.StringP("Allows modifying playtime of characters"),
-	}, &CharacterRoles)
-
-	RoleGetCharactersSelf = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("characters.get.self"),
-		Description: gocloak.StringP("Allows getting a character if the user is the owner"),
-	}, &CharacterRoles)
-
-	RoleGetCharactersAll = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("character.get.all"),
-		Description: gocloak.StringP("Allows getting a character even if the user is not the owner"),
-	}, &CharacterRoles)
-
-	RoleCreateCharactersSelf = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("characters.create.self"),
-		Description: gocloak.StringP("Allows creating a character that the user will owner"),
-	}, &CharacterRoles)
-
-	RoleCreateCharactersAll = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("character.create.all"),
-		Description: gocloak.StringP("Allows creating a character even if the owner is not the user"),
-	}, &CharacterRoles)
-
-	RoleDeleteCharactersSelf = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("characters.delete.self"),
-		Description: gocloak.StringP("Allows deleting a character if the requester is the owner"),
-	}, &CharacterRoles)
-
-	RoleDeleteCharactersAll = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("character.delete.all"),
-		Description: gocloak.StringP("Allows deleting a character even if the user is not the owner"),
-	}, &CharacterRoles)
-
-	RoleEditCharacter = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("character.edit"),
-		Description: gocloak.StringP("Allows editing any characters details except playtime"),
-	}, &CharacterRoles)
-)
-
-var (
-	CompositeCharacterRoles = make([]*gocloak.Role, 0)
-
-	RoleManageCharactersSelf = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("characters.manage.self"),
-		Description: gocloak.StringP("Allows managing a character if the user is the owner"),
-		Composite:   gocloak.BoolP(true),
-		Composites: &gocloak.CompositesRepresentation{
-			Client: &map[string][]string{
-				config.GlobalConfig.Keycloak.ClientId: {"characters.get.self", "characters.create.self", "characters.delete.self"},
-			},
-		},
-	}, &CompositeCharacterRoles)
-
-	RoleManageCharactersAll = util.RegisterRole(&gocloak.Role{
-		Name:        gocloak.StringP("characters.manage.all"),
-		Description: gocloak.StringP("Allows managing a character even if the user is not the owner and editing character details"),
-		Composite:   gocloak.BoolP(true),
-		Composites: &gocloak.CompositesRepresentation{
-			Client: &map[string][]string{
-				config.GlobalConfig.Keycloak.ClientId: {"character.get.all", "character.create.all", "character.delete.all", "character.edit"},
-			},
-		},
-	}, &CompositeCharacterRoles)
 )
 
 var (
@@ -112,25 +41,15 @@ type characterServiceServer struct {
 	Context *CharacterContext
 }
 
-func NewCharacterServiceServer(ctx context.Context, srvCtx *CharacterContext) (pb.CharacterServiceServer, error) {
-	err := srvCtx.CreateRoles(ctx, &CharacterRoles)
-	if err != nil {
-		return nil, err
-	}
-	err = srvCtx.CreateRoles(ctx, &CompositeCharacterRoles)
-	if err != nil {
-		return nil, err
-	}
-
-	s := &characterServiceServer{
+func NewCharacterServiceServer(ctx context.Context, srvCtx *CharacterContext) pb.CharacterServiceServer {
+	return &characterServiceServer{
 		Context: srvCtx,
 	}
-	return s, nil
 }
 
 // AddCharacterPlayTime implements pb.CharacterServiceServer.
 func (s *characterServiceServer) AddCharacterPlayTime(ctx context.Context, request *pb.AddPlayTimeRequest) (*emptypb.Empty, error) {
-	character, err := s.Context.validateCharacterPermissions(ctx, request.Id, RolePlaytime, RolePlaytime)
+	character, err := s.Context.getCharacterById(ctx, request.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -146,11 +65,6 @@ func (s *characterServiceServer) AddCharacterPlayTime(ctx context.Context, reque
 
 // CreateCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *pb.CreateCharacterRequest) (*pb.Character, error) {
-	err := s.Context.validateUserPermissions(ctx, request.OwnerId, RoleCreateCharactersSelf, RoleCreateCharactersAll)
-	if err != nil {
-		return nil, err
-	}
-
 	// Validate dimension exists
 	dimension, err := s.Context.getDimension(ctx, request.GetDimensionId())
 	if err != nil {
@@ -176,7 +90,7 @@ func (s *characterServiceServer) CreateCharacter(ctx context.Context, request *p
 
 // DeleteCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) DeleteCharacter(ctx context.Context, request *commonpb.TargetId) (*emptypb.Empty, error) {
-	character, err := s.Context.validateCharacterPermissions(ctx, request.Id, RoleDeleteCharactersSelf, RoleDeleteCharactersAll)
+	character, err := s.Context.getCharacterById(ctx, request.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -198,12 +112,12 @@ func (s *characterServiceServer) DeleteCharacter(ctx context.Context, request *c
 
 // EditCharacter implements pb.CharacterServiceServer.
 func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.EditCharacterRequest) (*pb.Character, error) {
-	char, err := s.Context.validateCharacterPermissions(ctx, request.Character.Id, RoleEditCharacter, RoleEditCharacter)
+	char, err := s.Context.getCharacterById(ctx, request.Character.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	changeMap := make(map[string]interface{})
+	changeMap := make(map[string]any)
 	mask, err := fieldmask_util.MaskFromProtoFieldMask(request.Mask, util.PascalCase)
 	for path := range mask {
 		changeMap[path] = struct{}{}
@@ -227,11 +141,10 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 	if val, ok := changeMap["Realm"]; ok {
 		char.Realm = val.(realm.Realm)
 	}
+	if val, ok := changeMap["Profession"]; ok {
+		char.Profession = val.(profession.Profession)
+	}
 	if val, ok := changeMap["PlayTime"]; ok {
-		err := s.Context.validateRole(ctx, RolePlaytime)
-		if err != nil {
-			return nil, err
-		}
 		char.PlayTime = val.(int32)
 	}
 	if _, ok := changeMap["Location"]; ok {
@@ -249,23 +162,6 @@ func (s *characterServiceServer) EditCharacter(ctx context.Context, request *pb.
 		}
 		char.DimensionId = dimension.Id
 		publishChanges = true
-	}
-
-	fn := func(s string) error {
-		if changeMap[s] != nil {
-			return status.Error(codes.InvalidArgument, "Cannot change "+s)
-		}
-		return nil
-	}
-
-	if err := fn("CreatedAt"); err != nil {
-		return nil, err
-	}
-	if err := fn("DeletedAt"); err != nil {
-		return nil, err
-	}
-	if err := fn("UpdatedAt"); err != nil {
-		return nil, err
 	}
 
 	editedCharacter, err := s.Context.CharacterService.EditCharacter(ctx, char)
@@ -296,12 +192,8 @@ func (s *characterServiceServer) GetCharacter(ctx context.Context, request *pb.G
 	if request.Mask != nil {
 		paths = request.Mask.Paths
 	}
-	err := s.validateMaskRequest(ctx, paths)
-	if err != nil {
-		return nil, err
-	}
 
-	character, err := s.Context.validateCharacterPermissions(ctx, request.Id, RoleGetCharactersSelf, RoleGetCharactersAll)
+	character, err := s.Context.getCharacterById(ctx, request.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -315,15 +207,6 @@ func (s *characterServiceServer) GetCharacters(ctx context.Context, request *pb.
 	if request.Mask != nil {
 		paths = request.Mask.Paths
 	}
-	err := s.validateMaskRequest(ctx, paths)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.Context.validateRole(ctx, RoleGetCharactersAll)
-	if err != nil {
-		return nil, err
-	}
 
 	characters, _, err := s.Context.CharacterService.GetCharacters(ctx)
 	if err != nil {
@@ -336,16 +219,6 @@ func (s *characterServiceServer) GetCharacters(ctx context.Context, request *pb.
 
 // GetCharactersForUser implements pb.CharacterServiceServer.
 func (s *characterServiceServer) GetCharactersForUser(ctx context.Context, request *pb.GetUserCharactersRequest) (*pb.Characters, error) {
-	err := s.validateMaskRequest(ctx, request.Mask.Paths)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.Context.validateUserPermissions(ctx, request.OwnerId, RoleGetCharactersSelf, RoleGetCharactersAll)
-	if err != nil {
-		return nil, err
-	}
-
 	characters, _, err := s.Context.CharacterService.GetCharactersByOwner(ctx, request.OwnerId)
 	if err != nil {
 		log.Logger.WithContext(ctx).Errorf("code %v: %v", ErrCharacterGet, err)
@@ -353,18 +226,4 @@ func (s *characterServiceServer) GetCharactersForUser(ctx context.Context, reque
 	}
 
 	return characters.ToPb(), nil
-}
-
-func (s *characterServiceServer) validateMaskRequest(ctx context.Context, paths []string) error {
-	if len(paths) == 0 {
-		return s.Context.validateRole(ctx, RoleEditCharacter)
-	}
-
-	for _, path := range paths {
-		if path == "play_time" || path == "updated_at" || path == "location" {
-			return s.Context.validateRole(ctx, RoleEditCharacter)
-		}
-	}
-
-	return nil
 }
